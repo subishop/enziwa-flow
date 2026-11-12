@@ -281,8 +281,9 @@ function drawBottle(set,j,alpha){ // soft contact shadow, then the see-through b
   fc.drawImage(b,r[0],r[1],r[2],r[3]);
   fc.globalAlpha=1;
 }
-function grow(p){return 1+1.6*ease(rng(p,0.80,1))}
-function fill(p){return ease(rng(p,0.85,1))}
+var MIST_MAX=0.8;   // overall strength of the white mist: a veil over the colour, not a sheet
+function grow(p){return 1+1.6*ease(rng(p,0.45,0.85))}   // the reveal finishes a little sooner now the mist leaves earlier
+function fill(p){return ease(rng(p,0.55,0.85))}
 function drawBase(i){ if(i>0) fc.drawImage(SC[i-1],0,0,W,H); else { fc.fillStyle=CREAM; fc.fillRect(0,0,W,H); } }
 function drawReveal(i,p){
   var mi=pick(MASK[i],Math.round(p*(SQ.mask-1))); if(!mi) return;
@@ -299,7 +300,8 @@ function drawReveal(i,p){
 }
 function drawMistLayer(i,p){
   var wi=pick(MIST[i],Math.round(p*(SQ.mist-1))); if(!wi) return;
-  var r=frameRect(MS), a=1-ease(rng(p,0.72,1));   // the clip's last haze thins away so the scene ends clean
+  // full only through the soft rolling cloud; as the clip breaks into thin streaks (about 40% in) the mist fades to a faint veil, then away
+  var r=frameRect(MS), a=MIST_MAX*(1-0.8*ease(rng(p,0.38,0.58)))*(1-ease(rng(p,0.58,0.80)));
   if(a<=0.001) return;
   fc.globalCompositeOperation="screen"; fc.globalAlpha=a;   // white mist filmed on black: screen lays it over any colour
   fc.drawImage(wi,r[0],r[1],r[2],r[3]);
@@ -337,6 +339,7 @@ function frame(time){
   }
   if(sp.state==="play"){
     sp.p+=RM?1:dt/SPRAY_S*(t>=T.cap0?FAST:1);
+    if(window.__freezeP!=null) sp.p=window.__freezeP;   // test hook: hold the spray at a set point
     if(sp.p>=1){ sp.p=1; sp.state="done"; }
   } else if(sp.state==="fade"){
     sp.fade-=dt/FADE_S; if(sp.fade<=0){ sp.fade=0; sp.state="idle"; sp.p=0; }
