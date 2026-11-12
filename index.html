@@ -152,15 +152,16 @@ var FADE_S=0.5;           // newer scene and mist fade back when scrolling above
 var SEG=4, START=1, TOTAL=START+SEG*BL.length; // in stage heights
 var H=1, W=1, dpr=1;
 
-// assets in img/spray2: shared Blender bottle frames (x = multiply layer, xh = screen highlight layer, xp = opaque parts drawn normally), per blend mist (w_) and reveal masks (m_)
-var SQ={w:854, h:480, cx:427, base:436, capTop:50, nozY:220, spin:30, lift:27, down:21, out:31, mist:150, mask:75};
+// assets in img/spray3: bottle frames with a see-through background (b*), and per clip the mist filmed on black (w_, drawn with screen) and reveal masks (m_)
+var SQ={w:854, h:480, cx:427, base:436, capTop:50, nozY:220, spin:30, lift:27, down:21, out:30, mist:150, mask:75};
+var CLIPK=["k8","k8","k8"];   // which black clip each blend uses (one test clip for now)
 function pad(n,k){return ("000"+n).slice(-k)}
-function imgs(pre,n,k,ext){var a=[];for(var j=0;j<n;j++){var im=new Image();im.decoding="async";im.src="img/spray2/"+pre+pad(j,k)+ext;a.push(im)}return a}
-function pair(p,n){return {m:imgs(p+"_",n,2,".jpg"), h:imgs(p+"h_",n,2,".jpg"), o:imgs(p+"p_",n,2,".webp")}}
-var SPIN=pair("s",SQ.spin), LIFT=pair("l",SQ.lift), DOWN=pair("d",SQ.down), OUTS=pair("o",SQ.out);
+function imgs(pre,n,k,ext){var a=[];for(var j=0;j<n;j++){var im=new Image();im.decoding="async";im.src="img/spray3/"+pre+pad(j,k)+ext;a.push(im)}return a}
+function one(p,n){return imgs("b"+p+"_",n,2,".webp")}
+var SPIN=one("s",SQ.spin), LIFT=one("l",SQ.lift), DOWN=one("d",SQ.down), OUTS=one("o",SQ.out);
 // per blend mist and masks load on demand: the current blend and the next one
 var MIST=BL.map(function(){return []}), MASK=BL.map(function(){return []});
-function ensure(j){ if(j<BL.length && !MIST[j].length){ MASK[j]=imgs(BL[j].n+"/m_",SQ.mask,2,".png"); MIST[j]=imgs(BL[j].n+"/w_",SQ.mist,3,".webp"); } }
+function ensure(j){ if(j<BL.length && !MIST[j].length){ MASK[j]=imgs(CLIPK[j]+"/m_",SQ.mask,2,".png"); MIST[j]=imgs(CLIPK[j]+"/w_",SQ.mist,3,".jpg"); } }
 function ok(im){return im && im.complete && im.naturalWidth>0}
 function pick(arr,j){if(!arr.length) return null; j=Math.max(0,Math.min(arr.length-1,j)); while(j>=0 && !ok(arr[j])) j--; return j<0?null:arr[j]}
 
@@ -180,7 +181,8 @@ function size(){
   FZ.width=fx.width; FZ.height=fx.height;
   var mob=mq.matches, base=H*(mob?0.43:0.60), capT=H*(mob?0.03:0.04);
   var s=(base-capT)/(SQ.base-SQ.capTop);
-  L={s:s, x:W/2-SQ.cx*s, y:base-SQ.base*s, lift:0}; MS=mob?1.5:1;
+  L={s:s, x:W/2-SQ.cx*s, y:base-SQ.base*s, lift:0};
+  MS=Math.max(mob?1.5:1, W*1.08/(SQ.w*s));   // the mist always spans the full width, so no edge of the clip shows
   BL.forEach(function(b,j){buildScene(j)});
   key="";
 }
@@ -268,14 +270,16 @@ function frameRect(e){ // frame rect in stage px, scaled by e around the nozzle
   var w=SQ.w*L.s, h=SQ.h*L.s, px=L.x+SQ.cx*L.s, py=L.y+L.lift+SQ.nozY*L.s;
   return [px-(px-L.x)*e, py-(py-(L.y+L.lift))*e, w*e, h*e];
 }
-function drawBottle(set,j,alpha){ // multiply the cream divided frame (glass tint, shadow), screen its highlights, then the opaque cap and pump normally
-  var m=pick(set.m,j), h=pick(set.h,j), o=pick(set.o,j), r=frameRect(1);
-  if(!m||alpha<=0.001) return;
+function drawBottle(set,j,alpha){ // soft contact shadow, then the see-through bottle frame drawn normally
+  var b=pick(set,j), r=frameRect(1);
+  if(!b||alpha<=0.001) return;
   fc.globalAlpha=alpha;
-  fc.globalCompositeOperation="multiply"; fc.drawImage(m,r[0],r[1],r[2],r[3]);
-  if(h){ fc.globalCompositeOperation="screen"; fc.drawImage(h,r[0],r[1],r[2],r[3]); }
-  if(o){ fc.globalCompositeOperation="source-over"; fc.drawImage(o,r[0],r[1],r[2],r[3]); }
-  fc.globalCompositeOperation="source-over"; fc.globalAlpha=1;
+  var cx=L.x+SQ.cx*L.s, cy=L.y+L.lift+(SQ.base-2)*L.s, rw=110*L.s;
+  fc.save(); fc.translate(cx,cy); fc.scale(1,0.16);
+  var g=fc.createRadialGradient(0,0,0,0,0,rw); g.addColorStop(0,"rgba(0,0,0,.30)"); g.addColorStop(1,"rgba(0,0,0,0)");
+  fc.fillStyle=g; fc.beginPath(); fc.arc(0,0,rw,0,6.2832); fc.fill(); fc.restore();
+  fc.drawImage(b,r[0],r[1],r[2],r[3]);
+  fc.globalAlpha=1;
 }
 function grow(p){return 1+1.6*ease(rng(p,0.80,1))}
 function fill(p){return ease(rng(p,0.85,1))}
@@ -284,8 +288,9 @@ function drawReveal(i,p){
   var mi=pick(MASK[i],Math.round(p*(SQ.mask-1))); if(!mi) return;
   var E=grow(p), g=fill(p), r=frameRect(MS), re=frameRect(E*MS);
   mc.clearRect(0,0,W,H);
-  mc.drawImage(mi,r[0],r[1],r[2],r[3]);
-  if(E>1.001) mc.drawImage(mi,re[0],re[1],re[2],re[3]);
+  // masks carry half a clip height of soft margin above and below, so the reveal feathers past the clip edge
+  mc.drawImage(mi,r[0],r[1]-r[3]*0.5,r[2],r[3]*2);
+  if(E>1.001) mc.drawImage(mi,re[0],re[1]-re[3]*0.5,re[2],re[3]*2);
   if(g>0){ mc.fillStyle="rgba(0,0,0,"+g+")"; mc.fillRect(0,0,W,H); }
   ssx.globalCompositeOperation="copy"; ssx.drawImage(SC[i],0,0);
   ssx.globalCompositeOperation="destination-in"; ssx.drawImage(M,0,0);
@@ -294,7 +299,11 @@ function drawReveal(i,p){
 }
 function drawMistLayer(i,p){
   var wi=pick(MIST[i],Math.round(p*(SQ.mist-1))); if(!wi) return;
-  var r=frameRect(MS); fc.drawImage(wi,r[0],r[1],r[2],r[3]);
+  var r=frameRect(MS), a=1-ease(rng(p,0.72,1));   // the clip's last haze thins away so the scene ends clean
+  if(a<=0.001) return;
+  fc.globalCompositeOperation="screen"; fc.globalAlpha=a;   // white mist filmed on black: screen lays it over any colour
+  fc.drawImage(wi,r[0],r[1],r[2],r[3]);
+  fc.globalCompositeOperation="source-over"; fc.globalAlpha=1;
 }
 
 function frame(time){
