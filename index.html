@@ -117,22 +117,22 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <h4 id="cName"></h4><div class="tier" id="cTier"></div><p>Placeholder line about this note, to be written.</p></div>
 
 <nav id="pill" aria-label="Blends"><span class="cur" id="pillCur">ENZIWA</span>
-  <button type="button" data-i="0">31</button><button type="button" data-i="1">33</button><button type="button" data-i="2">35</button></nav>
+  <button type="button" data-i="0">34</button><button type="button" data-i="1">31</button><button type="button" data-i="2">33</button></nav>
 
 <script>
 (function(){
 // Data from the public blend key (BLENDS, FULL for blend 31's fourth base note, DESC)
 // sc: placeholder scene colours (top, bottom), picked from different parts of the colour wheel
 var BL = [
+  {n:34,name:"Omeya Dew",top:["Neroli","African marigold","Bergamot"],heart:["Violet","Jasmine","Cyclamen"],base:["Vetiver","Cedar","Musk"],
+   desc:"Green neroli and marigold over vetiver and cedar. Daytime and hot weather, unisex. Like dew on leaves in a garden at dawn.",
+   col:["#e3b54a","#8fa35a","#5f6b45"], sc:["#f1d58a","#c9a14a","#6b5a2a"], img:"img/scenes/omeya-dew.webp", hover:true},
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
    col:["#d98a7a","#c0745c","#8a5640"], sc:["#d9894a","#a8452a","#5c1f14"]},
   {n:33,name:"Mawimbi Nights",top:["Bergamot","Lemon","Orange blossom"],heart:["Seaweed","Jasmine","Immortelle"],base:["Amber","Tonka","Cedar"],
    desc:"Cold salt air over warm amber. Day to night, unisex. Long lasting. Like a night swim in warm water under a full moon.",
    col:["#6fb3cf","#2f86ad","#1d5577"], sc:["#3f9aa6","#17607a","#0a2c45"]},
-  {n:35,name:"Ombura Haze",top:["Pineapple","Pear","Bergamot"],heart:["Orange blossom","Ginger","Woods"],base:["Musk","Amber","Woods"],
-   desc:"Fresh pear and pineapple over soft musk and warm woods. Day to night, unisex. Like cool rain drifting over a warm hillside.",
-   col:["#aab66e","#8c9a55","#6b6a4a"], sc:["#b7a3db","#7d63ad","#3d2c66"]}
 ];
 var TIERS=["top","heart","base"], TL={top:"Top",heart:"Heart",base:"Base"};
 var CREAM="#F2EACF";
@@ -154,7 +154,8 @@ var H=1, W=1, dpr=1;
 
 // assets in img/spray3: bottle frames with a see-through background (b*), and per clip the mist filmed on black (w_, drawn with screen) and reveal masks (m_)
 var SQ={w:854, h:480, cx:427, base:436, capTop:50, nozY:220, spin:30, lift:27, down:21, out:30, mist:150, mask:75};
-var CLIPK=["k8","k8","k8"];   // which black clip each blend uses (one test clip for now)
+var CLIPK=["k8","k8","k8"];
+var PHOTO=BL.map(function(b,j){ if(!b.img) return null; var im=new Image(); im.onload=function(){ if(W>1){buildScene(j); key="";} }; im.src=b.img; return im; });   // which black clip each blend uses (one test clip for now)
 function pad(n,k){return ("000"+n).slice(-k)}
 function imgs(pre,n,k,ext){var a=[];for(var j=0;j<n;j++){var im=new Image();im.decoding="async";im.src="img/spray3/"+pre+pad(j,k)+ext;a.push(im)}return a}
 function one(p,n){return imgs("b"+p+"_",n,2,".webp")}
@@ -191,6 +192,11 @@ function size(){
 var MAN=["M22 66 Q60 54 98 66 L104 170 Q96 176 90 170 L86 110 L84 176 L34 176 L34 110 L30 170 Q24 176 16 170 Z","M36 174 L58 174 L56 296 L40 296 Z","M62 174 L84 174 L80 296 L64 296 Z"];
 var WOMAN=["M60 10 Q86 12 84 46 Q82 70 88 82 Q60 74 32 82 Q38 70 36 46 Q34 12 60 10 Z","M34 66 Q60 58 86 66 L94 150 Q88 156 82 150 L78 104 L106 232 L14 232 L42 104 L38 150 Q32 156 26 150 Z","M44 230 L56 230 L54 296 L44 296 Z","M64 230 L76 230 L76 296 L66 296 Z"];
 function buildScene(j){
+  if(PHOTO[j] && PHOTO[j].complete && PHOTO[j].naturalWidth){   // photographic scene: cover the stage, keep the centre
+    var pi=PHOTO[j], cv0=SC[j]; cv0.width=W; cv0.height=H; var c0=cv0.getContext("2d");
+    var sc0=Math.max(W/pi.naturalWidth,H/pi.naturalHeight), dw=pi.naturalWidth*sc0, dh=pi.naturalHeight*sc0;
+    c0.drawImage(pi,(W-dw)/2,(H-dh)/2,dw,dh); return;
+  }
   var b=BL[j], cv=SC[j]; cv.width=W; cv.height=H; var c=cv.getContext("2d");
   var g=c.createLinearGradient(0,0,0,H);
   g.addColorStop(0,b.sc[0]); g.addColorStop(.55,b.sc[1]); g.addColorStop(1,b.sc[2]);
@@ -274,9 +280,9 @@ function drawBottle(set,j,alpha){ // soft contact shadow, then the see-through b
   var b=pick(set,j), r=frameRect(1);
   if(!b||alpha<=0.001) return;
   fc.globalAlpha=alpha;
-  var cx=L.x+SQ.cx*L.s, cy=L.y+L.lift+(SQ.base-2)*L.s, rw=110*L.s;
+  var hv=BL[shown]&&BL[shown].hover, cx=L.x+SQ.cx*L.s, cy=L.y+L.lift+(SQ.base-2)*L.s+(hv?H*0.12:0), rw=(hv?150:110)*L.s;
   fc.save(); fc.translate(cx,cy); fc.scale(1,0.16);
-  var g=fc.createRadialGradient(0,0,0,0,0,rw); g.addColorStop(0,"rgba(0,0,0,.30)"); g.addColorStop(1,"rgba(0,0,0,0)");
+  var g=fc.createRadialGradient(0,0,0,0,0,rw); g.addColorStop(0,hv?"rgba(40,30,10,.22)":"rgba(0,0,0,.30)"); g.addColorStop(1,"rgba(0,0,0,0)");
   fc.fillStyle=g; fc.beginPath(); fc.arc(0,0,rw,0,6.2832); fc.fill(); fc.restore();
   fc.drawImage(b,r[0],r[1],r[2],r[3]);
   fc.globalAlpha=1;
