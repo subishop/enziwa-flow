@@ -18,8 +18,10 @@ def render():
     try:
         ST["render"] = "running"; src = J + "/src"
         for a, b in json.load(open(src + "/ranges.json")):
+            # scene lit option: if the bundle carries scene_lit.py (and its photo) it runs after hq.py; without it the old studio path is unchanged
+            extra = ["--python", src + "/scene_lit.py"] if os.path.exists(src + "/scene_lit.py") else []
             cmd = ["/opt/blender/blender", "-b", src + "/bottle-v6-shot.blend", "--python", src + "/front_hole.py", "--python", src + "/land_seq.py",
-                   "--python", src + "/clear_bg.py", "--python", src + "/hq.py", "-a", "--", "0", J + "/out/f_", str(a), str(b)]
+                   "--python", src + "/clear_bg.py", "--python", src + "/hq.py"] + extra + ["-a", "--", "0", J + "/out/f_", str(a), str(b)]
             with open(J + "/blender.log", "a") as f: p = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
             log("range %s-%s exit %s" % (a, b, p.returncode))
         ST["render"] = "done"
