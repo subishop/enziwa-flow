@@ -128,7 +128,10 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 var BL = [
   {n:34,name:"Omeya Dew",top:["Neroli","African marigold","Bergamot"],heart:["Violet","Jasmine","Cyclamen"],base:["Vetiver","Cedar","Musk"],
    desc:"Green neroli and marigold over vetiver and cedar. Daytime and hot weather, unisex. Like dew on leaves in a garden at dawn.",
-   col:["#e3b54a","#8fa35a","#5f6b45"], sc:["#f1d58a","#c9a14a","#6b5a2a"], img:"img/scenes/omeya-dew.webp", hover:true},
+   col:["#e3b54a","#8fa35a","#5f6b45"], sc:["#f1d58a","#c9a14a","#6b5a2a"], hover:true,
+   // three layer scene: sky with the people and tree taken out, then the glass name, then people, lion, tree and land in front
+   layers:{wide:{w:2752,h:1536,sky:"img/scenes/omeya-dew-sky.webp",fg:"img/scenes/omeya-dew-fg.webp"},
+           tall:{w:1536,h:2752,sky:"img/scenes/omeya-dew-sky-tall.webp",fg:"img/scenes/omeya-dew-fg-tall.webp"}}},
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
    col:["#d98a7a","#c0745c","#8a5640"], sc:["#d9894a","#a8452a","#5c1f14"]},
@@ -156,8 +159,16 @@ var H=1, W=1, dpr=1;
 
 // assets in img/spray3: bottle frames with a see-through background (b*), and per clip the mist filmed on black (w_, drawn with screen) and reveal masks (m_)
 var SQ={w:854, h:480, cx:427, base:436, capTop:50, nozY:220, spin:30, lift:27, down:21, out:30, mist:150, mask:75};
-var CLIPK=["k8","k8","k8"];
-var PHOTO=BL.map(function(b,j){ if(!b.img) return null; var im=new Image(); im.onload=function(){ if(W>1){buildScene(j); key="";} }; im.src=b.img; return im; });   // which black clip each blend uses (one test clip for now)
+var CLIPK=["k8","k8","k8"];   // which black clip each blend uses (one test clip for now)
+// scene layer images, loaded per shape of screen (wide or tall) when first needed
+var LAY=BL.map(function(){return {}});
+function layerImgs(j,shape){
+  var b=BL[j]; if(!b.layers) return null;
+  if(!LAY[j][shape]){ var s=b.layers[shape], o={sky:new Image(),fg:new Image()};
+    ["sky","fg"].forEach(function(k){ o[k].onload=function(){ if(W>1){buildScene(j); key="";} }; o[k].src=s[k]; });
+    LAY[j][shape]=o; }
+  return LAY[j][shape];
+}
 function pad(n,k){return ("000"+n).slice(-k)}
 function imgs(pre,n,k,ext){var a=[];for(var j=0;j<n;j++){var im=new Image();im.decoding="async";im.src="img/spray3/"+pre+pad(j,k)+ext;a.push(im)}return a}
 function one(p,n){return imgs("b"+p+"_",n,2,".webp")}
@@ -193,27 +204,111 @@ function size(){
 // placeholder scenes: rich gradient, soft glow behind the bottle, the two grey silhouettes
 var MAN=["M22 66 Q60 54 98 66 L104 170 Q96 176 90 170 L86 110 L84 176 L34 176 L34 110 L30 170 Q24 176 16 170 Z","M36 174 L58 174 L56 296 L40 296 Z","M62 174 L84 174 L80 296 L64 296 Z"];
 var WOMAN=["M60 10 Q86 12 84 46 Q82 70 88 82 Q60 74 32 82 Q38 70 36 46 Q34 12 60 10 Z","M34 66 Q60 58 86 66 L94 150 Q88 156 82 150 L78 104 L106 232 L14 232 L42 104 L38 150 Q32 156 26 150 Z","M44 230 L56 230 L54 296 L44 296 Z","M64 230 L76 230 L76 296 L66 296 Z"];
+// blend names in capitals, set in TJ's Enziwa font and turned into outlines (fontTools, 60 units extra tracking), so no font file loads
+var WORDS={
+  "OMEYA DEW":{w:5525,h:717,d:"M127.0 40.0Q85.0 40.0 56.5 68.5Q28.0 97.0 28.0 139.0V586.0Q28.0 628.0 56.5 656.5Q85.0 685.0 127.0 685.0H294.0Q336.0 685.0 364.5 656.5Q393.0 628.0 393.0 586.0V139.0Q393.0 97.0 364.5 68.5Q336.0 40.0 294.0 40.0H127.0ZM294.0 12.0Q320.0 12.0 343.0 22.0Q366.0 32.0 383.5 49.5Q401.0 67.0 411.0 90.0Q421.0 113.0 421.0 139.0V586.0Q421.0 612.0 411.0 635.0Q401.0 658.0 383.5 675.0Q366.0 692.0 343.0 702.0Q320.0 712.0 294.0 712.0H127.0Q101.0 712.0 77.5 702.0Q54.0 692.0 37.0 675.0Q20.0 658.0 10.0 635.0Q0.0 612.0 0.0 586.0V139.0Q0.0 113.0 10.0 90.0Q20.0 67.0 37.0 49.5Q54.0 32.0 77.5 22.0Q101.0 12.0 127.0 12.0ZM870.0 684.0H1054.0L962.0 454.0ZM556.0 712.0 826.0 1.0 963.0 369.0 1100.0 1.0 1370.0 712.0H1340.0L1099.0 98.0L979.0 411.0L1095.0 712.0H830.0L946.0 412.0L825.0 97.0L584.0 712.0ZM1536.0 293.0V387.0H1795.0V293.0ZM1850.0 12.0V41.0L1536.0 40.0V265.0H1823.0V415.0H1536.0V684.0L1851.0 685.0V712.0H1508.0V415.0V265.0V12.0H1509.0V11.0ZM2099.0 283.0H2297.0L2325.0 219.0H2071.0ZM1981.0 12.0 2059.0 191.0H2337.0L2415.0 12.0H2443.0L2325.0 311.0H2212.0V712.0H2184.0V311.0H2071.0L1953.0 12.0ZM2683.0 371.0H2898.0L2870.0 299.0H2712.0ZM2723.0 271.0H2859.0L2791.0 97.0ZM3061.0 712.0H3031.0L2909.0 399.0H2673.0L2551.0 712.0H2522.0L2792.0 0.0ZM3641.0 240.0Q3617.0 240.0 3595.5 249.0Q3574.0 258.0 3558.0 274.0Q3542.0 290.0 3533.0 311.5Q3524.0 333.0 3524.0 357.0Q3524.0 381.0 3533.0 402.5Q3542.0 424.0 3558.0 440.0Q3574.0 456.0 3595.5 465.0Q3617.0 474.0 3641.0 474.0H3653.0Q3657.0 474.0 3665.0 472.0Q3691.0 467.0 3711.5 451.5Q3732.0 436.0 3744.0 413.0Q3758.0 387.0 3758.0 357.0Q3758.0 340.0 3753.0 322.0Q3744.0 295.0 3724.0 275.0Q3699.0 251.0 3665.0 243.0Q3657.0 241.0 3653.0 241.0H3641.0ZM3655.0 214.0Q3681.0 217.0 3703.5 228.0Q3726.0 239.0 3743.5 256.5Q3761.0 274.0 3772.0 296.5Q3783.0 319.0 3786.0 345.0V360.0V375.0Q3783.0 401.0 3772.0 423.5Q3761.0 446.0 3743.5 463.5Q3726.0 481.0 3703.5 492.0Q3681.0 503.0 3655.0 506.0V685.0H3924.0Q3950.0 685.0 3972.5 675.0Q3995.0 665.0 4012.0 648.0Q4029.0 631.0 4039.0 608.5Q4049.0 586.0 4049.0 560.0V165.0Q4049.0 139.0 4039.0 116.5Q4029.0 94.0 4012.0 77.0Q3995.0 60.0 3972.5 50.0Q3950.0 40.0 3924.0 40.0H3655.0ZM3924.0 12.0Q3955.0 12.0 3983.0 24.0Q4011.0 36.0 4031.5 56.5Q4052.0 77.0 4064.0 105.0Q4076.0 133.0 4076.0 164.0V559.0Q4076.0 591.0 4064.0 618.5Q4052.0 646.0 4031.0 667.0Q4010.0 688.0 3982.0 700.0Q3954.0 712.0 3923.0 712.0H3626.0V506.0Q3599.0 503.0 3575.0 491.0Q3551.0 479.0 3533.5 459.5Q3516.0 440.0 3506.0 415.0Q3496.0 390.0 3496.0 362.0Q3496.0 334.0 3506.0 309.0Q3516.0 284.0 3533.5 264.5Q3551.0 245.0 3575.0 233.0Q3599.0 221.0 3626.0 218.0V12.0ZM4294.0 293.0V387.0H4553.0V293.0ZM4608.0 12.0V41.0L4294.0 40.0V265.0H4581.0V415.0H4294.0V684.0L4609.0 685.0V712.0H4266.0V415.0V265.0V12.0H4267.0V11.0ZM5025.0 42.0 5117.0 272.0 5209.0 42.0ZM4739.0 13.0 4980.0 622.0 5101.0 313.0 4985.0 13.0H5250.0L5134.0 314.0L5254.0 621.0L5495.0 12.0H5525.0L5255.0 717.0L5118.0 356.0L4981.0 717.0L4711.0 12.0Z"},
+  "OUD PANGA":{w:5163,h:717,d:"M127.0 40.0Q85.0 40.0 56.5 68.5Q28.0 97.0 28.0 139.0V586.0Q28.0 628.0 56.5 656.5Q85.0 685.0 127.0 685.0H294.0Q336.0 685.0 364.5 656.5Q393.0 628.0 393.0 586.0V139.0Q393.0 97.0 364.5 68.5Q336.0 40.0 294.0 40.0H127.0ZM294.0 12.0Q320.0 12.0 343.0 22.0Q366.0 32.0 383.5 49.5Q401.0 67.0 411.0 90.0Q421.0 113.0 421.0 139.0V586.0Q421.0 612.0 411.0 635.0Q401.0 658.0 383.5 675.0Q366.0 692.0 343.0 702.0Q320.0 712.0 294.0 712.0H127.0Q101.0 712.0 77.5 702.0Q54.0 692.0 37.0 675.0Q20.0 658.0 10.0 635.0Q0.0 612.0 0.0 586.0V139.0Q0.0 113.0 10.0 90.0Q20.0 67.0 37.0 49.5Q54.0 32.0 77.5 22.0Q101.0 12.0 127.0 12.0ZM641.0 600.0Q646.0 636.0 673.5 660.5Q701.0 685.0 739.0 685.0H906.0Q944.0 685.0 971.5 660.5Q999.0 636.0 1004.0 600.0ZM641.0 12.0V572.0H1005.0V12.0H1033.0V586.0Q1033.0 612.0 1023.0 635.0Q1013.0 658.0 995.5 675.0Q978.0 692.0 955.0 702.0Q932.0 712.0 906.0 712.0H739.0Q713.0 712.0 689.5 702.0Q666.0 692.0 649.0 675.0Q632.0 658.0 622.0 635.0Q612.0 612.0 612.0 586.0V12.0ZM1329.0 240.0Q1305.0 240.0 1283.5 249.0Q1262.0 258.0 1246.0 274.0Q1230.0 290.0 1221.0 311.5Q1212.0 333.0 1212.0 357.0Q1212.0 381.0 1221.0 402.5Q1230.0 424.0 1246.0 440.0Q1262.0 456.0 1283.5 465.0Q1305.0 474.0 1329.0 474.0H1341.0Q1345.0 474.0 1353.0 472.0Q1379.0 467.0 1399.5 451.5Q1420.0 436.0 1432.0 413.0Q1446.0 387.0 1446.0 357.0Q1446.0 340.0 1441.0 322.0Q1432.0 295.0 1412.0 275.0Q1387.0 251.0 1353.0 243.0Q1345.0 241.0 1341.0 241.0H1329.0ZM1343.0 214.0Q1369.0 217.0 1391.5 228.0Q1414.0 239.0 1431.5 256.5Q1449.0 274.0 1460.0 296.5Q1471.0 319.0 1474.0 345.0V360.0V375.0Q1471.0 401.0 1460.0 423.5Q1449.0 446.0 1431.5 463.5Q1414.0 481.0 1391.5 492.0Q1369.0 503.0 1343.0 506.0V685.0H1612.0Q1638.0 685.0 1660.5 675.0Q1683.0 665.0 1700.0 648.0Q1717.0 631.0 1727.0 608.5Q1737.0 586.0 1737.0 560.0V165.0Q1737.0 139.0 1727.0 116.5Q1717.0 94.0 1700.0 77.0Q1683.0 60.0 1660.5 50.0Q1638.0 40.0 1612.0 40.0H1343.0ZM1612.0 12.0Q1643.0 12.0 1671.0 24.0Q1699.0 36.0 1719.5 56.5Q1740.0 77.0 1752.0 105.0Q1764.0 133.0 1764.0 164.0V559.0Q1764.0 591.0 1752.0 618.5Q1740.0 646.0 1719.0 667.0Q1698.0 688.0 1670.0 700.0Q1642.0 712.0 1611.0 712.0H1314.0V506.0Q1287.0 503.0 1263.0 491.0Q1239.0 479.0 1221.5 459.5Q1204.0 440.0 1194.0 415.0Q1184.0 390.0 1184.0 362.0Q1184.0 334.0 1194.0 309.0Q1204.0 284.0 1221.5 264.5Q1239.0 245.0 1263.0 233.0Q1287.0 221.0 1314.0 218.0V12.0ZM2321.0 405.0H2495.0V311.0H2321.0ZM2321.0 283.0H2532.0Q2556.0 283.0 2577.5 273.5Q2599.0 264.0 2615.0 248.0Q2631.0 232.0 2640.5 210.5Q2650.0 189.0 2650.0 165.0V160.0Q2650.0 136.0 2640.5 114.5Q2631.0 93.0 2615.0 77.0Q2599.0 61.0 2577.5 51.5Q2556.0 42.0 2532.0 42.0H2321.0ZM2293.0 14.0H2532.0Q2562.0 14.0 2588.5 25.5Q2615.0 37.0 2634.5 56.5Q2654.0 76.0 2665.5 102.5Q2677.0 129.0 2677.0 159.0V164.0Q2677.0 194.0 2665.5 220.5Q2654.0 247.0 2634.5 266.5Q2615.0 286.0 2588.5 297.5Q2562.0 309.0 2532.0 309.0H2523.0V431.0H2321.0V712.0H2293.0V12.0ZM2930.0 371.0H3145.0L3117.0 299.0H2959.0ZM2970.0 271.0H3106.0L3038.0 97.0ZM3308.0 712.0H3278.0L3156.0 399.0H2920.0L2798.0 712.0H2769.0L3039.0 0.0ZM3477.0 503.0 3623.0 314.0 3477.0 98.0ZM3868.0 621.0 3869.0 12.0H3897.0L3896.0 717.0L3639.0 338.0L3477.0 548.0V712.0H3449.0V0.0ZM4401.0 682.0Q4436.0 676.0 4459.0 649.0Q4482.0 622.0 4482.0 585.0V491.0H4401.0ZM4384.0 11.0Q4410.0 11.0 4433.0 21.0Q4456.0 31.0 4473.5 48.5Q4491.0 66.0 4501.0 89.0Q4511.0 112.0 4511.0 138.0V157.0H4483.0V138.0Q4483.0 96.0 4454.5 67.5Q4426.0 39.0 4384.0 39.0H4217.0Q4175.0 39.0 4146.5 67.5Q4118.0 96.0 4118.0 138.0V585.0Q4118.0 627.0 4146.5 655.5Q4175.0 684.0 4217.0 684.0H4374.0V492.0H4279.0V464.0H4511.0V586.0Q4511.0 612.0 4501.0 635.0Q4491.0 658.0 4473.5 675.0Q4456.0 692.0 4433.0 702.0Q4410.0 712.0 4384.0 712.0H4217.0Q4191.0 712.0 4167.5 702.0Q4144.0 692.0 4127.0 675.0Q4110.0 658.0 4100.0 635.0Q4090.0 612.0 4090.0 586.0V139.0Q4090.0 113.0 4100.0 90.0Q4110.0 67.0 4127.0 49.5Q4144.0 32.0 4167.5 22.0Q4191.0 12.0 4217.0 12.0ZM4785.0 371.0H5000.0L4972.0 299.0H4814.0ZM4825.0 271.0H4961.0L4893.0 97.0ZM5163.0 712.0H5133.0L5011.0 399.0H4775.0L4653.0 712.0H4624.0L4894.0 0.0Z"},
+  "MAWIMBI NIGHTS":{w:7912,h:725,d:"M314.0 684.0H498.0L406.0 454.0ZM0.0 712.0 270.0 1.0 407.0 369.0 544.0 1.0 814.0 712.0H784.0L543.0 98.0L423.0 411.0L539.0 712.0H274.0L390.0 412.0L269.0 97.0L28.0 712.0ZM1054.0 371.0H1269.0L1241.0 299.0H1083.0ZM1094.0 271.0H1230.0L1162.0 97.0ZM1432.0 712.0H1402.0L1280.0 399.0H1044.0L922.0 712.0H893.0L1163.0 0.0ZM1826.0 42.0 1918.0 272.0 2010.0 42.0ZM1540.0 13.0 1781.0 622.0 1902.0 313.0 1786.0 13.0H2051.0L1935.0 314.0L2055.0 621.0L2296.0 12.0H2326.0L2056.0 717.0L1919.0 356.0L1782.0 717.0L1512.0 12.0ZM2494.0 11.0 2493.0 711.0H2465.0V503.0V351.0V324.0V12.0ZM2947.0 684.0H3131.0L3039.0 454.0ZM2633.0 712.0 2903.0 1.0 3040.0 369.0 3177.0 1.0 3447.0 712.0H3417.0L3176.0 98.0L3056.0 411.0L3172.0 712.0H2907.0L3023.0 412.0L2902.0 97.0L2661.0 712.0ZM3818.0 344.0Q3780.0 344.0 3744.5 363.5Q3709.0 383.0 3684.0 415.0H3611.0V683.0L3832.0 682.0Q3861.0 682.0 3887.0 671.0Q3913.0 660.0 3933.5 640.5Q3954.0 621.0 3968.0 595.5Q3982.0 570.0 3987.0 541.0Q3992.0 512.0 3987.0 484.0Q3982.0 456.0 3969.0 431.5Q3956.0 407.0 3935.0 388.0Q3914.0 369.0 3887.0 357.0Q3854.0 342.0 3819.0 342.0ZM3613.0 38.0V273.0H3828.0Q3852.0 274.0 3874.5 266.0Q3897.0 258.0 3913.5 242.5Q3930.0 227.0 3940.5 206.0Q3951.0 185.0 3951.0 161.0Q3952.0 136.0 3942.5 113.5Q3933.0 91.0 3916.0 74.0Q3899.0 57.0 3876.0 47.5Q3853.0 38.0 3828.0 38.0ZM3586.0 10.0H3828.0Q3859.0 10.0 3886.5 22.0Q3914.0 34.0 3934.5 54.5Q3955.0 75.0 3967.0 102.5Q3979.0 130.0 3979.0 161.0V162.0Q3979.0 192.0 3966.5 217.5Q3954.0 243.0 3933.0 261.5Q3912.0 280.0 3884.5 290.5Q3857.0 301.0 3827.0 301.0H3613.0V388.0H3668.0Q3699.0 350.0 3743.0 331.5Q3787.0 313.0 3835.0 317.0Q3870.0 320.0 3900.0 333.0Q3931.0 347.0 3955.0 369.0Q3979.0 391.0 3994.5 419.5Q4010.0 448.0 4016.0 480.5Q4022.0 513.0 4016.0 547.0Q4010.0 580.0 3994.5 608.5Q3979.0 637.0 3956.0 658.5Q3933.0 680.0 3904.0 694.0Q3875.0 708.0 3842.0 712.0H3585.0ZM4216.0 11.0 4215.0 711.0H4187.0V503.0V351.0V324.0V12.0ZM4781.0 503.0 4927.0 314.0 4781.0 98.0ZM5172.0 621.0 5173.0 12.0H5201.0L5200.0 717.0L4943.0 338.0L4781.0 548.0V712.0H4753.0V0.0ZM5430.0 11.0 5429.0 711.0H5401.0V503.0V351.0V324.0V12.0ZM5932.0 682.0Q5967.0 676.0 5990.0 649.0Q6013.0 622.0 6013.0 585.0V491.0H5932.0ZM5915.0 11.0Q5941.0 11.0 5964.0 21.0Q5987.0 31.0 6004.5 48.5Q6022.0 66.0 6032.0 89.0Q6042.0 112.0 6042.0 138.0V157.0H6014.0V138.0Q6014.0 96.0 5985.5 67.5Q5957.0 39.0 5915.0 39.0H5748.0Q5706.0 39.0 5677.5 67.5Q5649.0 96.0 5649.0 138.0V585.0Q5649.0 627.0 5677.5 655.5Q5706.0 684.0 5748.0 684.0H5905.0V492.0H5810.0V464.0H6042.0V586.0Q6042.0 612.0 6032.0 635.0Q6022.0 658.0 6004.5 675.0Q5987.0 692.0 5964.0 702.0Q5941.0 712.0 5915.0 712.0H5748.0Q5722.0 712.0 5698.5 702.0Q5675.0 692.0 5658.0 675.0Q5641.0 658.0 5631.0 635.0Q5621.0 612.0 5621.0 586.0V139.0Q5621.0 113.0 5631.0 90.0Q5641.0 67.0 5658.0 49.5Q5675.0 32.0 5698.5 22.0Q5722.0 12.0 5748.0 12.0ZM6577.0 10.0 6576.0 710.0H6548.0V502.0V350.0V323.0V11.0ZM6242.0 11.0V259.0H6548.0V287.0H6242.0V371.0H6548.0V399.0H6242.0L6241.0 712.0H6214.0L6215.0 12.0ZM6707.0 10.0 7373.0 11.0V39.0H7054.0V124.0H7246.0V152.0H7054.0V711.0H7026.0V152.0H6834.0V124.0H7026.0V39.0H6707.0V11.0ZM7530.0 574.0V700.0H7749.0Q7776.0 700.0 7800.0 690.0Q7824.0 680.0 7842.0 663.0Q7860.0 646.0 7871.0 623.0Q7882.0 600.0 7884.0 573.0ZM7727.0 13.0Q7762.0 13.0 7787.0 38.0Q7812.0 63.0 7812.0 98.0V145.0H7784.0V98.0Q7784.0 74.0 7767.0 57.0Q7750.0 40.0 7726.0 40.0H7589.0Q7555.0 40.0 7531.5 63.5Q7508.0 87.0 7508.0 121.0V191.0Q7508.0 225.0 7531.5 248.5Q7555.0 272.0 7589.0 272.0H7748.0Q7782.0 272.0 7811.5 285.0Q7841.0 298.0 7863.5 320.5Q7886.0 343.0 7899.0 372.5Q7912.0 402.0 7912.0 436.0V562.0Q7912.0 596.0 7899.0 625.5Q7886.0 655.0 7863.5 677.0Q7841.0 699.0 7811.5 712.0Q7782.0 725.0 7748.0 725.0H7501.0V544.0H7884.0V436.0Q7884.0 408.0 7873.5 383.0Q7863.0 358.0 7844.5 339.5Q7826.0 321.0 7801.0 310.5Q7776.0 300.0 7748.0 300.0H7589.0Q7566.0 300.0 7546.5 291.5Q7527.0 283.0 7512.0 268.0Q7497.0 253.0 7488.5 233.5Q7480.0 214.0 7480.0 191.0V121.0Q7480.0 99.0 7488.5 79.0Q7497.0 59.0 7512.0 44.0Q7527.0 29.0 7546.5 20.5Q7566.0 12.0 7589.0 12.0Z"}
+};
+// Every scene is three layers, back to front: sky, the blend name as flat frosted glass, then the foreground.
+// The glass has no colour of its own: inside the letters sits a blurred, slightly lifted copy of the sky,
+// lined up with the sky behind it, plus a faint white sheen. TJ's settings (13 Nov 2026):
+// Visibility 78, Frost 60, Lightness 38, Parallax 67.
+var GLASS={op:0.78, blur:0.60*18, bright:1+0.38*0.25, white:0.38*0.35, par:0.67};
+var DEPTH={sky:0.15, word:0.4, fg:1};          // the sky barely moves, the name a little, the people and land most
+var NAMEBOX={x:0.17, y:0.09, w:0.66};          // where the name sits, as a share of the scene image (left, top, width)
+var SPARE=1.08;                                // scene image covers the screen with a little spare edge for the movement
+var FILTER_OK=(function(){ try{ var t=mk(1,1).getContext("2d"); t.filter="blur(2px)"; return t.filter==="blur(2px)"; }catch(e){ return false; } })();
+var PS=BL.map(function(){return null});        // prepared layers per blend
+function shapeNow(){ return W/H<0.9 ? "tall" : "wide"; }
+function frostCopy(src,w,h){                   // the sky as seen through the glass: blurred, lifted, a touch richer, milky sheen
+  var g=mk(Math.max(1,Math.round(w)),Math.max(1,Math.round(h))), c=g.getContext("2d");
+  if(FILTER_OK){
+    c.filter="blur("+GLASS.blur.toFixed(1)+"px) brightness("+GLASS.bright.toFixed(3)+") saturate(1.1)";
+    c.drawImage(src,0,0,g.width,g.height); c.filter="none";
+  } else {                                    // older Safari: blur by shrinking and enlarging, lift by adding light
+    var f=Math.max(2,GLASS.blur/2), sm=mk(Math.max(1,Math.round(w/f)),Math.max(1,Math.round(h/f))), sc=sm.getContext("2d");
+    sc.imageSmoothingQuality="high"; sc.drawImage(src,0,0,sm.width,sm.height);
+    c.imageSmoothingQuality="high"; c.drawImage(sm,0,0,g.width,g.height);
+    c.globalCompositeOperation="lighter"; c.globalAlpha=GLASS.bright-1; c.drawImage(g,0,0);
+    c.globalCompositeOperation="source-over"; c.globalAlpha=1;
+  }
+  c.fillStyle="rgba(255,255,255,"+GLASS.white.toFixed(3)+")"; c.fillRect(0,0,g.width,g.height);
+  return g;
+}
+function namePath(j,pw){                       // the blend name outlines from TJ's Enziwa font, scaled to this scene size
+  var wd=WORDS[BL[j].name.toUpperCase()], lw=NAMEBOX.w*pw, k=lw/wd.w;
+  return new Path2D(wd.d.replace(/-?\d+(\.\d+)?/g,function(n){return (n*k).toFixed(2)}));
+}
 function buildScene(j){
-  if(PHOTO[j] && PHOTO[j].complete && PHOTO[j].naturalWidth){   // photographic scene: cover the stage, keep the centre
-    var pi=PHOTO[j], cv0=SC[j]; cv0.width=W; cv0.height=H; var c0=cv0.getContext("2d");
-    var sc0=Math.max(W/pi.naturalWidth,H/pi.naturalHeight), dw=pi.naturalWidth*sc0, dh=pi.naturalHeight*sc0;
-    c0.drawImage(pi,(W-dw)/2,(H-dh)/2,dw,dh); return;
+  var b=BL[j], shape=shapeNow(), ps;
+  if(b.layers){                                // photographic scene in layers
+    var s=b.layers[shape], li=layerImgs(j,shape);
+    if(!(ok(li.sky)&&ok(li.fg))){ PS[j]=null; drawFlat(j); return; }
+    var pw=W*SPARE, ph=pw*s.h/s.w; if(ph<H*SPARE){ ph=H*SPARE; pw=ph*s.w/s.h; }
+    ps={w:pw,h:ph,sky:li.sky,fg:li.fg};
+  } else {                                     // placeholder colour scene: gradient sky, grey figures in front
+    var ar=shape==="tall"?1536/2752:2752/1536, pw2=W*SPARE, ph2=pw2/ar; if(ph2<H*SPARE){ ph2=H*SPARE; pw2=ph2*ar; }
+    ps={w:pw2,h:ph2}; var ox=(pw2-W)/2, oy=(ph2-H)/2;
+    var sk=mk(Math.round(pw2),Math.round(ph2)), c=sk.getContext("2d");
+    var g=c.createLinearGradient(0,oy,0,oy+H);
+    g.addColorStop(0,b.sc[0]); g.addColorStop(.55,b.sc[1]); g.addColorStop(1,b.sc[2]);
+    c.fillStyle=g; c.fillRect(0,0,sk.width,sk.height);
+    var r=c.createRadialGradient(ox+W/2,oy+H*0.36,0,ox+W/2,oy+H*0.36,Math.max(W,H)*0.55);
+    r.addColorStop(0,"rgba(255,236,205,.38)"); r.addColorStop(1,"rgba(255,236,205,0)");
+    c.fillStyle=r; c.fillRect(0,0,sk.width,sk.height);
+    var fgc=mk(sk.width,sk.height), f=fgc.getContext("2d"); f.translate(ox,oy);
+    var mob=W<H, hh=H*(mob?0.42:0.6), sc=hh/300, foot=H*(mob?0.70:0.97);
+    var xs=mob?[W*0.07,W*0.93]:[Math.max(W,H*16/9)*0.32+(W-Math.max(W,H*16/9))/2, Math.max(W,H*16/9)*0.68+(W-Math.max(W,H*16/9))/2];
+    var person=function(paths,x,col,r0){
+      f.save(); f.translate(x-60*sc, foot-300*sc); f.scale(sc,sc); f.fillStyle=col;
+      f.beginPath(); f.arc(60,30,r0,0,6.2832); f.fill();
+      paths.forEach(function(d){f.fill(new Path2D(d))}); f.restore();
+    };
+    person(MAN,xs[0],"rgba(150,150,150,.62)",22); person(WOMAN,xs[1],"rgba(165,165,165,.62)",20);
+    ps.sky=sk; ps.fg=fgc;
   }
-  var b=BL[j], cv=SC[j]; cv.width=W; cv.height=H; var c=cv.getContext("2d");
-  var g=c.createLinearGradient(0,0,0,H);
+  ps.glass=frostCopy(ps.sky,ps.w,ps.h);
+  ps.path=namePath(j,ps.w);
+  ps.done="";
+  PS[j]=ps;
+  composeScene(j);
+}
+function drawFlat(j){                          // until the layers have loaded: plain scene colour
+  var cv=SC[j]; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); var c=cv.getContext("2d");
+  var b=BL[j], g=c.createLinearGradient(0,0,0,cv.height);
   g.addColorStop(0,b.sc[0]); g.addColorStop(.55,b.sc[1]); g.addColorStop(1,b.sc[2]);
-  c.fillStyle=g; c.fillRect(0,0,W,H);
-  var r=c.createRadialGradient(W/2,H*0.36,0,W/2,H*0.36,Math.max(W,H)*0.55);
-  r.addColorStop(0,"rgba(255,236,205,.38)"); r.addColorStop(1,"rgba(255,236,205,0)");
-  c.fillStyle=r; c.fillRect(0,0,W,H);
-  var mob=W<H, ph=H*(mob?0.42:0.6), sc=ph/300, foot=H*(mob?0.70:0.97);
-  var xs=mob?[W*0.07,W*0.93]:[Math.max(W,H*16/9)*0.32+(W-Math.max(W,H*16/9))/2, Math.max(W,H*16/9)*0.68+(W-Math.max(W,H*16/9))/2];
-  function person(paths,x,col,r0){
-    c.save(); c.translate(x-60*sc, foot-300*sc); c.scale(sc,sc); c.fillStyle=col;
-    c.beginPath(); c.arc(60,30,r0,0,6.2832); c.fill();
-    paths.forEach(function(d){c.fill(new Path2D(d))}); c.restore();
-  }
-  person(MAN,xs[0],"rgba(150,150,150,.62)",22); person(WOMAN,xs[1],"rgba(165,165,165,.62)",20);
+  c.fillStyle=g; c.fillRect(0,0,cv.width,cv.height);
+}
+// parallax: each scene drifts gently over its own stretch of scroll, and with the pointer (or tilting a phone)
+var mx=0, my=0, tx=0, ty=0;
+window.addEventListener("pointermove",function(e){ if(e.pointerType==="mouse"){ mx=e.clientX/W-.5; my=e.clientY/H-.5; } },{passive:true});
+window.addEventListener("deviceorientation",function(e){ if(e.gamma!=null){ mx=Math.max(-.5,Math.min(.5,e.gamma/40)); my=Math.max(-.5,Math.min(.5,(e.beta-45)/60)); } });
+function layerOff(ps,u,d){
+  var a=RM?0:GLASS.par, sx=(ps.w-W)/2-1, sy=(ps.h-H)/2-1;
+  var ox=-tx*ps.w*.012*d*a*2, oy=(.5-u)*ps.h*.06*d*a*2-ty*ps.h*.01*d*a*2;
+  return [Math.max(-sx,Math.min(sx,ox)), Math.max(-sy,Math.min(sy,oy))];
+}
+function sceneU(j,p){ return cl((p-(START+SEG*(j+T.press)))/SEG); }   // 0 when the scene is revealed, 1 when the next one is
+function composeScene(j,p){
+  var ps=PS[j]; if(!ps) return;
+  if(p==null||isNaN(p)) p=cur; if(p==null||isNaN(p)) p=0;
+  var u=sceneU(j,p), os=layerOff(ps,u,DEPTH.sky), ow=layerOff(ps,u,DEPTH.word), of=layerOff(ps,u,DEPTH.fg);
+  var k=[os,ow,of].map(function(o){return Math.round(o[0]*4)+","+Math.round(o[1]*4)}).join("|")+"|"+W+"|"+H+"|"+dpr;
+  if(k===ps.done) return false; ps.done=k;
+  var cv=SC[j]; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+  var c=cv.getContext("2d"), x0=(W-ps.w)/2, y0=(H-ps.h)/2;
+  c.setTransform(dpr,0,0,dpr,0,0); c.globalAlpha=1;
+  c.drawImage(ps.sky,x0+os[0],y0+os[1],ps.w,ps.h);
+  c.save();
+  c.translate(x0+ow[0]+NAMEBOX.x*ps.w, y0+ow[1]+NAMEBOX.y*ps.h);
+  c.clip(ps.path,"evenodd");
+  c.setTransform(dpr,0,0,dpr,0,0);
+  c.globalAlpha=GLASS.op;
+  c.drawImage(ps.glass,x0+os[0],y0+os[1],ps.w,ps.h);   // the frosted copy lines up with the sky behind it
+  c.restore();
+  c.drawImage(ps.fg,x0+of[0],y0+of[1],ps.w,ps.h);
+  return true;
 }
 
 var shown=-1;
@@ -270,7 +365,7 @@ pillBtns.forEach(function(btn){btn.onclick=function(e){e.stopPropagation();
 
 // spray event state, per blend: idle, play, done, fade
 var sp={i:-1,state:"idle",p:0,fade:0};
-var capShown=0, liftShown=0, outShown=0, panelGate=0, lastTime=0, lastI=-2, key="";
+var capShown=0, liftShown=0, outShown=0, panelGate=0, lastTime=0, lastI=-2, key="", sv=0;
 function setDone(){ sp.state="done"; sp.p=1; capShown=1; liftShown=1; panelGate=1; }
 
 // drawing
@@ -301,7 +396,7 @@ function drawReveal(i,p){
   mc.drawImage(mi,r[0],r[1]-r[3]*0.5,r[2],r[3]*2);
   if(E>1.001) mc.drawImage(mi,re[0],re[1]-re[3]*0.5,re[2],re[3]*2);
   if(g>0){ mc.fillStyle="rgba(0,0,0,"+g+")"; mc.fillRect(0,0,W,H); }
-  ssx.globalCompositeOperation="copy"; ssx.drawImage(SC[i],0,0);
+  ssx.globalCompositeOperation="copy"; ssx.drawImage(SC[i],0,0,W,H);
   ssx.globalCompositeOperation="destination-in"; ssx.drawImage(M,0,0);
   ssx.globalCompositeOperation="source-over";
   fc.drawImage(SS,0,0,W,H);
@@ -372,8 +467,13 @@ function frame(time){
   panel.style.transform="translate(-50%,"+((1-pa)*100)+"%)";
   if(card.classList.contains("show") && pa<0.6) closeCard();
 
+  // scene layers: ease the pointer, then redraw this scene (and the one under the reveal) if its layers moved
+  tx+=(mx-tx)*.08; ty+=(my-ty)*.08;
+  if(composeScene(i,p)) sv++;
+  if(i>0 && composeScene(i-1,p)) sv++;
+
   // composite
-  var k=[i,sp.state,Math.round(sp.p*600),Math.round(sp.fade*60),Math.round(t*3000),Math.round(capShown*100),Math.round(liftShown*100),Math.round(outShown*100),Math.round(L.lift),W,H].join("|");
+  var k=[sv,i,sp.state,Math.round(sp.p*600),Math.round(sp.fade*60),Math.round(t*3000),Math.round(capShown*100),Math.round(liftShown*100),Math.round(outShown*100),Math.round(L.lift),W,H].join("|");
   if(k!==key){ key=k;
     fc.setTransform(dpr,0,0,dpr,0,0); fc.globalAlpha=1; fc.globalCompositeOperation="source-over";
     var set, j;
