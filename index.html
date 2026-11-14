@@ -105,11 +105,21 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 @keyframes sealPulse{0%,100%{opacity:.62}50%{opacity:1}}
 #popShade{position:fixed;inset:0;z-index:31;display:none;background:rgba(29,42,51,0)}
 #bloom{position:fixed;inset:0;width:100%;height:100%;z-index:33;pointer-events:none;display:none;color:#fff;overflow:visible}
-#veil{position:fixed;z-index:32;display:none;opacity:0;background:rgba(255,246,222,.16);
-  -webkit-backdrop-filter:blur(14px) saturate(1.08);backdrop-filter:blur(14px) saturate(1.08)}
-#popX{position:absolute;top:14px;right:16px;border:0;background:none;color:#fff;font-size:24px;line-height:1;cursor:pointer;
-  text-shadow:0 1px 6px rgba(80,60,20,.45)}
-@media (max-width:700px){ #seal svg{width:92px} #seal span{font-size:9px} #seal .dk{display:none} #seal .mb{display:inline} }
+#veil{position:fixed;z-index:32;display:none;opacity:0;background:rgba(255,248,232,.42);
+  -webkit-backdrop-filter:blur(16px) saturate(1.08);backdrop-filter:blur(16px) saturate(1.08)}
+#popX{position:absolute;top:14px;right:18px;z-index:2;border:0;background:none;color:var(--blue);font-size:28px;line-height:1;cursor:pointer}
+/* pop-up content: what used to sit in the bottom panel */
+#veil .pin{position:absolute;inset:0;overflow:auto;display:grid;grid-template-columns:1fr 1.25fr;column-gap:clamp(28px,4vw,72px);
+  align-content:center;align-items:start;padding:clamp(36px,6vh,72px) clamp(28px,5vw,96px)}
+#veil .name{font-size:clamp(34px,5.4vh,58px)}
+#veil .desc{font-size:15px;max-width:44ch}
+#veil .pgroups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-top:6px}
+#veil .chip{background:rgba(255,250,240,.75)}
+#card{z-index:45}
+@media (max-width:700px){ #seal svg{width:92px} #seal span{font-size:9px} #seal .dk{display:none} #seal .mb{display:inline}
+  #veil .pin{grid-template-columns:1fr;align-content:start;row-gap:16px;padding:40px 18px 20px}
+  #veil .name{font-size:30px} #veil .desc{font-size:13.5px}
+  #veil .pgroups{gap:6px} #veil .grp h5{text-align:center} }
 @media (prefers-reduced-motion:reduce){
   #card{transition:none !important}
   #seal svg{animation:none;opacity:.85}
@@ -140,7 +150,9 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <h4 id="cName"></h4><div class="tier" id="cTier"></div><p>Placeholder line about this note, to be written.</p></div>
 
 <div id="popShade"></div>
-<div id="veil" role="dialog" aria-label="Scent notes"><button type="button" id="popX" aria-label="Close">&times;</button></div>
+<div id="veil" role="dialog" aria-label="Scent notes"><button type="button" id="popX" aria-label="Close">&times;</button>
+  <div class="pin"><div class="pleft"><div class="num" id="pNum"></div><h2 class="name" id="pName"></h2><p class="desc" id="pDesc"></p>
+    <button class="order" type="button">Order</button></div><div class="pgroups" id="pGroups"></div></div></div>
 <svg id="bloom" aria-hidden="true"><defs><!-- the label band (label H, locked), in label millimetres, drawn in currentColor -->
 <g id="enzBand"><g transform="matrix(0,0.02671,0.02671,0,4.02187,2.35892)" fill="none" stroke="currentColor" stroke-width="9.360" stroke-linejoin="miter" stroke-miterlimit="12"><path d="M337.88,1045.33L410.00,1000.00L345.00,955.00L415.00,910.00L349.50,865.00L414.62,829.00L339.88,791.50L414.62,753.50L336.60,718.00L405.07,615.52M447.62,858.89L447.62,664.16M415.17,299.50L415.17,355.17M405.07,586.98L336.61,484.50L414.62,446.00L339.50,409.00L415.18,372.33L415.18,347.50M558.67,137.50L558.67,280.17L514.10,210.18L480.45,157.33L480.45,252.67L480.45,292.00M480.45,252.67L514.10,210.18M447.97,302.59L447.97,162.84M480.84,347.50L480.84,372.50L556.12,409.00L480.50,446.00L558.92,484.50L490.94,586.99M558.12,1045.33L486.00,1000.00L551.00,955.00L481.00,910.00L546.00,864.62L480.88,829.00L555.62,791.50L480.83,753.33L559.40,718.00L490.93,615.52M480.33,298.50L480.33,355.67M447.61,535.56L447.61,345.26M448.32,901.70L448.32,1023.24M337.33,137.50L337.33,280.17L381.90,210.18L415.55,157.33L415.55,252.67L415.55,292.00M415.55,252.67L381.90,210.18M415.20,305.50L415.20,271.50M480.30,305.50L480.30,271.50M336.60,559.22L336.60,643.28L375.60,601.25L336.60,559.22L336.60,559.22ZM559.40,559.22L559.40,643.28L520.40,601.25L559.40,559.22L559.40,559.22ZM415.17,299.50L415.17,355.17L415.18,372.33M415.17,299.50L415.17,355.17L415.18,347.50M415.17,355.17L415.17,299.50L415.20,305.50M415.17,355.17L415.17,299.50L415.20,271.50M415.18,372.33L415.18,347.50L415.17,299.50M415.18,372.33L415.18,347.50L415.17,355.17M480.45,252.67L480.45,292.00L480.30,305.50M480.45,252.67L480.45,292.00L480.30,271.50M480.45,252.67L514.10,210.18L558.67,280.17M480.45,252.67L514.10,210.18L480.45,157.33M514.10,210.18L480.45,252.67L480.45,157.33M514.10,210.18L480.45,252.67L480.45,292.00M480.84,372.50L480.84,347.50L480.33,298.50M480.84,372.50L480.84,347.50L480.33,355.67M480.33,298.50L480.33,355.67L480.84,347.50M480.33,298.50L480.33,355.67L480.84,372.50M480.33,355.67L480.33,298.50L480.30,305.50M480.33,355.67L480.33,298.50L480.30,271.50M415.55,252.67L415.55,292.00L415.20,305.50M415.55,252.67L415.55,292.00L415.20,271.50M415.55,252.67L381.90,210.18L337.33,280.17M415.55,252.67L381.90,210.18L415.55,157.33M381.90,210.18L415.55,252.67L415.55,157.33M381.90,210.18L415.55,252.67L415.55,292.00M415.20,305.50L415.20,271.50L415.55,252.67M415.20,305.50L415.20,271.50L415.55,292.00M415.20,271.50L415.20,305.50L415.17,299.50M415.20,271.50L415.20,305.50L415.17,355.17M480.30,305.50L480.30,271.50L480.45,252.67M480.30,305.50L480.30,271.50L480.45,292.00M480.30,271.50L480.30,305.50L480.33,298.50M480.30,271.50L480.30,305.50L480.33,355.67"/><circle cx="447.89" cy="141.45" r="21.39"/><circle cx="447.89" cy="323.93" r="21.33"/><circle cx="447.88" cy="556.88" r="21.32"/><circle cx="447.85" cy="599.92" r="21.27"/><circle cx="447.91" cy="642.82" r="21.34"/><circle cx="447.91" cy="880.30" r="21.41"/><circle cx="447.89" cy="1044.73" r="21.49"/></g></g></defs>
   <g id="bTop"><use href="#enzBand"/></g><g id="bBot"><use href="#enzBand"/></g>
@@ -385,10 +397,10 @@ document.addEventListener("click",closeCard);
 // plain lines grow from the end rings to the corners, the sides draw in, then frosted glass fills the frame. The pattern is never stretched.
 var seal=$("seal"), bloom=$("bloom"), veil=$("veil"), shade=$("popShade");
 var BCX=19.865, BCY=14.325, BHALF=12.63;       // band centre and half length to the outer edge of the end rings, label mm
-var pop={t:0, goal:0, i:-1, drawn:"", s0:null};
+var pop={t:0, goal:0, i:-1, drawn:"", s0:null}, sealJ=-1;
 function placeSeal(i,p,show){
-  var b=BL[i], ps=PS[i], shape=shapeNow();
-  if(!b.seal||!ps||!b.seal[shape]){ seal.style.opacity=0; seal.style.pointerEvents="none"; return; }
+  var b=BL[i], ps=PS[i], shape=shapeNow(); sealJ=i;
+  if(!b||!b.seal||!ps||!b.seal[shape]||show<=0){ seal.style.opacity=0; seal.style.pointerEvents="none"; return; }
   var u=sceneU(i,p), of=layerOff(ps,u,DEPTH.fg), f=b.seal[shape];
   var x=(W-ps.w)/2+of[0]+f[0]*ps.w, y=(H-ps.h)/2+of[1]+f[1]*ps.h, half=seal.offsetWidth/2+8;
   x=Math.max(half,Math.min(W-half,x));
@@ -396,9 +408,22 @@ function placeSeal(i,p,show){
   var a=pop.t>0||pop.goal>0?0:show;
   seal.style.opacity=a.toFixed(3); seal.style.pointerEvents=a>0.5?"auto":"none";
 }
-function popRect(){
-  var w=mq.matches?W-32:Math.min(620,W*0.86), h=mq.matches?Math.min(520,H*0.62):Math.min(400,H*0.64);
-  return {x:(W-w)/2, y:(H-h)/2, w:w, h:h};
+function popRect(){   // nearly full width, from just under the big blend name down to above the strip kept for the menu
+  var mob=mq.matches, j=pop.i>=0?pop.i:shown, ps=PS[j], top=H*0.2;
+  if(ps){ var wd=WORDS[BL[j].name.toUpperCase()]; top=(H-ps.h)/2+NAMEBOX.y*ps.h+NAMEBOX.w*ps.w*wd.h/wd.w+(mob?10:16); }
+  var m=mob?12:Math.max(16,W*0.02), bottom=H-(mob?96:Math.max(104,H*0.11));
+  return {x:m, y:top, w:W-2*m, h:Math.max(220,bottom-top)};
+}
+function fillPop(j){
+  var b=BL[j], g=$("pGroups"); $("pNum").textContent="No. "+b.n; $("pName").textContent=b.name; $("pDesc").textContent=b.desc;
+  g.innerHTML="";
+  TIERS.forEach(function(t,ti){
+    var d=document.createElement("div"); d.className="grp"; d.innerHTML="<h5>"+TL[t]+"</h5>"; g.appendChild(d);
+    b[t].forEach(function(nm){
+      var c=document.createElement("button"); c.type="button"; c.className="chip"; c.innerHTML="<i style='background:"+b.col[ti]+"'></i>"+nm;
+      c.onclick=function(e){openCard(nm,t,c,e)}; d.appendChild(c);
+    });
+  });
 }
 function bandAt(x,y,k){ return "translate("+x.toFixed(2)+","+y.toFixed(2)+") scale("+k.toFixed(4)+") translate("+(-BCX)+","+(-BCY)+")"; }
 function ln(n,x1,y1,x2,y2,w){ var e=$("ln"+n); e.setAttribute("x1",x1.toFixed(2)); e.setAttribute("y1",y1.toFixed(2)); e.setAttribute("x2",x2.toFixed(2)); e.setAttribute("y2",y2.toFixed(2)); e.setAttribute("stroke-width",w.toFixed(2)); e.style.opacity=Math.abs(x2-x1)+Math.abs(y2-y1)>0.5?1:0; }
@@ -406,7 +431,7 @@ function drawBloom(t){
   pop.drawn=t+"|"+W+"|"+H;
   var on=t>0.0005; bloom.style.display=on?"block":"none"; veil.style.display=on?"block":"none"; shade.style.display=pop.goal?"block":"none";
   if(!on||!pop.s0) return;
-  var R=popRect(), s0=pop.s0, k1=R.w*0.30/(2*BHALF), sw;
+  var R=popRect(), s0=pop.s0, k1=Math.max(150,Math.min(260,R.w*0.3))/(2*BHALF), sw;
   var a=ease(rng(t,0,0.42)), b=ease(rng(t,0.32,0.75)), c=ease(rng(t,0.6,0.95)), v=ease(rng(t,0.55,1));
   var k=s0.k+(k1-s0.k)*a, xc=s0.x+(R.x+R.w/2-s0.x)*a, yT=s0.y+(R.y-s0.y)*a, yB=s0.y+(R.y+R.h-s0.y)*a, e=BHALF*k, mid=R.y+R.h/2;
   sw=0.25*k;
@@ -426,12 +451,12 @@ function openPop(e){
   if(e) e.stopPropagation();
   var r=seal.querySelector("svg").getBoundingClientRect();   // start exactly on the button's band
   pop.s0={x:r.left+r.width*(BCX-7.05)/25.65, y:r.top+r.height*(BCY-11.1)/6.45, k:r.width/25.65};
-  pop.i=shown; pop.goal=1; key="";
+  pop.i=sealJ; fillPop(sealJ); pop.goal=1; key="";
 }
 function closePop(){ pop.goal=0; }
 seal.addEventListener("click",openPop);
 $("popX").onclick=function(e){e.stopPropagation(); closePop();};
-shade.onclick=closePop; veil.onclick=function(e){e.stopPropagation()};
+shade.onclick=closePop; veil.onclick=function(e){e.stopPropagation(); closeCard();};
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") closePop(); });
 
 // helpers
@@ -555,6 +580,7 @@ function frame(time){
 
   // panel, and on mobile lift the bottle if the panel would cover it
   var pa=ease(rng(t,T.panel0,T.panel1))*panelGate*(1-ease(rng(t,T.pout0,T.pout1)));
+  if(BL[i].seal) pa=0;   // blends with the pattern button keep their details in its pop-up, not the bottom panel
   var bottleBase=L.y+SQ.base*L.s+14, ptop=H-panel.offsetHeight;
   L.lift=Math.min(0,ptop-12-bottleBase)*pa;
   panel.style.opacity=pa; panel.classList.toggle("on",pa>0.6);
@@ -562,8 +588,13 @@ function frame(time){
   if(card.classList.contains("show") && pa<0.6) closeCard();
 
   // pattern button and its pop-up
-  if(pop.goal===1 && i!==pop.i) closePop();
-  placeSeal(i,p,sp.state==="done" ? (1-outShown)*(mq.matches?(1-pa):1) : 0);
+  // the button belongs to its scene: it fades in as the spray reveals the scene and fades out as the next scene covers it
+  var rv=ease(rng(sp.p,0.25,0.75)), sj, sa;
+  if(sp.state==="done"){ sj=i; sa=1; }
+  else if(sp.state==="play"){ if(rv>=0.5){ sj=i; sa=(rv-0.5)*2; } else { sj=i-1; sa=1-rv*2; } }
+  else { sj=i-1; sa=1; }                         // idle or fading back: the previous scene is still behind the bottle
+  if(pop.goal===1 && sj!==pop.i) closePop();
+  placeSeal(sj,p,sa);
   if(pop.t!==pop.goal || pop.drawn!==pop.t+"|"+W+"|"+H){
     pop.t = RM ? pop.goal : toward(pop.t,pop.goal,dt/(pop.goal?1.2:0.8));
     drawBloom(pop.t);
