@@ -91,8 +91,26 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
   #scrim.show{opacity:1;pointer-events:auto}
   #pill .cur{min-width:100px;font-size:14px;padding:0 8px}
 }
+/* pattern button: the label band in white, sitting in the scene; pressing it unfolds the band into the border of a pop-up */
+#seal{position:absolute;left:0;top:0;z-index:4;border:0;background:none;padding:10px 12px;cursor:pointer;color:#fff;opacity:0;
+  pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:7px;transition:opacity .25s;
+  filter:drop-shadow(0 0 6px rgba(120,90,30,.35))}
+#seal svg{display:block;width:112px;height:auto;overflow:visible;animation:sealPulse 3.6s ease-in-out infinite}
+#seal span{font:400 9.5px var(--sans);letter-spacing:.34em;text-transform:uppercase;white-space:nowrap;padding-left:.34em;
+  text-shadow:0 1px 6px rgba(80,60,20,.45)}
+#seal:hover svg{animation-play-state:paused;opacity:1}
+#seal:focus-visible{outline:1px solid #fff;outline-offset:4px}
+@keyframes sealPulse{0%,100%{opacity:.62}50%{opacity:1}}
+#popShade{position:fixed;inset:0;z-index:31;display:none;background:rgba(29,42,51,0)}
+#bloom{position:fixed;inset:0;width:100%;height:100%;z-index:33;pointer-events:none;display:none;color:#fff;overflow:visible}
+#veil{position:fixed;z-index:32;display:none;opacity:0;background:rgba(255,246,222,.16);
+  -webkit-backdrop-filter:blur(14px) saturate(1.08);backdrop-filter:blur(14px) saturate(1.08)}
+#popX{position:absolute;top:14px;right:16px;border:0;background:none;color:#fff;font-size:24px;line-height:1;cursor:pointer;
+  text-shadow:0 1px 6px rgba(80,60,20,.45)}
+@media (max-width:700px){ #seal svg{width:92px} #seal span{font-size:9px} }
 @media (prefers-reduced-motion:reduce){
   #card{transition:none !important}
+  #seal svg{animation:none;opacity:.85}
 }
 </style>
 </head>
@@ -112,12 +130,20 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <div id="groups"></div>
       <div class="pdesc"><p class="desc" id="desc"></p><button class="order" type="button">Order</button></div>
     </section>
+    <button id="seal" type="button" aria-label="Explore this scent"><svg viewBox="7.05 11.1 25.65 6.45" aria-hidden="true"><use href="#enzBand"/></svg><span>Explore this scent</span></button>
   </div>
 </div>
 <div id="scrim"></div>
 <div id="card" role="dialog" aria-live="polite"><button type="button" aria-label="Close" id="cardX">&times;</button>
       <h4 id="cName"></h4><div class="tier" id="cTier"></div><p>Placeholder line about this note, to be written.</p></div>
 
+<div id="popShade"></div>
+<div id="veil" role="dialog" aria-label="Scent notes"><button type="button" id="popX" aria-label="Close">&times;</button></div>
+<svg id="bloom" aria-hidden="true"><defs><!-- the label band (label H, locked), in label millimetres, drawn in currentColor -->
+<g id="enzBand"><g transform="matrix(0,0.02671,0.02671,0,4.02187,2.35892)" fill="none" stroke="currentColor" stroke-width="9.360" stroke-linejoin="miter" stroke-miterlimit="12"><path d="M337.88,1045.33L410.00,1000.00L345.00,955.00L415.00,910.00L349.50,865.00L414.62,829.00L339.88,791.50L414.62,753.50L336.60,718.00L405.07,615.52M447.62,858.89L447.62,664.16M415.17,299.50L415.17,355.17M405.07,586.98L336.61,484.50L414.62,446.00L339.50,409.00L415.18,372.33L415.18,347.50M558.67,137.50L558.67,280.17L514.10,210.18L480.45,157.33L480.45,252.67L480.45,292.00M480.45,252.67L514.10,210.18M447.97,302.59L447.97,162.84M480.84,347.50L480.84,372.50L556.12,409.00L480.50,446.00L558.92,484.50L490.94,586.99M558.12,1045.33L486.00,1000.00L551.00,955.00L481.00,910.00L546.00,864.62L480.88,829.00L555.62,791.50L480.83,753.33L559.40,718.00L490.93,615.52M480.33,298.50L480.33,355.67M447.61,535.56L447.61,345.26M448.32,901.70L448.32,1023.24M337.33,137.50L337.33,280.17L381.90,210.18L415.55,157.33L415.55,252.67L415.55,292.00M415.55,252.67L381.90,210.18M415.20,305.50L415.20,271.50M480.30,305.50L480.30,271.50M336.60,559.22L336.60,643.28L375.60,601.25L336.60,559.22L336.60,559.22ZM559.40,559.22L559.40,643.28L520.40,601.25L559.40,559.22L559.40,559.22ZM415.17,299.50L415.17,355.17L415.18,372.33M415.17,299.50L415.17,355.17L415.18,347.50M415.17,355.17L415.17,299.50L415.20,305.50M415.17,355.17L415.17,299.50L415.20,271.50M415.18,372.33L415.18,347.50L415.17,299.50M415.18,372.33L415.18,347.50L415.17,355.17M480.45,252.67L480.45,292.00L480.30,305.50M480.45,252.67L480.45,292.00L480.30,271.50M480.45,252.67L514.10,210.18L558.67,280.17M480.45,252.67L514.10,210.18L480.45,157.33M514.10,210.18L480.45,252.67L480.45,157.33M514.10,210.18L480.45,252.67L480.45,292.00M480.84,372.50L480.84,347.50L480.33,298.50M480.84,372.50L480.84,347.50L480.33,355.67M480.33,298.50L480.33,355.67L480.84,347.50M480.33,298.50L480.33,355.67L480.84,372.50M480.33,355.67L480.33,298.50L480.30,305.50M480.33,355.67L480.33,298.50L480.30,271.50M415.55,252.67L415.55,292.00L415.20,305.50M415.55,252.67L415.55,292.00L415.20,271.50M415.55,252.67L381.90,210.18L337.33,280.17M415.55,252.67L381.90,210.18L415.55,157.33M381.90,210.18L415.55,252.67L415.55,157.33M381.90,210.18L415.55,252.67L415.55,292.00M415.20,305.50L415.20,271.50L415.55,252.67M415.20,305.50L415.20,271.50L415.55,292.00M415.20,271.50L415.20,305.50L415.17,299.50M415.20,271.50L415.20,305.50L415.17,355.17M480.30,305.50L480.30,271.50L480.45,252.67M480.30,305.50L480.30,271.50L480.45,292.00M480.30,271.50L480.30,305.50L480.33,298.50M480.30,271.50L480.30,305.50L480.33,355.67"/><circle cx="447.89" cy="141.45" r="21.39"/><circle cx="447.89" cy="323.93" r="21.33"/><circle cx="447.88" cy="556.88" r="21.32"/><circle cx="447.85" cy="599.92" r="21.27"/><circle cx="447.91" cy="642.82" r="21.34"/><circle cx="447.91" cy="880.30" r="21.41"/><circle cx="447.89" cy="1044.73" r="21.49"/></g></g></defs>
+  <g id="bTop"><use href="#enzBand"/></g><g id="bBot"><use href="#enzBand"/></g>
+  <g fill="none" stroke="currentColor" stroke-linecap="square"><line id="ln0"/><line id="ln1"/><line id="ln2"/><line id="ln3"/><line id="ln4"/><line id="ln5"/><line id="ln6"/><line id="ln7"/>
+  <circle id="rg0"/><circle id="rg1"/><circle id="rg2"/><circle id="rg3"/></g></svg>
 <nav id="pill" aria-label="Blends"><span class="cur" id="pillCur">ENZIWA</span>
   <button type="button" data-i="0">34</button><button type="button" data-i="1">31</button><button type="button" data-i="2">33</button></nav>
 
@@ -130,6 +156,8 @@ var BL = [
    desc:"Green neroli and marigold over vetiver and cedar. Daytime and hot weather, unisex. Like dew on leaves in a garden at dawn.",
    col:["#e3b54a","#8fa35a","#5f6b45"], sc:["#f1d58a","#c9a14a","#6b5a2a"], hover:true,
    bot:"o",   // its own bottle frames, lit by this scene (img/spray3/ob*), shown while this scene is behind the bottle
+   // pattern button, as a share of the scene image: wide, on the horizon above the lion's back; tall, on the grass between the tree and the lion
+   seal:{wide:[0.156,0.405], tall:[0.27,0.60]},
    // three layer scene: sky with the people and tree taken out, then the glass name, then people, lion, tree and land in front
    layers:{wide:{w:2752,h:1536,sky:"img/scenes/omeya-dew-sky.webp",fg:"img/scenes/omeya-dew-fg.webp"},
            tall:{w:1536,h:2752,sky:"img/scenes/omeya-dew-sky-tall.webp",fg:"img/scenes/omeya-dew-fg-tall.webp"}}},
@@ -351,6 +379,59 @@ $("cardX").onclick=closeCard; scrim.onclick=closeCard;
 card.onclick=function(e){e.stopPropagation()};
 document.addEventListener("click",closeCard);
 
+// pattern button: the white label band in the scene; pressing it splits the band into the top and bottom edges of a pop-up,
+// plain lines grow from the end rings to the corners, the sides draw in, then frosted glass fills the frame. The pattern is never stretched.
+var seal=$("seal"), bloom=$("bloom"), veil=$("veil"), shade=$("popShade");
+var BCX=19.865, BCY=14.325, BHALF=12.63;       // band centre and half length to the outer edge of the end rings, label mm
+var pop={t:0, goal:0, i:-1, drawn:"", s0:null};
+function placeSeal(i,p,show){
+  var b=BL[i], ps=PS[i], shape=shapeNow();
+  if(!b.seal||!ps||!b.seal[shape]){ seal.style.opacity=0; seal.style.pointerEvents="none"; return; }
+  var u=sceneU(i,p), of=layerOff(ps,u,DEPTH.fg), f=b.seal[shape];
+  var x=(W-ps.w)/2+of[0]+f[0]*ps.w, y=(H-ps.h)/2+of[1]+f[1]*ps.h, half=seal.offsetWidth/2+8;
+  x=Math.max(half,Math.min(W-half,x));
+  seal.style.transform="translate("+x.toFixed(1)+"px,"+y.toFixed(1)+"px) translate(-50%,-50%)";
+  var a=pop.t>0||pop.goal>0?0:show;
+  seal.style.opacity=a.toFixed(3); seal.style.pointerEvents=a>0.5?"auto":"none";
+}
+function popRect(){
+  var w=mq.matches?W-32:Math.min(620,W*0.86), h=mq.matches?Math.min(520,H*0.62):Math.min(400,H*0.64);
+  return {x:(W-w)/2, y:(H-h)/2, w:w, h:h};
+}
+function bandAt(x,y,k){ return "translate("+x.toFixed(2)+","+y.toFixed(2)+") scale("+k.toFixed(4)+") translate("+(-BCX)+","+(-BCY)+")"; }
+function ln(n,x1,y1,x2,y2,w){ var e=$("ln"+n); e.setAttribute("x1",x1.toFixed(2)); e.setAttribute("y1",y1.toFixed(2)); e.setAttribute("x2",x2.toFixed(2)); e.setAttribute("y2",y2.toFixed(2)); e.setAttribute("stroke-width",w.toFixed(2)); e.style.opacity=Math.abs(x2-x1)+Math.abs(y2-y1)>0.5?1:0; }
+function drawBloom(t){
+  pop.drawn=t+"|"+W+"|"+H;
+  var on=t>0.0005; bloom.style.display=on?"block":"none"; veil.style.display=on?"block":"none"; shade.style.display=pop.goal?"block":"none";
+  if(!on||!pop.s0) return;
+  var R=popRect(), s0=pop.s0, k1=R.w*0.30/(2*BHALF), sw;
+  var a=ease(rng(t,0,0.42)), b=ease(rng(t,0.32,0.75)), c=ease(rng(t,0.6,0.95)), v=ease(rng(t,0.55,1));
+  var k=s0.k+(k1-s0.k)*a, xc=s0.x+(R.x+R.w/2-s0.x)*a, yT=s0.y+(R.y-s0.y)*a, yB=s0.y+(R.y+R.h-s0.y)*a, e=BHALF*k, mid=R.y+R.h/2;
+  sw=0.25*k;
+  $("bTop").setAttribute("transform",bandAt(xc,yT,k)); $("bBot").setAttribute("transform",bandAt(xc,yB,k));
+  ln(0,xc-e,yT,xc-e-(xc-e-R.x)*b,yT,sw); ln(1,xc+e,yT,xc+e+(R.x+R.w-xc-e)*b,yT,sw);
+  ln(2,xc-e,yB,xc-e-(xc-e-R.x)*b,yB,sw); ln(3,xc+e,yB,xc+e+(R.x+R.w-xc-e)*b,yB,sw);
+  ln(4,R.x,yT,R.x,yT+(mid-yT)*c,sw); ln(5,R.x,yB,R.x,yB-(yB-mid)*c,sw);
+  ln(6,R.x+R.w,yT,R.x+R.w,yT+(mid-yT)*c,sw); ln(7,R.x+R.w,yB,R.x+R.w,yB-(yB-mid)*c,sw);
+  [[R.x,yT],[R.x+R.w,yT],[R.x,yB],[R.x+R.w,yB]].forEach(function(q,n){   // a ring settles on each corner, like the end rings of the band
+    var g=$("rg"+n); g.setAttribute("cx",q[0].toFixed(2)); g.setAttribute("cy",q[1].toFixed(2));
+    g.setAttribute("r",(0.57*k*ease(rng(t,0.7,1))).toFixed(2)); g.setAttribute("stroke-width",sw.toFixed(2));
+  });
+  veil.style.left=R.x+"px"; veil.style.top=R.y+"px"; veil.style.width=R.w+"px"; veil.style.height=R.h+"px"; veil.style.opacity=v.toFixed(3);
+  veil.style.pointerEvents=v>0.5?"auto":"none";
+}
+function openPop(e){
+  if(e) e.stopPropagation();
+  var r=seal.querySelector("svg").getBoundingClientRect();   // start exactly on the button's band
+  pop.s0={x:r.left+r.width*(BCX-7.05)/25.65, y:r.top+r.height*(BCY-11.1)/6.45, k:r.width/25.65};
+  pop.i=shown; pop.goal=1; key="";
+}
+function closePop(){ pop.goal=0; }
+seal.addEventListener("click",openPop);
+$("popX").onclick=function(e){e.stopPropagation(); closePop();};
+shade.onclick=closePop; veil.onclick=function(e){e.stopPropagation()};
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") closePop(); });
+
 // helpers
 function cl(x){return x<0?0:x>1?1:x}
 function rng(t,a,b){return cl((t-a)/(b-a))}
@@ -477,6 +558,14 @@ function frame(time){
   panel.style.opacity=pa; panel.classList.toggle("on",pa>0.6);
   panel.style.transform="translate(-50%,"+((1-pa)*100)+"%)";
   if(card.classList.contains("show") && pa<0.6) closeCard();
+
+  // pattern button and its pop-up
+  if(pop.goal===1 && i!==pop.i) closePop();
+  placeSeal(i,p,sp.state==="done" ? (1-outShown)*(mq.matches?(1-pa):1) : 0);
+  if(pop.t!==pop.goal || pop.drawn!==pop.t+"|"+W+"|"+H){
+    pop.t = RM ? pop.goal : toward(pop.t,pop.goal,dt/(pop.goal?1.2:0.8));
+    drawBloom(pop.t);
+  }
 
   // scene layers: ease the pointer, then redraw this scene (and the one under the reveal) if its layers moved
   tx+=(mx-tx)*.08; ty+=(my-ty)*.08;
