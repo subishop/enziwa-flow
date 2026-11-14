@@ -410,9 +410,11 @@ function placeSeal(i,p,show){
 }
 function popRect(){   // nearly full width, from just under the big blend name down to above the strip kept for the menu
   var mob=mq.matches, j=pop.i>=0?pop.i:shown, ps=PS[j], top=H*0.2;
-  if(ps){ var wd=WORDS[BL[j].name.toUpperCase()]; top=(H-ps.h)/2+NAMEBOX.y*ps.h+NAMEBOX.w*ps.w*wd.h/wd.w+(mob?10:16); }
+  var dy=0;
+  if(ps){ var wd=WORDS[BL[j].name.toUpperCase()]; top=(H-ps.h)/2+NAMEBOX.y*ps.h+NAMEBOX.w*ps.w*wd.h/wd.w+(mob?10:16);
+    dy=layerOff(ps,sceneU(j,cur),DEPTH.word)[1]; }   // the name drifts with parallax: the frame moves with it, so the gap under the name never changes
   var m=mob?12:Math.max(16,W*0.02), bottom=H-(mob?96:Math.max(104,H*0.11));
-  return {x:m, y:top, w:W-2*m, h:Math.max(220,bottom-top)};
+  return {x:m, y:top+dy, w:W-2*m, h:Math.max(220,bottom-top)};
 }
 function fillPop(j){
   var b=BL[j], g=$("pGroups"); $("pNum").textContent="No. "+b.n; $("pName").textContent=b.name; $("pDesc").textContent=b.desc;
@@ -596,7 +598,7 @@ function frame(time){
   else { sj=i-1; sa=1; }                         // idle or fading back: the previous scene is still behind the bottle
   if(pop.goal===1 && sj!==pop.i) closePop();
   placeSeal(sj,p,sa);
-  if(pop.t!==pop.goal || pop.drawn!==pop.t+"|"+W+"|"+H){
+  if(pop.t!==pop.goal || pop.t>0 || pop.drawn!==pop.t+"|"+W+"|"+H){   // redrawn every frame while open, to follow the name
     pop.t = RM ? pop.goal : toward(pop.t,pop.goal,dt/(pop.goal?1.2:0.8));
     drawBloom(pop.t);
   }
