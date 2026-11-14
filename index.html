@@ -437,8 +437,8 @@ function drawBloom(t){
   var a=ease(rng(t,0,0.42)), b=ease(rng(t,0.32,0.75)), c=ease(rng(t,0.6,0.95)), v=ease(rng(t,0.55,1));
   var k=s0.k+(k1-s0.k)*a, xc=s0.x+(R.x+R.w/2-s0.x)*a, yT=s0.y+(R.y-s0.y)*a, yB=s0.y+(R.y+R.h-s0.y)*a, e=BHALF*k, mid=R.y+R.h/2;
   sw=0.25*k;
-  // top edge: no motif (TJ, 14 Nov). The rising copy dissolves on the way up and a clean line draws out from the middle instead
-  $("bTop").setAttribute("transform",bandAt(xc,yT,k)); $("bTop").style.opacity=(1-a).toFixed(3); $("bBot").setAttribute("transform",bandAt(xc,yB,k));
+  // the motif travels only to the bottom edge (TJ, 14 Nov); the top edge is a clean line that draws out from the middle
+  $("bTop").style.display="none"; $("bBot").setAttribute("transform",bandAt(xc,yB,k));
   ln(0,xc,yT,xc-(xc-R.x)*b,yT,sw); ln(1,xc,yT,xc+(R.x+R.w-xc)*b,yT,sw);
   ln(2,xc-e,yB,xc-e-(xc-e-R.x)*b,yB,sw); ln(3,xc+e,yB,xc+e+(R.x+R.w-xc-e)*b,yB,sw);
   ln(4,R.x,yT,R.x,yT+(mid-yT)*c,sw); ln(5,R.x,yB,R.x,yB-(yB-mid)*c,sw);
