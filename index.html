@@ -109,17 +109,24 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
   -webkit-backdrop-filter:blur(16px) saturate(1.08);backdrop-filter:blur(16px) saturate(1.08)}
 #popX{position:absolute;top:14px;right:18px;z-index:2;border:0;background:none;color:var(--blue);font-size:28px;line-height:1;cursor:pointer}
 /* pop-up content: what used to sit in the bottom panel */
-#veil .pin{position:absolute;inset:0;overflow:auto;display:grid;grid-template-columns:1fr 1.25fr;column-gap:clamp(28px,4vw,72px);
-  align-content:center;align-items:start;padding:clamp(36px,6vh,72px) clamp(28px,5vw,96px)}
+#veil .pin{position:absolute;inset:0;overflow:auto;padding:clamp(28px,5vh,60px) clamp(28px,5vw,96px)}
 #veil .name{font-size:clamp(34px,5.4vh,58px)}
 #veil .desc{font-size:15px;max-width:44ch}
-#veil .pgroups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-top:6px}
-#veil .chip{background:rgba(255,250,240,.75)}
+/* note pictures: they grow up from the bottom line before the glass appears. Top notes left, heart middle, base right */
+#noteRow{position:fixed;z-index:34;display:none;align-items:flex-end;justify-content:center;gap:clamp(10px,1.6vw,26px);pointer-events:none}
+#noteRow .ng{display:flex;flex-direction:column;align-items:center;gap:8px}
+#noteRow .ng h5{font:500 10px var(--sans);letter-spacing:.3em;text-transform:uppercase;color:var(--blue)}
+#noteRow .nts{display:flex;gap:clamp(6px,0.8vw,12px);align-items:flex-end}
+#noteRow .nt{display:flex;flex-direction:column;align-items:center;gap:7px;border:0;background:none;padding:0;cursor:pointer;color:var(--ink)}
+#noteRow canvas{display:block;box-shadow:0 12px 28px rgba(60,40,10,.20)}
+#noteRow .nl{font:400 11px var(--sans);letter-spacing:.06em;white-space:nowrap}
+#noteRow .dv{width:1px;align-self:stretch;background:#FCF8EA;opacity:.9;margin-top:18px}
 #card{z-index:45}
 @media (max-width:700px){ #seal svg{width:92px} #seal span{font-size:9px} #seal .dk{display:none} #seal .mb{display:inline}
-  #veil .pin{grid-template-columns:1fr;align-content:start;row-gap:16px;padding:40px 18px 20px}
+  #veil .pin{padding:40px 18px 20px}
   #veil .name{font-size:30px} #veil .desc{font-size:13.5px}
-  #veil .pgroups{gap:6px} #veil .grp h5{text-align:center} }
+  #noteRow{justify-content:flex-start;overflow-x:auto;padding:0 12px;scrollbar-width:none} #noteRow::-webkit-scrollbar{display:none}
+  #noteRow .nl{font-size:10px} }
 @media (prefers-reduced-motion:reduce){
   #card{transition:none !important}
   #seal svg{animation:none;opacity:.85}
@@ -152,7 +159,8 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 <div id="popShade"></div>
 <div id="veil" role="dialog" aria-label="Scent notes"><button type="button" id="popX" aria-label="Close">&times;</button>
   <div class="pin"><div class="pleft"><div class="num" id="pNum"></div><h2 class="name" id="pName"></h2><p class="desc" id="pDesc"></p>
-    <button class="order" type="button">Order</button></div><div class="pgroups" id="pGroups"></div></div></div>
+    <button class="order" type="button">Order</button></div></div></div>
+<div id="noteRow" aria-label="Notes"></div>
 <svg id="bloom" aria-hidden="true"><defs><!-- the label band (label H, locked), in label millimetres, drawn in currentColor -->
 <g id="enzBand"><g transform="matrix(0,0.02671,0.02671,0,4.02187,2.35892)" fill="none" stroke="currentColor" stroke-width="9.360" stroke-linejoin="miter" stroke-miterlimit="12"><path d="M337.88,1045.33L410.00,1000.00L345.00,955.00L415.00,910.00L349.50,865.00L414.62,829.00L339.88,791.50L414.62,753.50L336.60,718.00L405.07,615.52M447.62,858.89L447.62,664.16M415.17,299.50L415.17,355.17M405.07,586.98L336.61,484.50L414.62,446.00L339.50,409.00L415.18,372.33L415.18,347.50M558.67,137.50L558.67,280.17L514.10,210.18L480.45,157.33L480.45,252.67L480.45,292.00M480.45,252.67L514.10,210.18M447.97,302.59L447.97,162.84M480.84,347.50L480.84,372.50L556.12,409.00L480.50,446.00L558.92,484.50L490.94,586.99M558.12,1045.33L486.00,1000.00L551.00,955.00L481.00,910.00L546.00,864.62L480.88,829.00L555.62,791.50L480.83,753.33L559.40,718.00L490.93,615.52M480.33,298.50L480.33,355.67M447.61,535.56L447.61,345.26M448.32,901.70L448.32,1023.24M337.33,137.50L337.33,280.17L381.90,210.18L415.55,157.33L415.55,252.67L415.55,292.00M415.55,252.67L381.90,210.18M415.20,305.50L415.20,271.50M480.30,305.50L480.30,271.50M336.60,559.22L336.60,643.28L375.60,601.25L336.60,559.22L336.60,559.22ZM559.40,559.22L559.40,643.28L520.40,601.25L559.40,559.22L559.40,559.22ZM415.17,299.50L415.17,355.17L415.18,372.33M415.17,299.50L415.17,355.17L415.18,347.50M415.17,355.17L415.17,299.50L415.20,305.50M415.17,355.17L415.17,299.50L415.20,271.50M415.18,372.33L415.18,347.50L415.17,299.50M415.18,372.33L415.18,347.50L415.17,355.17M480.45,252.67L480.45,292.00L480.30,305.50M480.45,252.67L480.45,292.00L480.30,271.50M480.45,252.67L514.10,210.18L558.67,280.17M480.45,252.67L514.10,210.18L480.45,157.33M514.10,210.18L480.45,252.67L480.45,157.33M514.10,210.18L480.45,252.67L480.45,292.00M480.84,372.50L480.84,347.50L480.33,298.50M480.84,372.50L480.84,347.50L480.33,355.67M480.33,298.50L480.33,355.67L480.84,347.50M480.33,298.50L480.33,355.67L480.84,372.50M480.33,355.67L480.33,298.50L480.30,305.50M480.33,355.67L480.33,298.50L480.30,271.50M415.55,252.67L415.55,292.00L415.20,305.50M415.55,252.67L415.55,292.00L415.20,271.50M415.55,252.67L381.90,210.18L337.33,280.17M415.55,252.67L381.90,210.18L415.55,157.33M381.90,210.18L415.55,252.67L415.55,157.33M381.90,210.18L415.55,252.67L415.55,292.00M415.20,305.50L415.20,271.50L415.55,252.67M415.20,305.50L415.20,271.50L415.55,292.00M415.20,271.50L415.20,305.50L415.17,299.50M415.20,271.50L415.20,305.50L415.17,355.17M480.30,305.50L480.30,271.50L480.45,252.67M480.30,305.50L480.30,271.50L480.45,292.00M480.30,271.50L480.30,305.50L480.33,298.50M480.30,271.50L480.30,305.50L480.33,355.67"/><circle cx="447.89" cy="141.45" r="21.39"/><circle cx="447.89" cy="323.93" r="21.33"/><circle cx="447.88" cy="556.88" r="21.32"/><circle cx="447.85" cy="599.92" r="21.27"/><circle cx="447.91" cy="642.82" r="21.34"/><circle cx="447.91" cy="880.30" r="21.41"/><circle cx="447.89" cy="1044.73" r="21.49"/></g></g></defs>
   <g id="bTop"><use href="#enzBand"/></g><g id="bBot"><use href="#enzBand"/></g>
@@ -416,15 +424,77 @@ function popRect(){   // nearly full width, from just under the big blend name d
   var m=mob?12:Math.max(16,W*0.02), bottom=H-(mob?96:Math.max(104,H*0.11));
   return {x:m, y:top+dy, w:W-2*m, h:Math.max(220,bottom-top)};
 }
+// note library: one picture per note, looked up by name in img/notes/ (neroli.webp plus neroli-depth.webp for its depth),
+// so a note used by several blends shows the same picture. A note without a picture yet gets a plain placeholder tile.
+var NOTES={}, noteRow=$("noteRow"), TILES=[];
+function slug(nm){ return nm.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+function noteAsset(nm){
+  var k=slug(nm); if(NOTES[k]) return NOTES[k];
+  var n=NOTES[k]={img:new Image(), dep:new Image(), ok:0, tex:null};
+  n.img.onload=function(){n.ok|=1}; n.dep.onload=function(){n.ok|=2}; n.img.onerror=n.dep.onerror=function(){n.ok=-1};
+  n.img.src="img/notes/"+k+".webp"; n.dep.src="img/notes/"+k+"-depth.webp"; return n;
+}
 function fillPop(j){
-  var b=BL[j], g=$("pGroups"); $("pNum").textContent="No. "+b.n; $("pName").textContent=b.name; $("pDesc").textContent=b.desc;
-  g.innerHTML="";
+  var b=BL[j]; $("pNum").textContent="No. "+b.n; $("pName").textContent=b.name; $("pDesc").textContent=b.desc;
+  noteRow.innerHTML=""; TILES=[];
   TIERS.forEach(function(t,ti){
-    var d=document.createElement("div"); d.className="grp"; d.innerHTML="<h5>"+TL[t]+"</h5>"; g.appendChild(d);
+    if(ti>0){ var dv=document.createElement("div"); dv.className="dv"; noteRow.appendChild(dv); }
+    var g=document.createElement("div"); g.className="ng"; g.innerHTML="<h5>"+TL[t]+"</h5>"; var row=document.createElement("div"); row.className="nts";
     b[t].forEach(function(nm){
-      var c=document.createElement("button"); c.type="button"; c.className="chip"; c.innerHTML="<i style='background:"+b.col[ti]+"'></i>"+nm;
-      c.onclick=function(e){openCard(nm,t,c,e)}; d.appendChild(c);
+      var bt=document.createElement("button"); bt.type="button"; bt.className="nt"; bt.setAttribute("aria-label",nm);
+      var cv=document.createElement("canvas"); var lb=document.createElement("span"); lb.className="nl"; lb.textContent=nm;
+      bt.appendChild(cv); bt.appendChild(lb); bt.onclick=function(e){openCard(nm,t,bt,e)}; row.appendChild(bt);
+      TILES.push({el:bt, cv:cv, n:noteAsset(nm), nm:nm, w:0, h:0, flat:""});
     });
+    g.appendChild(row); noteRow.appendChild(g);
+  });
+}
+// one shared WebGL painter brings every picture to life: depth parallax with the pointer or phone tilt, a soft breeze, a slow glint of light
+var NG=(function(){
+  var c=document.createElement("canvas"), gl=c.getContext("webgl",{preserveDrawingBuffer:true,premultipliedAlpha:false});
+  if(!gl) return null;
+  function sh(type,src){ var s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); return s; }
+  var pr=gl.createProgram();
+  gl.attachShader(pr,sh(gl.VERTEX_SHADER,"attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}"));
+  gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,
+    "precision mediump float;uniform sampler2D I,D;uniform vec2 M;uniform float T;varying vec2 v;"+
+    "void main(){float d=texture2D(D,v).r;vec2 o=M*(d-.45)*.024;"+
+    "o.x+=sin(T*.9+v.y*5.)*.004*d;o.y+=cos(T*.7+v.x*4.)*.003*d;"+
+    "vec4 c=texture2D(I,clamp(v*.95+.025+o,0.,1.));"+
+    "float s=v.x+v.y*.6-mod(T*.11,2.6)+.4;float g=exp(-s*s/.012);"+
+    "c.rgb+=g*.12*d*smoothstep(.5,1.,dot(c.rgb,vec3(.333)));gl_FragColor=vec4(c.rgb,1.);}"));
+  gl.linkProgram(pr); gl.useProgram(pr);
+  var bf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,bf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  var lp=gl.getAttribLocation(pr,"p"); gl.enableVertexAttribArray(lp); gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
+  gl.uniform1i(gl.getUniformLocation(pr,"I"),0); gl.uniform1i(gl.getUniformLocation(pr,"D"),1);
+  var uM=gl.getUniformLocation(pr,"M"), uT=gl.getUniformLocation(pr,"T");
+  function tex(img){ var t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+    [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(function(k){gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE)});
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img); return t; }
+  return function(n,w,h,time,mxv,myv){
+    if(!n.tex) n.tex=[tex(n.img),tex(n.dep)];
+    if(c.width!==w||c.height!==h){ c.width=w; c.height=h; } gl.viewport(0,0,w,h);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,n.tex[0]); gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,n.tex[1]);
+    gl.uniform2f(uM,mxv,myv); gl.uniform1f(uT,time); gl.drawArrays(gl.TRIANGLE_STRIP,0,4); return c;
+  };
+})();
+function drawTiles(t,time){
+  var R=popRect(), mob=mq.matches, tw=mob?78:Math.max(70,Math.min(150,(R.w-160)/10.5)), th=Math.round(tw*4/3);
+  noteRow.style.display=t>0.0005?"flex":"none"; if(t<=0.0005) return;
+  noteRow.style.left=R.x+"px"; noteRow.style.width=R.w+"px"; noteRow.style.top=(R.y+R.h-th-(mob?84:96))+"px";
+  noteRow.style.pointerEvents=t>0.9?"auto":"none";
+  var d=Math.min(dpr,2);
+  TILES.forEach(function(tl,k){
+    var cw=Math.round(tw*d), ch=Math.round(th*d);
+    if(tl.w!==tw){ tl.w=tw; tl.cv.style.width=tw+"px"; tl.cv.style.height=th+"px"; tl.cv.width=cw; tl.cv.height=ch; tl.flat=""; }
+    var r=ease(rng(t,0.50+k*0.025,0.72+k*0.025));   // each picture grows up from the bottom line in turn
+    tl.el.style.clipPath="inset("+((1-r)*100).toFixed(1)+"% 0 0 0)"; tl.el.style.transform="translateY("+((1-r)*14).toFixed(1)+"px)";
+    tl.el.style.opacity=r>0?1:0;
+    var c2=tl.cv.getContext("2d");
+    if(tl.n.ok===3 && NG){ c2.drawImage(NG(tl.n,cw,ch,time,RM?0:tx*2,RM?0:ty*2),0,0); }
+    else if(tl.flat!==tl.n.ok+""){ tl.flat=tl.n.ok+"";       // placeholder until the note has its picture
+      var gr=c2.createLinearGradient(0,0,0,ch); gr.addColorStop(0,"#f7efd9"); gr.addColorStop(1,"#e6d6ae"); c2.fillStyle=gr; c2.fillRect(0,0,cw,ch); }
   });
 }
 function bandAt(x,y,k){ return "translate("+x.toFixed(2)+","+y.toFixed(2)+") scale("+k.toFixed(4)+") translate("+(-BCX)+","+(-BCY)+")"; }
@@ -434,7 +504,7 @@ function drawBloom(t){
   var on=t>0.0005; bloom.style.display=on?"block":"none"; veil.style.display=on?"block":"none"; shade.style.display=pop.goal?"block":"none";
   if(!on||!pop.s0) return;
   var R=popRect(), s0=pop.s0, k1=Math.max(150,Math.min(260,R.w*0.3))/(2*BHALF), sw;
-  var a=ease(rng(t,0,0.42)), b=ease(rng(t,0.32,0.75)), c=ease(rng(t,0.6,0.95)), v=ease(rng(t,0.55,1));
+  var a=ease(rng(t,0,0.42)), b=ease(rng(t,0.32,0.75)), c=ease(rng(t,0.6,0.95)), v=ease(rng(t,0.86,1));   // glass last, after the notes have grown
   var k=s0.k+(k1-s0.k)*a, xc=s0.x+(R.x+R.w/2-s0.x)*a, yT=s0.y+(R.y-s0.y)*a, yB=s0.y+(R.y+R.h-s0.y)*a, e=BHALF*k, mid=R.y+R.h/2;
   sw=0.25*k;
   // the motif travels only to the bottom edge (TJ, 14 Nov); the top edge is a clean line that draws out from the middle
@@ -599,8 +669,8 @@ function frame(time){
   if(pop.goal===1 && sj!==pop.i) closePop();
   placeSeal(sj,p,sa);
   if(pop.t!==pop.goal || pop.t>0 || pop.drawn!==pop.t+"|"+W+"|"+H){   // redrawn every frame while open, to follow the name
-    pop.t = RM ? pop.goal : toward(pop.t,pop.goal,dt/(pop.goal?1.2:0.8));
-    drawBloom(pop.t);
+    pop.t = RM ? pop.goal : toward(pop.t,pop.goal,dt/(pop.goal?2.0:1.0));
+    drawBloom(pop.t); drawTiles(pop.t,time/1000);
   }
 
   // scene layers: ease the pointer, then redraw this scene (and the one under the reveal) if its layers moved
