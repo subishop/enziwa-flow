@@ -256,7 +256,7 @@ function preFor(j){ return (j>=0 && j<BL.length && BL[j].bot) ? BL[j].bot+"b" : 
 bset("b"); BL.forEach(function(b,j){ if(b.bot) bset(preFor(j)); });
 // per blend mist and masks load on demand: the current blend and the next one
 var MIST=BL.map(function(){return []}), MASK=BL.map(function(){return []});
-function ensure(j){ if(j<BL.length && !MIST[j].length){ MASK[j]=imgs(CLIPK[j]+"/m_",SQ.mask,2,".png"); MIST[j]=imgs(CLIPK[j]+"/w_",SQ.mist,3,".jpg"); } }
+function ensure(j){ if(j<BL.length && !MIST[j].length){ MASK[j]=imgs(CLIPK[j]+"/m_",SQ.mask,2,".webp"); MIST[j]=imgs(CLIPK[j]+"/w_",SQ.mist,3,".webp"); /* all WebP (TJ, 15 Nov) */ } }
 function ok(im){return im && im.complete && im.naturalWidth>0}
 function pick(arr,j){if(!arr.length) return null; j=Math.max(0,Math.min(arr.length-1,j)); while(j>=0 && !ok(arr[j])) j--; return j<0?null:arr[j]}
 
