@@ -117,13 +117,18 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #noteRow{position:fixed;left:0;top:0;width:100%;z-index:34;display:none;overflow:hidden;pointer-events:none}
 #noteRow .nt{position:absolute;bottom:0;border:0;background:none;padding:0;cursor:pointer;transform-origin:50% 100%;pointer-events:auto}
 #noteRow canvas{display:block;filter:drop-shadow(0 10px 18px rgba(60,40,10,.18))}
-#noteRow .nl{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font:400 11px var(--sans);letter-spacing:.14em;
-  text-transform:uppercase;white-space:nowrap;color:var(--blue);text-shadow:0 0 8px #fff8e8,0 0 3px #fff8e8}
+/* specimen tags: a small cream card per note, placed by hand for each picture, joined to it by a hairline and a dot */
+#noteRow .tag{position:absolute;transform:translate(-50%,-50%);background:rgba(255,251,242,.95);border:1px solid rgba(17,107,158,.18);
+  box-shadow:0 4px 14px rgba(60,40,10,.14);padding:5px 11px 4px;text-align:center;white-space:nowrap;pointer-events:none;z-index:2}
+#noteRow .tag b{display:block;font:600 11px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+#noteRow .tag i{display:block;font:400 8.5px var(--sans);letter-spacing:.26em;text-transform:uppercase;color:#8a7a55;font-style:normal;margin-top:2px}
+#noteRow .hl{position:absolute;height:1px;background:rgba(17,107,158,.5);transform-origin:0 50%;pointer-events:none;z-index:1}
+#noteRow .hd{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--blue);transform:translate(-50%,-50%);z-index:1}
 #card{z-index:45}
 @media (max-width:700px){ #seal svg{width:92px} #seal span{font-size:9px} #seal .dk{display:none} #seal .mb{display:inline}
   #veil .pin{padding:40px 18px 20px}
   #veil .name{font-size:30px} #veil .desc{font-size:13.5px}
-  #noteRow .nl{font-size:9px} }
+  #noteRow .tag,#noteRow .hl,#noteRow .hd{display:none} }   /* phones: too tight for tags; tapping a note opens its name card */
 @media (prefers-reduced-motion:reduce){
   #card{transition:none !important}
   #seal svg{animation:none;opacity:.85}
@@ -439,9 +444,11 @@ function fillPop(j){
   TIERS.forEach(function(t,ti){            // nine slots in order: top notes left, heart middle, base right
     ((b.row&&b.row[t])||b[t]).forEach(function(nm){
       var bt=document.createElement("button"); bt.type="button"; bt.className="nt"; bt.setAttribute("aria-label",nm);
-      var cv=document.createElement("canvas"); var lb=document.createElement("span"); lb.className="nl"; lb.textContent=nm;
-      bt.appendChild(cv); bt.appendChild(lb); bt.onclick=function(e){openCard(nm,t,bt,e)}; noteRow.appendChild(bt);
-      TILES.push({el:bt, cv:cv, n:noteAsset(nm), nm:nm, w:0, k:TILES.length});
+      var cv=document.createElement("canvas");
+      var tg=document.createElement("span"); tg.className="tag"; tg.innerHTML="<b></b><i></i>"; tg.firstChild.textContent=nm; tg.lastChild.textContent=TL[t];
+      var hl=document.createElement("span"); hl.className="hl"; var hd=document.createElement("span"); hd.className="hd";
+      bt.appendChild(cv); bt.appendChild(hl); bt.appendChild(hd); bt.appendChild(tg); bt.onclick=function(e){openCard(nm,t,bt,e)}; noteRow.appendChild(bt);
+      TILES.push({el:bt, cv:cv, tg:tg, hl:hl, hd:hd, n:noteAsset(nm), nm:nm, w:0, k:TILES.length});
     });
   });
 }
@@ -486,6 +493,11 @@ var SLOT_M=[0.16,0.32,0.06, 0.38,0.50,0.62, 0.84,0.68,0.94];
 // powders) lie on the line, sit lower and do not sway. Add a note here only when it is not a plant.
 var NOTE_KIND={"musk":{rest:1, size:0.42}, "bergamot":{rest:1, size:0.42}, "cedar":{rest:1, size:0.42},
                "violet":{size:0.86}, "cyclamen":{size:0.86}, "african-marigold":{size:0.94}};
+// where each specimen tag sits: a = the point on the picture the hairline starts from (share of its width and height),
+// o = where the tag's centre sits from that point, in pixels at full size. Each is placed by hand, clear of the line, the motif and the Order button.
+var NOTE_TAG={"neroli":{a:[.42,.12],o:[22,-58]}, "bergamot":{a:[.62,.12],o:[42,-52]}, "african-marigold":{a:[.45,.05],o:[-28,-42]},
+              "violet":{a:[.35,.08],o:[-30,-40]}, "jasmine":{a:[.5,.03],o:[0,-42]}, "cyclamen":{a:[.65,.08],o:[36,-40]},
+              "cedar":{a:[.35,.12],o:[-40,-52]}, "vetiver":{a:[.6,.05],o:[30,-42]}, "musk":{a:[.45,.1],o:[-36,-52]}};
 function drawTiles(t,time){
   var R=popRect(), mob=mq.matches, line=R.y+R.h;
   noteRow.style.display=t>0.0005?"block":"none"; if(t<=0.0005) return;
@@ -499,7 +511,12 @@ function drawTiles(t,time){
     if(tl.w!==w){ tl.w=w; tl.cv.style.width=w+"px"; tl.cv.style.height=h+"px"; tl.cv.width=Math.round(w*d); tl.cv.height=Math.round(h*d); }
     tl.el.style.left=(cx-w/2)+"px"; tl.el.style.zIndex=10-Math.abs(k-4);
     var r=ease(rng(t,0.50+k*0.025,0.74+k*0.025));   // each plant grows up out of the bottom line in turn
-    tl.el.style.clipPath="inset("+((1-r)*100).toFixed(1)+"% -50% 0 -50%)"; tl.el.style.transform="translateY("+((1-r)*24).toFixed(1)+"px)";
+    tl.el.style.clipPath="inset("+((1-r)*160-60).toFixed(1)+"% -80% 0 -80%)"; tl.el.style.transform="translateY("+((1-r)*24).toFixed(1)+"px)";
+    var tp=NOTE_TAG[slug(tl.nm)]||{a:[.5,.05],o:[0,-42]}, sc=ph0/400, ax=tp.a[0]*w, ay=tp.a[1]*h, tx2=ax+tp.o[0]*sc, ty2=ay+tp.o[1]*sc;
+    tl.tg.style.left=tx2+"px"; tl.tg.style.top=ty2+"px"; tl.hd.style.left=ax+"px"; tl.hd.style.top=ay+"px";
+    var ln2=Math.hypot(tx2-ax,ty2-ay); tl.hl.style.left=ax+"px"; tl.hl.style.top=ay+"px"; tl.hl.style.width=ln2+"px";
+    tl.hl.style.transform="rotate("+Math.atan2(ty2-ay,tx2-ax)+"rad)";
+    var tv=ease(rng(t,0.80+k*0.01,0.95+k*0.01)); tl.tg.style.opacity=tv; tl.hl.style.opacity=tv; tl.hd.style.opacity=tv;   // tags arrive once the plants have grown
     tl.el.style.pointerEvents=t>0.9?"auto":"none";
     var c2=tl.cv.getContext("2d"); c2.clearRect(0,0,tl.cv.width,tl.cv.height);
     c2.drawImage(NG(tl.n,tl.cv.width,tl.cv.height,time,RM?0:tx*2,RM?0:ty*2,k*1.7,kind.rest?0:1),0,0);
