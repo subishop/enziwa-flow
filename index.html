@@ -95,29 +95,18 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
   #pill .cur{min-width:100px;font-size:14px;padding:0 8px}
 }
 /* pattern button: the label band in white, sitting in the scene; pressing it unfolds the band into the border of a pop-up */
-/* the button is a small version of the pop-up (TJ, 15 Nov): frosted glass, the same thin cream border with a ring on each
-   corner, the motif in the centre, the words above and below in the pop-up's blue */
-#seal{position:absolute;left:0;top:0;z-index:4;border:1px solid rgba(252,248,234,.95);padding:14px 22px 12px;cursor:pointer;color:var(--blue);opacity:0;
-  pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:9px;transition:opacity .25s,transform .25s;
-  background:rgba(255,248,232,.46);-webkit-backdrop-filter:blur(10px) saturate(1.08);backdrop-filter:blur(10px) saturate(1.08);
-  box-shadow:0 8px 26px rgba(60,40,10,.16)}
-#seal .rg{position:absolute;width:7px;height:7px;border:1px solid rgba(252,248,234,.95);border-radius:50%;background:transparent}
-#seal .r1{left:-4px;top:-4px} #seal .r2{right:-4px;top:-4px} #seal .r3{left:-4px;bottom:-4px} #seal .r4{right:-4px;bottom:-4px}
-#seal span{text-shadow:none !important;font-family:var(--label) !important;font-weight:500 !important}
-/* TJ's final try (15 Nov): the same pale glass as the full pop-up, motif and words in the pop-up's dark grey text colour;
-   the pop-up blue on hover or press */
-#seal{color:var(--ink);transition:opacity .25s,color .2s,background .2s;background:rgba(255,248,232,.26);   /* lighter than the pop-up (TJ, 15 Nov) */
-  -webkit-backdrop-filter:blur(16px) saturate(1.08);backdrop-filter:blur(16px) saturate(1.08)}
-#seal:hover,#seal:active,#seal:focus-visible{color:var(--blue);background:rgba(255,248,232,.6)}
-#seal:hover span,#seal:active span{text-shadow:none !important}
-#seal svg{display:block;width:112px;height:auto;overflow:visible;animation:sealPulse 3.6s ease-in-out infinite}
-#seal span{font:400 9.5px var(--sans);letter-spacing:.34em;text-transform:uppercase;white-space:nowrap;padding-left:.34em;
-  text-shadow:0 1px 6px rgba(80,60,20,.45)}
-#seal b{font-weight:400}
-#seal .mb{display:none}             /* "Click to" on computers, "Tap to" on phone sized screens (same 700 px switch as the rest of the page) */
-#seal:hover svg{animation-play-state:paused;opacity:1}
-#seal:focus-visible{outline:1px solid #fff;outline-offset:4px}
-@keyframes sealPulse{0%,100%{opacity:.62}50%{opacity:1}}
+/* the button is now one quiet line (TJ, 15 Nov): a tiny motif mark, "Explore this scent" in small spaced Jost capitals in the
+   text grey, and a hairline under the words that draws itself once when the scene arrives. Blue on hover or press. */
+#seal{position:absolute;left:0;top:0;z-index:4;border:0;background:none;padding:8px 4px;cursor:pointer;color:var(--ink);opacity:0;
+  pointer-events:none;display:flex;flex-direction:row;align-items:center;gap:10px;transition:opacity .25s,color .25s}
+#seal:hover,#seal:active,#seal:focus-visible{color:var(--blue)}
+#seal svg{display:block;width:30px;height:auto;overflow:visible;opacity:.9}
+#seal span{position:relative;font:400 10px var(--label);letter-spacing:.32em;text-transform:uppercase;white-space:nowrap;padding:0 0 5px .32em}
+#seal span::after{content:"";position:absolute;left:.32em;right:0;bottom:0;height:1px;background:currentColor;opacity:.7;
+  transform:scaleX(0);transform-origin:left;transition:transform 1.4s cubic-bezier(.22,.7,.2,1) .3s,opacity .25s}
+#seal.on span::after{transform:scaleX(1)}
+#seal:hover span::after{opacity:1}
+#seal:focus-visible{outline:1px solid currentColor;outline-offset:6px}
 #popShade{position:fixed;inset:0;z-index:31;display:none;background:rgba(29,42,51,0)}
 #bloom{position:fixed;inset:0;width:100%;height:100%;z-index:33;pointer-events:none;display:none;color:#FCF8EA;opacity:.9;overflow:visible}   /* the hue of the frosted blend name */
 #veil{position:fixed;z-index:32;display:none;opacity:0;background:rgba(255,248,232,.42);
@@ -144,14 +133,14 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #btop{position:fixed;inset:0;width:100%;height:100%;z-index:34;pointer-events:none;display:none}   /* above the glass and frame, behind the notes */
 #noteRow{z-index:35 !important}
 #veil .pin{overscroll-behavior:contain}
-@media (max-width:700px){ #seal svg{width:70px} #seal span{font-size:7.5px} #seal{padding:9px 14px 8px;gap:6px} #seal .dk{display:none} #seal .mb{display:inline}
+@media (max-width:700px){ #seal svg{width:22px} #seal span{font-size:8.5px} #seal{gap:8px}
   #veil .pin{padding:40px 18px 20px}
   #veil .name{font-size:30px} #veil .desc{font-size:13.5px}
   #noteRow .tag{padding:3px 7px 2px} #noteRow .tag b{font-size:9.5px;letter-spacing:.12em} #noteRow .tag i{font-size:7.5px}
   #veil .pleft{max-width:52%} }   /* phones: the notes take the right half, the text the left */
 @media (prefers-reduced-motion:reduce){
   #card{transition:none !important}
-  #seal svg{animation:none;opacity:.85}
+  #seal span::after{transition:none}
 }
 </style>
 </head>
@@ -171,7 +160,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <div id="groups"></div>
       <div class="pdesc"><p class="desc" id="desc"></p><button class="order" type="button">Order</button></div>
     </section>
-    <button id="seal" type="button" aria-label="Explore this scent"><i class="rg r1"></i><i class="rg r2"></i><i class="rg r3"></i><i class="rg r4"></i><span><b class="dk">Click to</b><b class="mb">Tap to</b></span><svg viewBox="7.05 11.1 25.65 6.45" aria-hidden="true"><use href="#enzBand"/></svg><span>Explore this scent</span></button>
+    <button id="seal" type="button" aria-label="Explore this scent"><svg viewBox="7.05 11.1 25.65 6.45" aria-hidden="true"><use href="#enzBand"/></svg><span>Explore this scent</span></button>
   </div>
 </div>
 <div id="scrim"></div>
@@ -469,7 +458,7 @@ function placeSeal(i,p,show){
   x=Math.max(half,Math.min(W-half,x));
   seal.style.transform="translate("+x.toFixed(1)+"px,"+y.toFixed(1)+"px) translate(-50%,-50%)";
   var a=pop.t>0||pop.goal>0?0:show;
-  seal.style.opacity=a.toFixed(3); seal.style.pointerEvents=a>0.5?"auto":"none";
+  seal.style.opacity=a.toFixed(3); seal.style.pointerEvents=a>0.5?"auto":"none"; seal.classList.toggle("on",a>0.5);
 }
 function popRect(){   // nearly full width, from just under the big blend name down to above the strip kept for the menu
   var mob=mq.matches, j=pop.i>=0?pop.i:shown, ps=PS[j], top=H*0.2;
