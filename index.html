@@ -98,10 +98,10 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 /* the button is now one quiet line (TJ, 15 Nov): a tiny motif mark, "Explore this scent" in small spaced Jost capitals in the
    text grey, and a hairline under the words that draws itself once when the scene arrives. Blue on hover or press. */
 #seal{position:absolute;left:0;top:0;z-index:4;border:0;background:none;padding:8px 4px;cursor:pointer;color:var(--ink);opacity:0;
-  pointer-events:none;display:flex;flex-direction:row;align-items:center;gap:10px;transition:opacity .25s,color .25s}
+  pointer-events:none;display:flex;flex-direction:row;align-items:center;gap:11.5px;transition:opacity .25s,color .25s}
 #seal:hover,#seal:active,#seal:focus-visible{color:var(--blue)}
 #seal svg{display:block;width:30px;height:auto;overflow:visible;opacity:.9}
-#seal span{position:relative;font:400 10px var(--label);letter-spacing:.32em;text-transform:uppercase;white-space:nowrap;padding:0 0 5px .32em}
+#seal span{position:relative;font:400 11.5px var(--label);letter-spacing:.32em;text-transform:uppercase;white-space:nowrap;padding:0 0 6px .32em}
 #seal span::after{content:"";position:absolute;left:.32em;right:0;bottom:0;height:1px;background:currentColor;opacity:.7;
   transform:scaleX(0);transform-origin:left;transition:transform 1.4s cubic-bezier(.22,.7,.2,1) .3s,opacity .25s}
 #seal.on span::after{transform:scaleX(1)}
@@ -133,7 +133,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #btop{position:fixed;inset:0;width:100%;height:100%;z-index:34;pointer-events:none;display:none}   /* above the glass and frame, behind the notes */
 #noteRow{z-index:35 !important}
 #veil .pin{overscroll-behavior:contain}
-@media (max-width:700px){ #seal svg{width:22px} #seal span{font-size:8.5px} #seal{gap:8px}
+@media (max-width:700px){ #seal svg{width:22px} #seal span{font-size:9.8px} #seal{gap:9.2px}
   #veil .pin{padding:40px 18px 20px}
   #veil .name{font-size:30px} #veil .desc{font-size:13.5px}
   #noteRow .tag{padding:3px 7px 2px} #noteRow .tag b{font-size:9.5px;letter-spacing:.12em} #noteRow .tag i{font-size:7.5px}
