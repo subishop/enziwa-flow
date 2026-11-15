@@ -469,13 +469,15 @@ function drawTilesPhone(t,time,R,line,d){
     var h=Math.round(rh*(kind.rest?1.3:1.5)), w=Math.round(h*asp), maxW=colR-colL+12; if(w>maxW){ w=Math.round(maxW); h=Math.round(w/asp); }
     var key2=w+"x"+h+(n===tl.nw?"w":"");
     if(tl.w!==key2){ tl.w=key2; tl.cv.style.width=w+"px"; tl.cv.style.height=h+"px"; tl.cv.width=Math.round(w*d); tl.cv.height=Math.round(h*d); }
-    var right=colR-[0,16,6][k%3], bottom=y0+rh*(k+1)+4;
+    // stems point right and run off the edge of the panel (TJ, 15 Nov); the flowers face in. Resting pieces stay inside.
+    var right=kind.rest?colR-[0,16,6][k%3]:colR+w*0.22-[0,16,6][k%3], bottom=y0+rh*(k+1)+4;
     tl.el.style.left=(right-w)+"px"; tl.el.style.bottom=Math.max(0,line-bottom)+"px"; tl.el.style.zIndex=20-k;
     var r=ease(rng(t,0.50+k*0.025,0.74+k*0.025));                  // each one slides in from the right edge in turn
     tl.el.style.clipPath="inset(-40% -20% -20% "+((1-r)*160-60).toFixed(1)+"%)"; tl.el.style.transform="translateX("+((1-r)*20).toFixed(1)+"px)";
     tl.el.style.pointerEvents=t>0.9?"auto":"none";
-    // tag rests on the stem at the left edge of the notes column, never in the text column
-    tl.tg.style.transform="translate(0,-50%)"; tl.tg.style.left=Math.max(0,colL+2-(right-w))+"px"; tl.tg.style.top=(h*0.62)+"px";
+    // tag: plants carry it on the stem near the right edge of the panel; resting pieces carry it at their top left corner.
+    // Never in the text column.
+    tl.tg.style.transform="translate(-100%,-50%)"; tl.tg.style.left=(R.x+R.w-6-(right-w))+"px"; tl.tg.style.top=(h*(kind.rest?0.62:0.55))+"px";   // one neat column of tags down the right edge
     var tv=ease(rng(t,0.80+k*0.01,0.95+k*0.01)); tl.tg.style.opacity=tv; tl.hl.style.opacity=0; tl.hd.style.opacity=0;
     var c2=tl.cv.getContext("2d"); c2.clearRect(0,0,tl.cv.width,tl.cv.height);
     c2.drawImage(NG(n,tl.cv.width,tl.cv.height,time,RM?0:tx*2,RM?0:ty*2,k*1.7,kind.rest?0:0.35),0,0);
