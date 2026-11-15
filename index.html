@@ -447,15 +447,16 @@ function fillPop(j){
 var NG=(function(){
   var c=document.createElement("canvas"), gl=c.getContext("webgl",{preserveDrawingBuffer:true,premultipliedAlpha:false,alpha:true});
   if(!gl) return null;
-  function sh(type,src){ var s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); return s; }
+  function sh(type,src){ var s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) console.error("note painter:",gl.getShaderInfoLog(s)); return s; }
   var pr=gl.createProgram();
   gl.attachShader(pr,sh(gl.VERTEX_SHADER,"attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}"));
   gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,
     // cut-out plant: sways from its stem (base still, top moves most), shifts in depth with the pointer, a slow glint passes over it
-    "precision mediump float;uniform sampler2D I,D;uniform vec2 M;uniform float T,P;varying vec2 v;"+
+    "precision mediump float;uniform sampler2D I,D;uniform vec2 M;uniform float T,P,A;varying vec2 v;"+
     "void main(){float up=pow(1.-v.y,1.6);float d=texture2D(D,v).r;"+
-    "vec2 o=M*(d-.45)*.016*up;"+
-    "o.x+=(sin(T*.8+P)*.014+sin(T*1.9+P*2.+v.y*6.)*.003)*up;o.y+=cos(T*1.3+P+v.x*5.)*.002*up;"+
+    "vec2 o=M*(d-.45)*.016*mix(.6,up,A);"+
+    "o.x+=(sin(T*.8+P)*.014+sin(T*1.9+P*2.+v.y*6.)*.003)*up*A;o.y+=cos(T*1.3+P+v.x*5.)*.002*up*A;"+
     "vec4 c=texture2D(I,clamp(v-o,0.,1.));"+
     "float s=v.x+v.y*.6-mod(T*.11+P*.1,2.6)+.4;float g=exp(-s*s/.012);"+
     "c.rgb+=g*.14*d*smoothstep(.45,1.,dot(c.rgb,vec3(.333)));gl_FragColor=c;}"));
@@ -463,22 +464,25 @@ var NG=(function(){
   var bf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,bf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
   var lp=gl.getAttribLocation(pr,"p"); gl.enableVertexAttribArray(lp); gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
   gl.uniform1i(gl.getUniformLocation(pr,"I"),0); gl.uniform1i(gl.getUniformLocation(pr,"D"),1);
-  var uM=gl.getUniformLocation(pr,"M"), uT=gl.getUniformLocation(pr,"T"), uP=gl.getUniformLocation(pr,"P");
+  var uM=gl.getUniformLocation(pr,"M"), uT=gl.getUniformLocation(pr,"T"), uP=gl.getUniformLocation(pr,"P"), uA=gl.getUniformLocation(pr,"A");
   gl.clearColor(0,0,0,0);
   function tex(img){ var t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
     [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(function(k){gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE)});
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img); return t; }
-  return function(n,w,h,time,mxv,myv,ph){
+  return function(n,w,h,time,mxv,myv,ph,sway){
     if(!n.tex) n.tex=[tex(n.img),tex(n.dep)];
     if(c.width!==w||c.height!==h){ c.width=w; c.height=h; } gl.viewport(0,0,w,h); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,n.tex[0]); gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,n.tex[1]);
-    gl.uniform2f(uM,mxv,myv); gl.uniform1f(uT,time); gl.uniform1f(uP,ph); gl.drawArrays(gl.TRIANGLE_STRIP,0,4); return c;
+    gl.uniform2f(uM,mxv,myv); gl.uniform1f(uT,time); gl.uniform1f(uP,ph); gl.uniform1f(uA,sway==null?1:sway); gl.drawArrays(gl.TRIANGLE_STRIP,0,4); return c;
   };
 })();
 // where each of the nine plants stands, as a share of the pop-up width: desktop evenly along the bottom line;
 // phone in three clusters, bottom left, centre and bottom right, the outer ones reaching past the side borders
 var SLOT_M=[0.16,0.32,0.06, 0.38,0.50,0.62, 0.84,0.68,0.94];
+// how each kind of note sits on the line. Plants grow on a stem and sway (the default). Resting things (pods, woods, resins,
+// powders) lie on the line, sit lower and do not sway. Add a note here only when it is not a plant.
+var NOTE_KIND={"musk":{rest:1, size:0.42}};
 function drawTiles(t,time){
   var R=popRect(), mob=mq.matches, line=R.y+R.h;
   noteRow.style.display=t>0.0005?"block":"none"; if(t<=0.0005) return;
@@ -486,7 +490,8 @@ function drawTiles(t,time){
   var ph0=mob?Math.min(R.h*0.34,260):Math.min(R.h*0.5,400), d=Math.min(dpr,2);   // kept clear of the Order button above
   TILES.forEach(function(tl){
     var k=tl.k, has=tl.n.ok===3 && NG; tl.el.style.display=has?"block":"none"; if(!has) return;   // notes without a picture yet are left out
-    var asp=tl.n.img.naturalWidth/tl.n.img.naturalHeight, h=Math.round(ph0*(mob?[1,.8,.9][k%3]:[1,.88,.94][k%3])), w=Math.round(h*asp);
+    var kind=NOTE_KIND[slug(tl.nm)]||{};
+    var asp=tl.n.img.naturalWidth/tl.n.img.naturalHeight, h=Math.round(ph0*(mob?[1,.8,.9][k%3]:[1,.88,.94][k%3])*(kind.size||1)), w=Math.round(h*asp);
     var cx=R.x+R.w*(mob?SLOT_M[k]:(k+0.5)/9);
     if(tl.w!==w){ tl.w=w; tl.cv.style.width=w+"px"; tl.cv.style.height=h+"px"; tl.cv.width=Math.round(w*d); tl.cv.height=Math.round(h*d); }
     tl.el.style.left=(cx-w/2)+"px"; tl.el.style.zIndex=10-Math.abs(k-4);
@@ -494,7 +499,7 @@ function drawTiles(t,time){
     tl.el.style.clipPath="inset("+((1-r)*100).toFixed(1)+"% -50% 0 -50%)"; tl.el.style.transform="translateY("+((1-r)*24).toFixed(1)+"px)";
     tl.el.style.pointerEvents=t>0.9?"auto":"none";
     var c2=tl.cv.getContext("2d"); c2.clearRect(0,0,tl.cv.width,tl.cv.height);
-    c2.drawImage(NG(tl.n,tl.cv.width,tl.cv.height,time,RM?0:tx*2,RM?0:ty*2,k*1.7),0,0);
+    c2.drawImage(NG(tl.n,tl.cv.width,tl.cv.height,time,RM?0:tx*2,RM?0:ty*2,k*1.7,kind.rest?0:1),0,0);
   });
 }
 function bandAt(x,y,k){ return "translate("+x.toFixed(2)+","+y.toFixed(2)+") scale("+k.toFixed(4)+") translate("+(-BCX)+","+(-BCY)+")"; }
