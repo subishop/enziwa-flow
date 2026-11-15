@@ -495,9 +495,11 @@ var NOTE_KIND={"musk":{rest:1, size:0.42}, "bergamot":{rest:1, size:0.42}, "ceda
                "violet":{size:0.86}, "cyclamen":{size:0.86}, "african-marigold":{size:0.94}};
 // where each specimen tag sits: a = the point on the picture the hairline starts from (share of its width and height),
 // o = where the tag's centre sits from that point, in pixels at full size. Each is placed by hand, clear of the line, the motif and the Order button.
-var NOTE_TAG={"neroli":{a:[.42,.12],o:[22,-58]}, "bergamot":{a:[.62,.12],o:[42,-52]}, "african-marigold":{a:[.45,.05],o:[-28,-42]},
-              "violet":{a:[.35,.08],o:[-30,-40]}, "jasmine":{a:[.5,.03],o:[0,-42]}, "cyclamen":{a:[.65,.08],o:[36,-40]},
-              "cedar":{a:[.35,.12],o:[-40,-52]}, "vetiver":{a:[.6,.05],o:[30,-42]}, "musk":{a:[.45,.1],o:[-36,-52]}};
+// Rule (TJ, 15 Nov): no tag rises above the tops of the tallest plants; the space above the row is kept free.
+// Low resting pieces carry their tag just above them; tall plants carry it lower down, beside the stem.
+var NOTE_TAG={"neroli":{a:[.85,.35],o:[88,-21]}, "bergamot":{a:[.62,.12],o:[42,-52]}, "african-marigold":{a:[.12,.25],o:[-27,-12]},
+              "violet":{a:[.5,.02],o:[0,-34]}, "jasmine":{a:[.9,.55],o:[45,12]}, "cyclamen":{a:[.5,.02],o:[0,-34]},
+              "cedar":{a:[.35,.12],o:[-40,-52]}, "vetiver":{a:[.25,.55],o:[-79,-40]}, "musk":{a:[.45,.1],o:[-36,-52]}};
 function drawTiles(t,time){
   var R=popRect(), mob=mq.matches, line=R.y+R.h;
   noteRow.style.display=t>0.0005?"block":"none"; if(t<=0.0005) return;
@@ -512,7 +514,8 @@ function drawTiles(t,time){
     tl.el.style.left=(cx-w/2)+"px"; tl.el.style.zIndex=10-Math.abs(k-4);
     var r=ease(rng(t,0.50+k*0.025,0.74+k*0.025));   // each plant grows up out of the bottom line in turn
     tl.el.style.clipPath="inset("+((1-r)*160-60).toFixed(1)+"% -80% 0 -80%)"; tl.el.style.transform="translateY("+((1-r)*24).toFixed(1)+"px)";
-    var tp=NOTE_TAG[slug(tl.nm)]||{a:[.5,.05],o:[0,-42]}, sc=ph0/400, ax=tp.a[0]*w, ay=tp.a[1]*h, tx2=ax+tp.o[0]*sc, ty2=ay+tp.o[1]*sc;
+    var tp=NOTE_TAG[slug(tl.nm)]||{a:[.5,.75],o:[56,6]}, sc=ph0/400, ax=tp.a[0]*w, ay=tp.a[1]*h, tx2=ax+tp.o[0]*sc, ty2=ay+tp.o[1]*sc;
+    ty2=Math.max(ty2, h-ph0+22);              // ceiling: the tag's top never rises above the tallest plants (tag is about 34 px tall)
     tl.tg.style.left=tx2+"px"; tl.tg.style.top=ty2+"px"; tl.hd.style.left=ax+"px"; tl.hd.style.top=ay+"px";
     var ln2=Math.hypot(tx2-ax,ty2-ay); tl.hl.style.left=ax+"px"; tl.hl.style.top=ay+"px"; tl.hl.style.width=ln2+"px";
     tl.hl.style.transform="rotate("+Math.atan2(ty2-ay,tx2-ax)+"rad)";
