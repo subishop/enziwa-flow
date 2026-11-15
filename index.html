@@ -461,7 +461,10 @@ function fillPop(j){
 // Phones (TJ, 15 Nov): the pop-up is tall, so the notes run down the right side like the perfume pyramid,
 // top notes at the top, heart in the middle, base at the bottom, using the lying-down pictures; each tag sits to its left.
 // The text keeps the left column and the bottle stands at the bottom left.
-var PHONE_SHIFT={"jasmine":0.14, "vetiver":0.14};   // share of the picture width a plant moves left on phones (TJ, 15 Nov)
+// Phones: every tag sits at the right edge (TJ, 15 Nov). Each plant is placed so its flower heads end just before its own
+// tag, so a long name (AFRICAN MARIGOLD) pushes its plant further left than a short one. HEADS = how far across the
+// lying-down picture (from its left) the heads or blades reach; the stem runs on under the tag and off the edge.
+var HEADS={"neroli":.55, "african-marigold":.38, "violet":.55, "jasmine":.5, "cyclamen":.55, "vetiver":.6};
 function drawTilesPhone(t,time,R,line,d){
   var colL=R.x+R.w*0.5, colR=R.x+R.w+6, y0=R.y+58, rh=(line-y0)/9;
   TILES.forEach(function(tl){
@@ -473,7 +476,9 @@ function drawTilesPhone(t,time,R,line,d){
     // stems point right and run off the edge of the panel (TJ, 15 Nov); the flowers face in. Resting pieces stay inside.
     // plants: about half the picture (the stem, or vetiver's roots) runs past the right edge, the heads stay inside;
     // plants are drawn above the resting pieces so their heads are never hidden. Overlaps and sizes as TJ likes them.
-    var right=kind.rest?colR-[0,16,6][k%3]:colR+w*(0.46-(PHONE_SHIFT[slug(tl.nm)]||0)), bottom=y0+rh*(k+1)+4;
+    if(tl.tg.parentNode!==noteRow){ noteRow.appendChild(tl.tg); tl.tg.style.zIndex=100; }
+    var tw=tl.tg.offsetWidth||80, tagL=R.x+R.w-6-tw;
+    var right=kind.rest?colR-[0,16,6][k%3]:Math.max(colL-8,tagL-6-(HEADS[slug(tl.nm)]||.5)*w)+w, bottom=y0+rh*(k+1)+4;
     tl.el.style.left=(right-w)+"px"; tl.el.style.bottom=Math.max(0,line-bottom)+"px"; tl.el.style.zIndex=(kind.rest?0:20)+20-k;
     var r=ease(rng(t,0.50+k*0.025,0.74+k*0.025));                  // each one slides in from the right edge in turn
     tl.el.style.clipPath="inset(-40% -20% -20% "+((1-r)*160-60).toFixed(1)+"%)"; tl.el.style.transform="translateX("+((1-r)*20).toFixed(1)+"px)";
@@ -482,10 +487,8 @@ function drawTilesPhone(t,time,R,line,d){
     // Never in the text column.
     // tags live on their own top layer on phones, so no picture can cover or clip them.
     // Resting pieces keep their tag at the right edge; plants carry it just left of the flower heads, never on them.
-    if(tl.tg.parentNode!==noteRow){ noteRow.appendChild(tl.tg); tl.tg.style.zIndex=100; }
     var bTop=bottom-h; tl.tg.style.transform="translate(-100%,-50%)";
-    if(kind.rest){ tl.tg.style.left=(R.x+R.w-6)+"px"; tl.tg.style.top=(bTop+h*0.4)+"px"; }
-    else { tl.tg.style.left=(right-w-4)+"px"; tl.tg.style.top=(bTop+h*0.5)+"px"; }
+    tl.tg.style.left=(R.x+R.w-6)+"px"; tl.tg.style.top=(bTop+h*(kind.rest?0.4:0.5))+"px";
     var tv=ease(rng(t,0.80+k*0.01,0.95+k*0.01)); tl.tg.style.opacity=tv; tl.hl.style.opacity=0; tl.hd.style.opacity=0;
     var c2=tl.cv.getContext("2d"); c2.clearRect(0,0,tl.cv.width,tl.cv.height);
     c2.drawImage(NG(n,tl.cv.width,tl.cv.height,time,RM?0:tx*2,RM?0:ty*2,k*1.7,kind.rest?0:0.35),0,0);
