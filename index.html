@@ -125,6 +125,9 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #noteRow .hl{position:absolute;height:1px;background:rgba(17,107,158,.5);transform-origin:0 50%;pointer-events:none;z-index:1}
 #noteRow .hd{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--blue);transform:translate(-50%,-50%);z-index:1}
 #card{z-index:45}
+/* the bottle, lifted out of the scene and set in the pop-up in front of the glass */
+#btop{position:fixed;inset:0;width:100%;height:100%;z-index:36;pointer-events:none;display:none}
+#veil .pin{overscroll-behavior:contain}
 @media (max-width:700px){ #seal svg{width:92px} #seal span{font-size:9px} #seal .dk{display:none} #seal .mb{display:inline}
   #veil .pin{padding:40px 18px 20px}
   #veil .name{font-size:30px} #veil .desc{font-size:13.5px}
@@ -163,6 +166,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
   <div class="pin"><div class="pleft"><div class="num" id="pNum"></div><h2 class="name" id="pName"></h2><p class="desc" id="pDesc"></p>
     <button class="order" type="button">Order</button></div></div></div>
 <div id="noteRow" aria-label="Notes"></div>
+<canvas id="btop" aria-hidden="true"></canvas>
 <svg id="bloom" aria-hidden="true"><defs><!-- the label band (label H, locked), in label millimetres, drawn in currentColor -->
 <g id="enzBand"><g transform="matrix(0,0.02671,0.02671,0,4.02187,2.35892)" fill="none" stroke="currentColor" stroke-width="9.360" stroke-linejoin="miter" stroke-miterlimit="12"><path d="M337.88,1045.33L410.00,1000.00L345.00,955.00L415.00,910.00L349.50,865.00L414.62,829.00L339.88,791.50L414.62,753.50L336.60,718.00L405.07,615.52M447.62,858.89L447.62,664.16M415.17,299.50L415.17,355.17M405.07,586.98L336.61,484.50L414.62,446.00L339.50,409.00L415.18,372.33L415.18,347.50M558.67,137.50L558.67,280.17L514.10,210.18L480.45,157.33L480.45,252.67L480.45,292.00M480.45,252.67L514.10,210.18M447.97,302.59L447.97,162.84M480.84,347.50L480.84,372.50L556.12,409.00L480.50,446.00L558.92,484.50L490.94,586.99M558.12,1045.33L486.00,1000.00L551.00,955.00L481.00,910.00L546.00,864.62L480.88,829.00L555.62,791.50L480.83,753.33L559.40,718.00L490.93,615.52M480.33,298.50L480.33,355.67M447.61,535.56L447.61,345.26M448.32,901.70L448.32,1023.24M337.33,137.50L337.33,280.17L381.90,210.18L415.55,157.33L415.55,252.67L415.55,292.00M415.55,252.67L381.90,210.18M415.20,305.50L415.20,271.50M480.30,305.50L480.30,271.50M336.60,559.22L336.60,643.28L375.60,601.25L336.60,559.22L336.60,559.22ZM559.40,559.22L559.40,643.28L520.40,601.25L559.40,559.22L559.40,559.22ZM415.17,299.50L415.17,355.17L415.18,372.33M415.17,299.50L415.17,355.17L415.18,347.50M415.17,355.17L415.17,299.50L415.20,305.50M415.17,355.17L415.17,299.50L415.20,271.50M415.18,372.33L415.18,347.50L415.17,299.50M415.18,372.33L415.18,347.50L415.17,355.17M480.45,252.67L480.45,292.00L480.30,305.50M480.45,252.67L480.45,292.00L480.30,271.50M480.45,252.67L514.10,210.18L558.67,280.17M480.45,252.67L514.10,210.18L480.45,157.33M514.10,210.18L480.45,252.67L480.45,157.33M514.10,210.18L480.45,252.67L480.45,292.00M480.84,372.50L480.84,347.50L480.33,298.50M480.84,372.50L480.84,347.50L480.33,355.67M480.33,298.50L480.33,355.67L480.84,347.50M480.33,298.50L480.33,355.67L480.84,372.50M480.33,355.67L480.33,298.50L480.30,305.50M480.33,355.67L480.33,298.50L480.30,271.50M415.55,252.67L415.55,292.00L415.20,305.50M415.55,252.67L415.55,292.00L415.20,271.50M415.55,252.67L381.90,210.18L337.33,280.17M415.55,252.67L381.90,210.18L415.55,157.33M381.90,210.18L415.55,252.67L415.55,157.33M381.90,210.18L415.55,252.67L415.55,292.00M415.20,305.50L415.20,271.50L415.55,252.67M415.20,305.50L415.20,271.50L415.55,292.00M415.20,271.50L415.20,305.50L415.17,299.50M415.20,271.50L415.20,305.50L415.17,355.17M480.30,305.50L480.30,271.50L480.45,252.67M480.30,305.50L480.30,271.50L480.45,292.00M480.30,271.50L480.30,305.50L480.33,298.50M480.30,271.50L480.30,305.50L480.33,355.67"/><circle cx="447.89" cy="141.45" r="21.39"/><circle cx="447.89" cy="323.93" r="21.33"/><circle cx="447.88" cy="556.88" r="21.32"/><circle cx="447.85" cy="599.92" r="21.27"/><circle cx="447.91" cy="642.82" r="21.34"/><circle cx="447.91" cy="880.30" r="21.41"/><circle cx="447.89" cy="1044.73" r="21.49"/></g></g></defs>
   <g id="bTop"><use href="#enzBand"/></g><g id="bBot"><use href="#enzBand"/></g>
@@ -497,9 +501,10 @@ var NOTE_KIND={"musk":{rest:1, size:0.42}, "bergamot":{rest:1, size:0.42}, "ceda
 // o = where the tag's centre sits from that point, in pixels at full size. Each is placed by hand, clear of the line, the motif and the Order button.
 // Rule (TJ, 15 Nov): no tag rises above the tops of the tallest plants; the space above the row is kept free.
 // Low resting pieces carry their tag just above them; tall plants carry it lower down, beside the stem.
-var NOTE_TAG={"neroli":{a:[.85,.35],o:[88,-21]}, "bergamot":{a:[.62,.12],o:[42,-52]}, "african-marigold":{a:[.12,.25],o:[-27,-12]},
-              "violet":{a:[.5,.02],o:[0,-34]}, "jasmine":{a:[.9,.55],o:[45,12]}, "cyclamen":{a:[.5,.02],o:[0,-34]},
-              "cedar":{a:[.35,.12],o:[-40,-52]}, "vetiver":{a:[.25,.55],o:[-79,-40]}, "musk":{a:[.45,.1],o:[-36,-52]}};
+// p = the tag's centre as a share of the picture's own box (may go past 0 to 1), placed where TJ drew them (15 Nov)
+var NOTE_TAG={"neroli":{a:[.85,.35],p:[.49,.72]}, "bergamot":{a:[.62,.12],o:[42,-52]}, "african-marigold":{a:[.6,.3],p:[.86,.73]},
+              "violet":{a:[.6,.25],p:[.96,.64]}, "jasmine":{a:[.8,.45],p:[.995,.74]}, "cyclamen":{a:[.75,.15],p:[1.36,.18]},
+              "cedar":{a:[.15,.4],p:[-.2,.47]}, "vetiver":{a:[.25,.55],o:[-79,-40]}, "musk":{a:[.45,.1],o:[-36,-52]}};
 function drawTiles(t,time){
   var R=popRect(), mob=mq.matches, line=R.y+R.h;
   noteRow.style.display=t>0.0005?"block":"none"; if(t<=0.0005) return;
@@ -514,7 +519,8 @@ function drawTiles(t,time){
     tl.el.style.left=(cx-w/2)+"px"; tl.el.style.zIndex=10-Math.abs(k-4);
     var r=ease(rng(t,0.50+k*0.025,0.74+k*0.025));   // each plant grows up out of the bottom line in turn
     tl.el.style.clipPath="inset("+((1-r)*160-60).toFixed(1)+"% -80% 0 -80%)"; tl.el.style.transform="translateY("+((1-r)*24).toFixed(1)+"px)";
-    var tp=NOTE_TAG[slug(tl.nm)]||{a:[.5,.75],o:[56,6]}, sc=ph0/400, ax=tp.a[0]*w, ay=tp.a[1]*h, tx2=ax+tp.o[0]*sc, ty2=ay+tp.o[1]*sc;
+    var tp=NOTE_TAG[slug(tl.nm)]||{a:[.5,.75],o:[56,6]}, sc=ph0/400, ax=tp.a[0]*w, ay=tp.a[1]*h;
+    var tx2=tp.p?tp.p[0]*w:ax+tp.o[0]*sc, ty2=tp.p?tp.p[1]*h:ay+tp.o[1]*sc;
     ty2=Math.max(ty2, h-ph0+22);              // ceiling: the tag's top never rises above the tallest plants (tag is about 34 px tall)
     tl.tg.style.left=tx2+"px"; tl.tg.style.top=ty2+"px"; tl.hd.style.left=ax+"px"; tl.hd.style.top=ay+"px";
     var ln2=Math.hypot(tx2-ax,ty2-ay); tl.hl.style.left=ax+"px"; tl.hl.style.top=ay+"px"; tl.hl.style.width=ln2+"px";
@@ -555,6 +561,48 @@ function openPop(e){
   pop.i=sealJ; fillPop(sealJ); pop.goal=1; key="";
 }
 function closePop(){ pop.goal=0; }
+// The bottle joins the pop-up: it leaves the scene, puts its cap on as it travels (from wherever the cap was: off, lifting,
+// going back on, or already on mid spin), and settles at the far right above vetiver and musk, its cap rising out of the top
+// edge of the frame, clear of the blend name and the close button. Closing plays it all back, cap included.
+var btop=$("btop"), bctx=btop.getContext("2d"), bNow={set:"d",j:SQ.down-1,pre:"b"}, bDrawn="";
+// frame units (frames are 854 x 480): glass width, top of the CLOSED cap, cap height, base
+var BW=150, CTOP=146, CAPH=96, BH=SQ.base-146;
+function bottleTarget(){
+  var R=popRect(), mob=mq.matches, ceil=R.y+R.h-(mob?Math.min(R.h*0.34,260):Math.min(R.h*0.5,400)), s2, yt, xc;
+  if(mob){ var hm=Math.min(R.h*0.28,210); s2=hm/BH; yt=ceil-10-hm; xc=R.x+R.w-30-BW*s2/2; }   // phone: the open space between Order and the plants, right side
+  else {
+    s2=Math.min(1.3,(ceil-14-R.y)/(BH-0.55*CAPH));                  // base just above the plants, a little over half the cap above the top line
+    yt=R.y-0.55*CAPH*s2; xc=R.x+R.w-62-BW*s2/2;                      // left of the close button
+    var ps=PS[pop.i];
+    if(ps){ var wr=(W-ps.w)/2+(NAMEBOX.x+NAMEBOX.w)*ps.w+16, room=(R.x+R.w-62)-wr;   // keep the cap clear of the blend name
+      if(xc-BW*s2/2<wr){
+        if(room>=BW*0.6){ s2=Math.min(s2,room/BW); yt=R.y-0.55*CAPH*s2; xc=R.x+R.w-62-BW*s2/2; }   // slimmer, still rising out of the top edge
+        else { s2=Math.min(s2,(ceil-14-R.y-12)/BH); yt=R.y+12; xc=R.x+R.w-62-BW*s2/2; }        // no room: inside the frame
+      } }
+  }
+  return [xc-SQ.cx*s2, yt-CTOP*s2, SQ.w*s2, SQ.h*s2];
+}
+function drawBottleTop(t){
+  var on=t>0.0005, k2=on?[t.toFixed(4),W,H,bNow.set,bNow.j,tx.toFixed(3),ty.toFixed(3)].join("|"):"off";
+  if(k2===bDrawn) return; bDrawn=k2;
+  btop.style.display=on?"block":"none"; if(!on) return;
+  if(btop.width!==Math.round(W*dpr)){ btop.width=Math.round(W*dpr); btop.height=Math.round(H*dpr); }
+  bctx.setTransform(dpr,0,0,dpr,0,0); bctx.clearRect(0,0,W,H);
+  var m=ease(rng(t,0,0.55)), cap=ease(rng(t,0,0.42)), A=frameRect(1), B=bottleTarget();
+  var r=A.map(function(v,n){return v+(B[n]-v)*m}), BS=bset(bNow.pre), D=SQ.down-1, d0;
+  if(bNow.set==="l") d0=(1-bNow.j/(SQ.lift-1))*D; else if(bNow.set==="d") d0=bNow.j; else d0=D;   // cap position when it left the scene
+  bctx.imageSmoothingEnabled=true; bctx.imageSmoothingQuality="high";
+  if(bNow.set==="s"||bNow.set==="o"){                                 // mid spin: cross from the turning frame to the front, cap on
+    var sf=pick(BS[bNow.set],bNow.j); if(sf){ bctx.globalAlpha=1-cap; bctx.drawImage(sf,r[0],r[1],r[2],r[3]); }
+    bctx.globalAlpha=cap;
+  }
+  var im=pick(BS.d,Math.round(d0+(D-d0)*cap)); if(im) bctx.drawImage(im,r[0],r[1],r[2],r[3]);
+  bctx.globalAlpha=1;
+}
+// while the pop-up is open the page stays on this blend: no wheel, swipe or key scrolling outside the pop-up itself
+window.addEventListener("wheel",function(e){ if(pop.goal===1 && !(e.target.closest && e.target.closest("#veil .pin"))) e.preventDefault(); },{passive:false});
+window.addEventListener("touchmove",function(e){ if(pop.goal===1 && !(e.target.closest && e.target.closest("#veil .pin"))) e.preventDefault(); },{passive:false});
+window.addEventListener("keydown",function(e){ if(pop.goal===1 && [" ","PageDown","PageUp","ArrowDown","ArrowUp","Home","End"].indexOf(e.key)>=0) e.preventDefault(); });
 seal.addEventListener("click",openPop);
 $("popX").onclick=function(e){e.stopPropagation(); closePop();};
 shade.onclick=closePop; veil.onclick=function(e){e.stopPropagation(); closeCard();};
@@ -574,7 +622,7 @@ window.addEventListener("resize",function(){size();onScroll()});
 mq.addEventListener && mq.addEventListener("change",function(){closeCard()});
 
 // the pill lands in that blend's revealed scene: blends passed on the way count as already sprayed
-pillBtns.forEach(function(btn){btn.onclick=function(e){e.stopPropagation();
+pillBtns.forEach(function(btn){btn.onclick=function(e){e.stopPropagation(); if(typeof closePop==="function") closePop();
   var i=+btn.dataset.i; jumpTo=START+SEG*i+SEG*0.8;
   window.scrollTo({top:jumpTo*H,behavior:RM?"auto":"smooth"});}});
 
@@ -707,7 +755,8 @@ function frame(time){
   if(i>0 && composeScene(i-1,p)) sv++;
 
   // composite
-  var k=[sv,i,sp.state,Math.round(sp.p*600),Math.round(sp.fade*60),Math.round(t*3000),Math.round(capShown*100),Math.round(liftShown*100),Math.round(outShown*100),Math.round(L.lift),W,H].join("|");
+  var hb=pop.t>0.0005?0:1;   // while the pop-up is open the bottle is drawn in front of the glass instead (drawBottleTop)
+  var k=[sv,i,sp.state,Math.round(sp.p*600),Math.round(sp.fade*60),Math.round(t*3000),Math.round(capShown*100),Math.round(liftShown*100),Math.round(outShown*100),Math.round(L.lift),W,H,hb].join("|");
   if(k!==key){ key=k;
     fc.setTransform(dpr,0,0,dpr,0,0); fc.globalAlpha=1; fc.globalCompositeOperation="source-over";
     var set, j;
@@ -715,18 +764,20 @@ function frame(time){
     else if(sp.state==="done" && outShown>0){ set="o"; j=Math.round(outShown*(SQ.out-1)); }
     else if(sp.state==="done" && capShown>0){ set="d"; j=Math.round(capShown*(SQ.down-1)); }
     else { set="l"; j=Math.round(liftShown*(SQ.lift-1)); }
+    if(pop.t<=0.0005){ bNow={set:set,j:j,pre:preFor(sp.state==="done"?i:i-1)}; }   // where the bottle is in the scene when the pop-up opens
     // the bottle wears the light of the scene behind it: the previous scene (or cream) until this one is revealed
     if(sp.state==="fade"){
-      drawBase(i); drawBottle(set,j,bottleA,i-1);
+      drawBase(i); drawBottle(set,j,bottleA*hb,i-1);
       fc.setTransform(1,0,0,1,0,0); fc.globalAlpha=sp.fade; fc.drawImage(FZ,0,0); fc.globalAlpha=1;
     } else if(sp.state==="play"){
-      drawBase(i); drawReveal(i,sp.p); drawBottle(set,j,1,i-1,i,ease(rng(sp.p,0.25,0.6))); drawMistLayer(i,sp.p);
+      drawBase(i); drawReveal(i,sp.p); drawBottle(set,j,hb,i-1,i,ease(rng(sp.p,0.25,0.6))); drawMistLayer(i,sp.p);
     } else if(sp.state==="done"){
-      fc.drawImage(SC[i],0,0,W,H); drawBottle(set,j,1,i);
+      fc.drawImage(SC[i],0,0,W,H); drawBottle(set,j,hb,i);
     } else {
-      drawBase(i); drawBottle(set,j,bottleA,i-1);
+      drawBase(i); drawBottle(set,j,bottleA*hb,i-1);
     }
   }
+  drawBottleTop(pop.t);
 
   requestAnimationFrame(frame);
 }
