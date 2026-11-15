@@ -132,7 +132,8 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 @media (max-width:700px){ #seal svg{width:92px} #seal span{font-size:9px} #seal .dk{display:none} #seal .mb{display:inline}
   #veil .pin{padding:40px 18px 20px}
   #veil .name{font-size:30px} #veil .desc{font-size:13.5px}
-  #noteRow .tag,#noteRow .hl,#noteRow .hd{display:none} }   /* phones: too tight for tags; tapping a note opens its name card */
+  #noteRow .tag{padding:3px 7px 2px} #noteRow .tag b{font-size:9.5px;letter-spacing:.12em} #noteRow .tag i{font-size:7.5px}
+  #veil .pleft{max-width:52%} }   /* phones: the notes take the right half, the text the left */
 @media (prefers-reduced-motion:reduce){
   #card{transition:none !important}
   #seal svg{animation:none;opacity:.85}
@@ -437,8 +438,8 @@ function popRect(){   // nearly full width, from just under the big blend name d
 // so a note used by several blends shows the same picture. A note without a picture yet gets a plain placeholder tile.
 var NOTES={}, noteRow=$("noteRow"), TILES=[];
 function slug(nm){ return nm.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
-function noteAsset(nm){
-  var k=slug(nm); if(NOTES[k]) return NOTES[k];
+function noteAsset(nm,wide){        // wide: the lying-down version made for the phone column (slug-wide.webp); missing ones fall back to the normal picture
+  var k=slug(nm)+(wide?"-wide":""); if(NOTES[k]) return NOTES[k];
   var n=NOTES[k]={img:new Image(), dep:new Image(), ok:0, tex:null};
   n.img.onload=function(){n.ok|=1}; n.dep.onload=function(){n.ok|=2}; n.img.onerror=n.dep.onerror=function(){n.ok=-1};
   n.img.src="img/notes/"+k+".webp"; n.dep.src="img/notes/"+k+"-depth.webp"; return n;
@@ -453,8 +454,31 @@ function fillPop(j){
       var tg=document.createElement("span"); tg.className="tag"; tg.innerHTML="<b></b><i></i>"; tg.firstChild.textContent=nm; tg.lastChild.textContent=TL[t];
       var hl=document.createElement("span"); hl.className="hl"; var hd=document.createElement("span"); hd.className="hd";
       bt.appendChild(cv); bt.appendChild(hl); bt.appendChild(hd); bt.appendChild(tg); bt.onclick=function(e){openCard(nm,t,bt,e)}; noteRow.appendChild(bt);
-      TILES.push({el:bt, cv:cv, tg:tg, hl:hl, hd:hd, n:noteAsset(nm), nm:nm, w:0, k:TILES.length});
+      TILES.push({el:bt, cv:cv, tg:tg, hl:hl, hd:hd, n:noteAsset(nm), nw:mq.matches?noteAsset(nm,1):null, nm:nm, w:0, k:TILES.length});
     });
+  });
+}
+// Phones (TJ, 15 Nov): the pop-up is tall, so the notes run down the right side like the perfume pyramid,
+// top notes at the top, heart in the middle, base at the bottom, using the lying-down pictures; each tag sits to its left.
+// The text keeps the left column and the bottle stands at the bottom left.
+function drawTilesPhone(t,time,R,line,d){
+  var colL=R.x+R.w*0.5, colR=R.x+R.w+6, y0=R.y+58, rh=(line-y0)/9;
+  TILES.forEach(function(tl){
+    var k=tl.k, n=(tl.nw&&tl.nw.ok===3)?tl.nw:tl.n, has=n.ok===3&&NG; tl.el.style.display=has?"block":"none"; if(!has) return;
+    var kind=NOTE_KIND[slug(tl.nm)]||{}, asp=n.img.naturalWidth/n.img.naturalHeight;
+    var h=Math.round(rh*(kind.rest?1.3:1.5)), w=Math.round(h*asp), maxW=colR-colL+12; if(w>maxW){ w=Math.round(maxW); h=Math.round(w/asp); }
+    var key2=w+"x"+h+(n===tl.nw?"w":"");
+    if(tl.w!==key2){ tl.w=key2; tl.cv.style.width=w+"px"; tl.cv.style.height=h+"px"; tl.cv.width=Math.round(w*d); tl.cv.height=Math.round(h*d); }
+    var right=colR-[0,16,6][k%3], bottom=y0+rh*(k+1)+4;
+    tl.el.style.left=(right-w)+"px"; tl.el.style.bottom=Math.max(0,line-bottom)+"px"; tl.el.style.zIndex=20-k;
+    var r=ease(rng(t,0.50+k*0.025,0.74+k*0.025));                  // each one slides in from the right edge in turn
+    tl.el.style.clipPath="inset(-40% -20% -20% "+((1-r)*160-60).toFixed(1)+"%)"; tl.el.style.transform="translateX("+((1-r)*20).toFixed(1)+"px)";
+    tl.el.style.pointerEvents=t>0.9?"auto":"none";
+    // tag rests on the stem at the left edge of the notes column, never in the text column
+    tl.tg.style.transform="translate(0,-50%)"; tl.tg.style.left=Math.max(0,colL+2-(right-w))+"px"; tl.tg.style.top=(h*0.62)+"px";
+    var tv=ease(rng(t,0.80+k*0.01,0.95+k*0.01)); tl.tg.style.opacity=tv; tl.hl.style.opacity=0; tl.hd.style.opacity=0;
+    var c2=tl.cv.getContext("2d"); c2.clearRect(0,0,tl.cv.width,tl.cv.height);
+    c2.drawImage(NG(n,tl.cv.width,tl.cv.height,time,RM?0:tx*2,RM?0:ty*2,k*1.7,kind.rest?0:0.35),0,0);
   });
 }
 // one shared WebGL painter brings every picture to life: depth parallax with the pointer or phone tilt, a soft breeze, a slow glint of light
@@ -511,7 +535,8 @@ function drawTiles(t,time){
   noteRow.style.display=t>0.0005?"block":"none"; if(t<=0.0005) return;
   noteRow.style.height=line+"px";                                     // the row ends exactly on the bottom line: nothing shows below it
   var ph0=mob?Math.min(R.h*0.34,260):Math.min(R.h*0.5,400), d=Math.min(dpr,2);   // kept clear of the Order button above
-  TILES.forEach(function(tl){
+  if(mob){ drawTilesPhone(t,time,R,line,d); return; }
+  TILES.forEach(function(tl){ tl.el.style.bottom="0px"; tl.tg.style.transform="";
     var k=tl.k, has=tl.n.ok===3 && NG; tl.el.style.display=has?"block":"none"; if(!has) return;   // notes without a picture yet are left out
     var kind=NOTE_KIND[slug(tl.nm)]||{};
     var asp=tl.n.img.naturalWidth/tl.n.img.naturalHeight, h=Math.round(ph0*(mob?[1,.8,.9][k%3]:1)*(kind.size||1)), w=Math.round(h*asp);
@@ -572,7 +597,7 @@ var BW=150, CTOP=146, CAPH=96, BH=SQ.base-146, CAPHALF=48, BODYHALF=75;
 // (vetiver overlaps it); drawn behind the notes and tags. The cap stays clear of the blend name and the close button.
 function bottleTarget(){
   var R=popRect(), mob=mq.matches, ceil=R.y+R.h-(mob?Math.min(R.h*0.34,260):Math.min(R.h*0.5,400)), s2, yt, xc;
-  if(mob){ var hm=Math.min(R.h*0.42,300); s2=hm/BH; yt=ceil+70-hm; xc=R.x+R.w-24-BODYHALF*s2; }   // phone: right side, base behind the plants
+  if(mob){ var hm=Math.min(R.h*0.42,280); s2=hm/BH; yt=R.y+R.h-4-hm; xc=R.x+R.w*0.25; }   // phone: standing on the bottom line, bottom left
   else {
     s2=Math.min(1.9,0.62*R.h/(BH-0.6*CAPH));
     var ps=PS[pop.i], wr=ps?(W-ps.w)/2+(NAMEBOX.x+NAMEBOX.w)*ps.w+16:-1e9;
