@@ -247,20 +247,32 @@ function layerImgs(j,shape){
 }
 function pad(n,k){return ("000"+n).slice(-k)}
 function imgs(pre,n,k,ext){var a=[];for(var j=0;j<n;j++){var im=new Image();im.decoding="async";im.src="img/spray3/"+pre+pad(j,k)+ext;a.push(im)}return a}
-function one(p,n){return imgs("b"+p+"_",n,2,".webp")}
-// bottle frame sets: the studio set (b*) on cream and placeholder scenes, and per scene lit sets (for example ob* for Omeya Dew), loaded on first use
+// Frames come from sprite sheets (15 Nov 2026): 12 files instead of about 450, because from Kampala each file takes about
+// a second to start and the page was stalling. A frame is {img, sx, sy, sw, sh, c}: its cell in the sheet, and c = where that
+// cell sits inside the full frame (shares of width and height), so drawF draws it exactly where the full frame would go.
+// Bottle sheets hold only the strip the bottle occupies (x 752 to 956, y 96 to 880 of the 1708 x 960 frame), 10 per row.
+// Rebuild the sheets with tools/make_sheets.py whenever frames change.
+var BOTC=[752/1708, 96/960, 204/1708, 784/960], FULLC=[0,0,1,1];
+function sheetSeq(file,n,cols,cw,ch,c){ var im=new Image(); im.decoding="async"; im.src="img/spray3/"+file; var a=[];
+  for(var k=0;k<n;k++) a.push({img:im, sx:(k%cols)*cw, sy:Math.floor(k/cols)*ch, sw:cw, sh:ch, c:c}); return a; }
+function drawF(ctx,f,x,y,w,h){ var c=f.c; ctx.drawImage(f.img,f.sx,f.sy,f.sw,f.sh,x+c[0]*w,y+c[1]*h,c[2]*w,c[3]*h); }
+// bottle frame sets: the studio set (b*) on cream and placeholder scenes, and per scene lit sets (for example ob* for Omeya Dew)
 var BSETS={};
-function bset(pre){ if(!BSETS[pre]){ var o=function(p,n){return imgs(pre+p+"_",n,2,".webp")};
+function bset(pre){ if(!BSETS[pre]){ var o=function(p,n){return sheetSeq("sheet-"+pre+p+".webp",n,10,204,784,BOTC)};
   BSETS[pre]={s:o("s",SQ.spin), l:o("l",SQ.lift), d:o("d",SQ.down), o:o("o",SQ.out)}; } return BSETS[pre]; }
 function preFor(j){ return (j>=0 && j<BL.length && BL[j].bot) ? BL[j].bot+"b" : "b"; }
 // load order matters on slow connections (each file takes about a second to start from GitHub in Kampala, and there are
 // hundreds): the first blend's scene goes to the front of the queue, before the hundreds of bottle and spray frames
 layerImgs(0, innerWidth/innerHeight<0.9 ? "tall" : "wide");
+// note pictures for blends with a pop-up load quietly once the scene and frames are on their way, so the pop-up opens full
+setTimeout(function(){ var mob=innerWidth<=700; BL.forEach(function(b){ if(!b.seal) return; TIERS.forEach(function(t){ b[t].forEach(function(nm){ noteAsset(nm); if(mob) noteAsset(nm,1); }); }); }); },2500);
 bset("b"); BL.forEach(function(b,j){ if(b.bot) bset(preFor(j)); });
 // per blend mist and masks load on demand: the current blend and the next one
 var MIST=BL.map(function(){return []}), MASK=BL.map(function(){return []});
-function ensure(j){ if(j<BL.length && !MIST[j].length){ MASK[j]=imgs(CLIPK[j]+"/m_",SQ.mask,2,".webp"); MIST[j]=imgs(CLIPK[j]+"/w_",SQ.mist,3,".webp"); /* all WebP (TJ, 15 Nov) */ } }
-function ok(im){return im && im.complete && im.naturalWidth>0}
+function ensure(j){ if(j<BL.length && !MIST[j].length){ var k=CLIPK[j];   /* mist at half size in 3 sheets of 50, masks at half size in one sheet */
+  MASK[j]=sheetSeq("sheet-"+k+"-m.webp",SQ.mask,15,214,240,FULLC);
+  MIST[j]=[0,1,2].reduce(function(a,s){return a.concat(sheetSeq("sheet-"+k+"-w"+s+".webp",50,10,427,240,FULLC))},[]); } }
+function ok(im){ if(im && im.img) im=im.img; return im && im.complete && im.naturalWidth>0 }
 function pick(arr,j){if(!arr.length) return null; j=Math.max(0,Math.min(arr.length-1,j)); while(j>=0 && !ok(arr[j])) j--; return j<0?null:arr[j]}
 
 function mk(w,h){var c=document.createElement("canvas");c.width=w;c.height=h;return c}
@@ -655,10 +667,10 @@ function drawBottleTop(t){
   if(bNow.set==="l") d0=(1-bNow.j/(SQ.lift-1))*D; else if(bNow.set==="d") d0=bNow.j; else d0=D;   // cap position when it left the scene
   bctx.imageSmoothingEnabled=true; bctx.imageSmoothingQuality="high";
   if(bNow.set==="s"||bNow.set==="o"){                                 // mid spin: cross from the turning frame to the front, cap on
-    var sf=pick(BS[bNow.set],bNow.j); if(sf){ bctx.globalAlpha=1-cap; bctx.drawImage(sf,r[0],r[1],r[2],r[3]); }
+    var sf=pick(BS[bNow.set],bNow.j); if(sf){ bctx.globalAlpha=1-cap; drawF(bctx,sf,r[0],r[1],r[2],r[3]); }
     bctx.globalAlpha=cap;
   }
-  var im=pick(BS.d,Math.round(d0+(D-d0)*cap)); if(im) bctx.drawImage(im,r[0],r[1],r[2],r[3]);
+  var im=pick(BS.d,Math.round(d0+(D-d0)*cap)); if(im) drawF(bctx,im,r[0],r[1],r[2],r[3]);
   bctx.globalAlpha=1;
 }
 // while the pop-up is open the page stays on this blend: no wheel, swipe or key scrolling outside the pop-up itself
@@ -710,8 +722,8 @@ function drawBottle(kind,j,alpha,under,mixTo,mix){ // soft contact shadow, then 
   fc.imageSmoothingEnabled=true; fc.imageSmoothingQuality="high";   // clean, crisp downscale of the large frames
   var b2=mix>0.001 && preFor(mixTo)!==preFor(under) ? pick(bset(preFor(mixTo))[kind],j) : null;
   if(b2 && mix>=0.999) b=b2, b2=null;
-  fc.drawImage(b,r[0],r[1],r[2],r[3]);
-  if(b2){ fc.globalAlpha=alpha*mix; fc.drawImage(b2,r[0],r[1],r[2],r[3]); }
+  drawF(fc,b,r[0],r[1],r[2],r[3]);
+  if(b2){ fc.globalAlpha=alpha*mix; drawF(fc,b2,r[0],r[1],r[2],r[3]); }
   fc.globalAlpha=1;
 }
 var MIST_MAX=0.8;   // overall strength of the white mist: a veil over the colour, not a sheet
@@ -723,8 +735,8 @@ function drawReveal(i,p){
   var E=grow(p), g=fill(p), r=frameRect(MS), re=frameRect(E*MS);
   mc.clearRect(0,0,W,H);
   // masks carry half a clip height of soft margin above and below, so the reveal feathers past the clip edge
-  mc.drawImage(mi,r[0],r[1]-r[3]*0.5,r[2],r[3]*2);
-  if(E>1.001) mc.drawImage(mi,re[0],re[1]-re[3]*0.5,re[2],re[3]*2);
+  drawF(mc,mi,r[0],r[1]-r[3]*0.5,r[2],r[3]*2);
+  if(E>1.001) drawF(mc,mi,re[0],re[1]-re[3]*0.5,re[2],re[3]*2);
   if(g>0){ mc.fillStyle="rgba(0,0,0,"+g+")"; mc.fillRect(0,0,W,H); }
   ssx.globalCompositeOperation="copy"; ssx.drawImage(SC[i],0,0,W,H);
   ssx.globalCompositeOperation="destination-in"; ssx.drawImage(M,0,0);
@@ -737,7 +749,7 @@ function drawMistLayer(i,p){
   var r=frameRect(MS), a=MIST_MAX*(1-0.8*ease(rng(p,0.38,0.58)))*(1-ease(rng(p,0.58,0.80)));
   if(a<=0.001) return;
   fc.globalCompositeOperation="screen"; fc.globalAlpha=a;   // white mist filmed on black: screen lays it over any colour
-  fc.drawImage(wi,r[0],r[1],r[2],r[3]);
+  drawF(fc,wi,r[0],r[1],r[2],r[3]);
   fc.globalCompositeOperation="source-over"; fc.globalAlpha=1;
 }
 
