@@ -126,7 +126,8 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #noteRow .hd{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--blue);transform:translate(-50%,-50%);z-index:1}
 #card{z-index:45}
 /* the bottle, lifted out of the scene and set in the pop-up in front of the glass */
-#btop{position:fixed;inset:0;width:100%;height:100%;z-index:36;pointer-events:none;display:none}
+#btop{position:fixed;inset:0;width:100%;height:100%;z-index:34;pointer-events:none;display:none}   /* above the glass and frame, behind the notes */
+#noteRow{z-index:35 !important}
 #veil .pin{overscroll-behavior:contain}
 @media (max-width:700px){ #seal svg{width:92px} #seal span{font-size:9px} #seal .dk{display:none} #seal .mb{display:inline}
   #veil .pin{padding:40px 18px 20px}
@@ -566,19 +567,19 @@ function closePop(){ pop.goal=0; }
 // edge of the frame, clear of the blend name and the close button. Closing plays it all back, cap included.
 var btop=$("btop"), bctx=btop.getContext("2d"), bNow={set:"d",j:SQ.down-1,pre:"b"}, bDrawn="";
 // frame units (frames are 854 x 480): glass width, top of the CLOSED cap, cap height, base
-var BW=150, CTOP=146, CAPH=96, BH=SQ.base-146;
+var BW=150, CTOP=146, CAPH=96, BH=SQ.base-146, CAPHALF=48, BODYHALF=75;
+// TJ, 15 Nov: big, at the far right, about 60% of the cap rising over the top edge, the base sinking behind the plants
+// (vetiver overlaps it); drawn behind the notes and tags. The cap stays clear of the blend name and the close button.
 function bottleTarget(){
   var R=popRect(), mob=mq.matches, ceil=R.y+R.h-(mob?Math.min(R.h*0.34,260):Math.min(R.h*0.5,400)), s2, yt, xc;
-  if(mob){ var hm=Math.min(R.h*0.28,210); s2=hm/BH; yt=ceil-10-hm; xc=R.x+R.w-30-BW*s2/2; }   // phone: the open space between Order and the plants, right side
+  if(mob){ var hm=Math.min(R.h*0.42,300); s2=hm/BH; yt=ceil+70-hm; xc=R.x+R.w-24-BODYHALF*s2; }   // phone: right side, base behind the plants
   else {
-    s2=Math.min(1.3,(ceil-14-R.y)/(BH-0.55*CAPH));                  // base just above the plants, a little over half the cap above the top line
-    yt=R.y-0.55*CAPH*s2; xc=R.x+R.w-62-BW*s2/2;                      // left of the close button
-    var ps=PS[pop.i];
-    if(ps){ var wr=(W-ps.w)/2+(NAMEBOX.x+NAMEBOX.w)*ps.w+16, room=(R.x+R.w-62)-wr;   // keep the cap clear of the blend name
-      if(xc-BW*s2/2<wr){
-        if(room>=BW*0.6){ s2=Math.min(s2,room/BW); yt=R.y-0.55*CAPH*s2; xc=R.x+R.w-62-BW*s2/2; }   // slimmer, still rising out of the top edge
-        else { s2=Math.min(s2,(ceil-14-R.y-12)/BH); yt=R.y+12; xc=R.x+R.w-62-BW*s2/2; }        // no room: inside the frame
-      } }
+    s2=Math.min(1.9,0.62*R.h/(BH-0.6*CAPH));
+    var ps=PS[pop.i], wr=ps?(W-ps.w)/2+(NAMEBOX.x+NAMEBOX.w)*ps.w+16:-1e9;
+    s2=Math.min(s2,(R.x+R.w+10-wr)/(CAPHALF+BODYHALF));             // room between the name and the right edge
+    xc=R.x+R.w-40-BODYHALF*s2; if(xc-CAPHALF*s2<wr) xc=wr+CAPHALF*s2;
+    yt=R.y-0.6*CAPH*s2;
+    if(s2<0.7){ s2=Math.min(1,(ceil-R.y)/BH); yt=R.y+12; xc=R.x+R.w-62-BODYHALF*s2; }   // no room beside the name: inside the frame
   }
   return [xc-SQ.cx*s2, yt-CTOP*s2, SQ.w*s2, SQ.h*s2];
 }
