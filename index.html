@@ -683,6 +683,10 @@ window.addEventListener("wheel",function(e){ if(pop.goal===1 && !(e.target.close
 window.addEventListener("touchmove",function(e){ if(pop.goal===1 && !(e.target.closest && e.target.closest("#veil .pin"))) e.preventDefault(); },{passive:false});
 window.addEventListener("keydown",function(e){ if(pop.goal===1 && [" ","PageDown","PageUp","ArrowDown","ArrowUp","Home","End"].indexOf(e.key)>=0) e.preventDefault(); });
 seal.addEventListener("click",openPop);
+/* the motif mark is half the length of the hairline under the words (TJ, 15 Nov); measured, so it holds at any text size */
+function sizeSealMark(){ var sp=seal.querySelector("span"), sv=seal.querySelector("svg"); if(!sp||!sv) return;
+  var lw=sp.offsetWidth-parseFloat(getComputedStyle(sp).paddingLeft||0); if(lw>0) sv.style.width=(lw/2).toFixed(1)+"px"; }
+sizeSealMark(); addEventListener("resize",sizeSealMark); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(sizeSealMark);
 $("popX").onclick=function(e){e.stopPropagation(); closePop();};
 shade.onclick=closePop; veil.onclick=function(e){e.stopPropagation(); closeCard();};
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") closePop(); });
