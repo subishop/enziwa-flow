@@ -461,6 +461,7 @@ function fillPop(j){
 // Phones (TJ, 15 Nov): the pop-up is tall, so the notes run down the right side like the perfume pyramid,
 // top notes at the top, heart in the middle, base at the bottom, using the lying-down pictures; each tag sits to its left.
 // The text keeps the left column and the bottle stands at the bottom left.
+var PHONE_SHIFT={"jasmine":0.14, "vetiver":0.14};   // share of the picture width a plant moves left on phones (TJ, 15 Nov)
 function drawTilesPhone(t,time,R,line,d){
   var colL=R.x+R.w*0.5, colR=R.x+R.w+6, y0=R.y+58, rh=(line-y0)/9;
   TILES.forEach(function(tl){
@@ -472,7 +473,7 @@ function drawTilesPhone(t,time,R,line,d){
     // stems point right and run off the edge of the panel (TJ, 15 Nov); the flowers face in. Resting pieces stay inside.
     // plants: about half the picture (the stem, or vetiver's roots) runs past the right edge, the heads stay inside;
     // plants are drawn above the resting pieces so their heads are never hidden. Overlaps and sizes as TJ likes them.
-    var right=kind.rest?colR-[0,16,6][k%3]:colR+w*0.46, bottom=y0+rh*(k+1)+4;
+    var right=kind.rest?colR-[0,16,6][k%3]:colR+w*(0.46-(PHONE_SHIFT[slug(tl.nm)]||0)), bottom=y0+rh*(k+1)+4;
     tl.el.style.left=(right-w)+"px"; tl.el.style.bottom=Math.max(0,line-bottom)+"px"; tl.el.style.zIndex=(kind.rest?0:20)+20-k;
     var r=ease(rng(t,0.50+k*0.025,0.74+k*0.025));                  // each one slides in from the right edge in turn
     tl.el.style.clipPath="inset(-40% -20% -20% "+((1-r)*160-60).toFixed(1)+"%)"; tl.el.style.transform="translateX("+((1-r)*20).toFixed(1)+"px)";
@@ -606,7 +607,12 @@ var BW=150, CTOP=146, CAPH=96, BH=SQ.base-146, CAPHALF=48, BODYHALF=75;
 // (vetiver overlaps it); drawn behind the notes and tags. The cap stays clear of the blend name and the close button.
 function bottleTarget(){
   var R=popRect(), mob=mq.matches, ceil=R.y+R.h-(mob?Math.min(R.h*0.34,260):Math.min(R.h*0.5,400)), s2, yt, xc;
-  if(mob){ var hm=Math.min(R.h*0.42,280); s2=hm/BH; yt=R.y+R.h-4-hm; xc=R.x+R.w*0.25; }   // phone: standing on the bottom line, bottom left
+  if(mob){   // phone: standing on the bottom line, centred halfway between the left edge and the motif; as large as TJ asked
+             // (double) but never over the text or the Order button, and only a little past the left border
+    xc=R.x+R.w*0.25;
+    var ob=document.querySelector("#veil .order").getBoundingClientRect(), obB=ob.height?ob.bottom:R.y+R.h*0.45;
+    s2=Math.min(2*Math.min(R.h*0.42,280)/BH, (R.y+R.h-4-(obB+10))/BH, (xc-(R.x-24))/BODYHALF);
+    yt=R.y+R.h-4-BH*s2; }
   else {
     s2=Math.min(1.9,0.62*R.h/(BH-0.6*CAPH));
     var ps=PS[pop.i], wr=ps?(W-ps.w)/2+(NAMEBOX.x+NAMEBOX.w)*ps.w+16:-1e9;
