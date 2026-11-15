@@ -241,7 +241,7 @@ var LAY=BL.map(function(){return {}});
 function layerImgs(j,shape){
   var b=BL[j]; if(!b.layers) return null;
   if(!LAY[j][shape]){ var s=b.layers[shape], o={sky:new Image(),fg:new Image()};
-    ["sky","fg"].forEach(function(k){ o[k].onload=function(){ if(W>1){buildScene(j); key="";} }; o[k].src=s[k]; });
+    ["sky","fg"].forEach(function(k){ o[k].fetchPriority="high"; o[k].onload=function(){ if(W>1){buildScene(j); key="";} }; o[k].src=s[k]; });
     LAY[j][shape]=o; }
   return LAY[j][shape];
 }
@@ -253,6 +253,9 @@ var BSETS={};
 function bset(pre){ if(!BSETS[pre]){ var o=function(p,n){return imgs(pre+p+"_",n,2,".webp")};
   BSETS[pre]={s:o("s",SQ.spin), l:o("l",SQ.lift), d:o("d",SQ.down), o:o("o",SQ.out)}; } return BSETS[pre]; }
 function preFor(j){ return (j>=0 && j<BL.length && BL[j].bot) ? BL[j].bot+"b" : "b"; }
+// load order matters on slow connections (each file takes about a second to start from GitHub in Kampala, and there are
+// hundreds): the first blend's scene goes to the front of the queue, before the hundreds of bottle and spray frames
+layerImgs(0, innerWidth/innerHeight<0.9 ? "tall" : "wide");
 bset("b"); BL.forEach(function(b,j){ if(b.bot) bset(preFor(j)); });
 // per blend mist and masks load on demand: the current blend and the next one
 var MIST=BL.map(function(){return []}), MASK=BL.map(function(){return []});
