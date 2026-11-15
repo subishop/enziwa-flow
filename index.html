@@ -5,10 +5,13 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ENZIWA flow test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --blue:#116B9E; --cream:#F2EACF; --flame:#FF5A1F; --ink:#1d2a33; --grey:#8f8f8f;
-  --serif: "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+  /* titles and sub-levels: Jost, the bottle label's font (TJ chose Jost Light + Jost, 15 Nov); body text stays the system sans */
+  --serif: "Jost",system-ui,sans-serif; --label:"Jost",system-ui,sans-serif;
   --sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -35,18 +38,18 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 /* panel */
 #panel{position:absolute;left:50%;bottom:0;z-index:5;width:min(980px,94vw);opacity:0;pointer-events:none;
   transform:translate(-50%,100%);background:rgba(255,250,240,.86);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
-  border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(29,42,51,.10);
+  border-radius:0;box-shadow:0 -10px 40px rgba(29,42,51,.10);
   padding:26px 34px 84px;display:grid;grid-template-columns:1fr 1.15fr;column-gap:40px;align-items:start}
 #panel.on{pointer-events:auto}
-.num{font-size:12px;letter-spacing:.3em;color:var(--blue);text-transform:uppercase}
-.name{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.4svh,46px);color:var(--blue);line-height:1.05;margin-top:8px}
+.num{font-family:var(--label);font-weight:400;font-size:12px;letter-spacing:.3em;color:var(--blue);text-transform:uppercase}
+.name{font-family:var(--serif);font-weight:300;font-size:clamp(30px,4.4svh,46px);color:var(--blue);line-height:1.05;margin-top:8px}
 .desc{font-size:14.5px;line-height:1.6;color:var(--ink);margin-top:12px}
-.order{margin-top:14px;font:500 12px var(--sans);letter-spacing:.25em;text-transform:uppercase;padding:12px 26px;
+.order{margin-top:14px;font:500 12px var(--label);letter-spacing:.25em;text-transform:uppercase;padding:12px 26px;
   border-radius:0;   /* square (TJ, 15 Nov) */border:1px solid var(--blue);background:var(--blue);color:var(--cream);cursor:pointer}
 .order:hover{background:var(--flame);border-color:var(--flame)}
 #groups{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:4px;grid-column:2;grid-row:1 / span 2}
 .grp h5{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);font-weight:500;margin-bottom:8px}
-.chip{display:flex;align-items:center;gap:7px;width:100%;border:0;background:rgba(242,234,207,.9);border-radius:999px;
+.chip{display:flex;align-items:center;gap:7px;width:100%;border:0;background:rgba(242,234,207,.9);border-radius:0;
   padding:5px 10px 5px 5px;margin-bottom:6px;font:13px var(--sans);color:var(--ink);cursor:pointer;text-align:left;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip i{flex:0 0 15px;height:15px;border-radius:50%}
@@ -54,7 +57,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 .chip:focus-visible,.order:focus-visible{outline:2px solid var(--flame);outline-offset:3px}
 
 /* card */
-#card{position:fixed;z-index:20;width:240px;background:#fffaf0;border-radius:14px;padding:18px 18px 16px;
+#card{position:fixed;z-index:20;width:240px;background:#fffaf0;border-radius:0;padding:18px 18px 16px;
   box-shadow:0 18px 40px rgba(17,107,158,.18);display:none}
 #card.show{display:block}
 #card h4{font-family:var(--serif);font-weight:400;font-size:24px;color:var(--blue)}
@@ -65,16 +68,16 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 
 /* pill */
 #pill{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;
-  display:flex;align-items:center;gap:6px;padding:6px;border-radius:999px;background:rgba(17,107,158,.94);
+  display:flex;align-items:center;gap:6px;padding:6px;border-radius:0;background:rgba(17,107,158,.94);
   color:var(--cream);font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);white-space:nowrap}
-#pill .cur{padding:0 12px 0 10px;font-family:var(--serif);font-size:15px;min-width:128px;text-align:center}
-#pill button{border:0;background:transparent;color:var(--cream);font:500 12px var(--sans);width:34px;height:30px;border-radius:999px;cursor:pointer;letter-spacing:.05em}
+#pill .cur{padding:0 12px 0 10px;font-family:var(--serif);font-weight:300;font-size:15px;min-width:128px;text-align:center}
+#pill button{border:0;background:transparent;color:var(--cream);font:500 12px var(--label);width:34px;height:30px;border-radius:0;cursor:pointer;letter-spacing:.05em}
 #pill button.active{background:var(--cream);color:var(--blue)}
 
 /* mobile */
 @media (max-width:700px){
   #hero img{height:49.7svh;top:-2.2svh}
-  #panel{width:100%;grid-template-columns:1fr;padding:16px 16px 72px;border-radius:20px 20px 0 0}
+  #panel{width:100%;grid-template-columns:1fr;padding:16px 16px 72px;border-radius:0}
   .num{font-size:10px}
   .name{font-size:28px;margin-top:4px}
   .desc{font-size:13px;line-height:1.45;margin-top:8px}
@@ -84,7 +87,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
   .grp h5{margin-bottom:5px;text-align:center}
   .chip{font-size:12px;padding:4px 8px 4px 4px;margin-bottom:4px;gap:6px}
   .chip i{flex-basis:13px;height:13px}
-  #card{position:fixed;left:0;right:0;bottom:0;width:auto;z-index:40;border-radius:18px 18px 0 0;padding:22px 22px 34px;
+  #card{position:fixed;left:0;right:0;bottom:0;width:auto;z-index:40;border-radius:0;padding:22px 22px 34px;
     transform:translateY(100%);transition:transform .35s ease;display:block;visibility:hidden}
   #card.show{transform:translateY(0);visibility:visible}
   #scrim{display:block;position:fixed;inset:0;background:rgba(29,42,51,.18);z-index:35;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -120,8 +123,8 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 /* specimen tags: a small cream card per note, placed by hand for each picture, joined to it by a hairline and a dot */
 #noteRow .tag{position:absolute;transform:translate(-50%,-50%);background:rgba(255,251,242,.95);border:1px solid rgba(17,107,158,.18);
   box-shadow:0 4px 14px rgba(60,40,10,.14);padding:5px 11px 4px;text-align:center;white-space:nowrap;pointer-events:none;z-index:2}
-#noteRow .tag b{display:block;font:600 11px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
-#noteRow .tag i{display:block;font:400 8.5px var(--sans);letter-spacing:.26em;text-transform:uppercase;color:#8a7a55;font-style:normal;margin-top:2px}
+#noteRow .tag b{display:block;font:500 11px var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+#noteRow .tag i{display:block;font:400 8.5px var(--label);letter-spacing:.26em;text-transform:uppercase;color:#8a7a55;font-style:normal;margin-top:2px}
 #noteRow .hl{position:absolute;height:1px;background:rgba(17,107,158,.5);transform-origin:0 50%;pointer-events:none;z-index:1}
 #noteRow .hd{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--blue);transform:translate(-50%,-50%);z-index:1}
 #card{z-index:45}
