@@ -103,11 +103,12 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
   box-shadow:0 8px 26px rgba(60,40,10,.16)}
 #seal .rg{position:absolute;width:7px;height:7px;border:1px solid rgba(252,248,234,.95);border-radius:50%;background:transparent}
 #seal .r1{left:-4px;top:-4px} #seal .r2{right:-4px;top:-4px} #seal .r3{left:-4px;bottom:-4px} #seal .r4{right:-4px;bottom:-4px}
-#seal span{text-shadow:0 1px 5px rgba(80,60,20,.35) !important;font-family:var(--label) !important;font-weight:500 !important}
-/* cream at rest; the pop-up blue only on hover or press (TJ, 15 Nov) */
-#seal{color:#FCF8EA;transition:opacity .25s,color .2s,background .2s;background:rgba(38,30,18,.32)}   /* smoky glass (option B), the button only; the full pop-up keeps its pale glass (TJ, 15 Nov) */
-#seal svg{filter:drop-shadow(0 1px 4px rgba(80,60,20,.3))}
-#seal:hover,#seal:active,#seal:focus-visible{color:var(--blue);background:rgba(255,248,232,.62)}
+#seal span{text-shadow:none !important;font-family:var(--label) !important;font-weight:500 !important}
+/* TJ's final try (15 Nov): the same pale glass as the full pop-up, motif and words in the pop-up's dark grey text colour;
+   the pop-up blue on hover or press */
+#seal{color:var(--ink);transition:opacity .25s,color .2s,background .2s;background:rgba(255,248,232,.42);
+  -webkit-backdrop-filter:blur(16px) saturate(1.08);backdrop-filter:blur(16px) saturate(1.08)}
+#seal:hover,#seal:active,#seal:focus-visible{color:var(--blue);background:rgba(255,248,232,.6)}
 #seal:hover span,#seal:active span{text-shadow:none !important}
 #seal svg{display:block;width:112px;height:auto;overflow:visible;animation:sealPulse 3.6s ease-in-out infinite}
 #seal span{font:400 9.5px var(--sans);letter-spacing:.34em;text-transform:uppercase;white-space:nowrap;padding-left:.34em;
