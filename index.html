@@ -470,14 +470,21 @@ function drawTilesPhone(t,time,R,line,d){
     var key2=w+"x"+h+(n===tl.nw?"w":"");
     if(tl.w!==key2){ tl.w=key2; tl.cv.style.width=w+"px"; tl.cv.style.height=h+"px"; tl.cv.width=Math.round(w*d); tl.cv.height=Math.round(h*d); }
     // stems point right and run off the edge of the panel (TJ, 15 Nov); the flowers face in. Resting pieces stay inside.
-    var right=kind.rest?colR-[0,16,6][k%3]:colR+w*0.22-[0,16,6][k%3], bottom=y0+rh*(k+1)+4;
-    tl.el.style.left=(right-w)+"px"; tl.el.style.bottom=Math.max(0,line-bottom)+"px"; tl.el.style.zIndex=20-k;
+    // plants: about half the picture (the stem, or vetiver's roots) runs past the right edge, the heads stay inside;
+    // plants are drawn above the resting pieces so their heads are never hidden. Overlaps and sizes as TJ likes them.
+    var right=kind.rest?colR-[0,16,6][k%3]:colR+w*0.46, bottom=y0+rh*(k+1)+4;
+    tl.el.style.left=(right-w)+"px"; tl.el.style.bottom=Math.max(0,line-bottom)+"px"; tl.el.style.zIndex=(kind.rest?0:20)+20-k;
     var r=ease(rng(t,0.50+k*0.025,0.74+k*0.025));                  // each one slides in from the right edge in turn
     tl.el.style.clipPath="inset(-40% -20% -20% "+((1-r)*160-60).toFixed(1)+"%)"; tl.el.style.transform="translateX("+((1-r)*20).toFixed(1)+"px)";
     tl.el.style.pointerEvents=t>0.9?"auto":"none";
     // tag: plants carry it on the stem near the right edge of the panel; resting pieces carry it at their top left corner.
     // Never in the text column.
-    tl.tg.style.transform="translate(-100%,-50%)"; tl.tg.style.left=(R.x+R.w-6-(right-w))+"px"; tl.tg.style.top=(h*(kind.rest?0.62:0.55))+"px";   // one neat column of tags down the right edge
+    // tags live on their own top layer on phones, so no picture can cover or clip them.
+    // Resting pieces keep their tag at the right edge; plants carry it just left of the flower heads, never on them.
+    if(tl.tg.parentNode!==noteRow){ noteRow.appendChild(tl.tg); tl.tg.style.zIndex=100; }
+    var bTop=bottom-h; tl.tg.style.transform="translate(-100%,-50%)";
+    if(kind.rest){ tl.tg.style.left=(R.x+R.w-6)+"px"; tl.tg.style.top=(bTop+h*0.4)+"px"; }
+    else { tl.tg.style.left=(right-w-4)+"px"; tl.tg.style.top=(bTop+h*0.5)+"px"; }
     var tv=ease(rng(t,0.80+k*0.01,0.95+k*0.01)); tl.tg.style.opacity=tv; tl.hl.style.opacity=0; tl.hd.style.opacity=0;
     var c2=tl.cv.getContext("2d"); c2.clearRect(0,0,tl.cv.width,tl.cv.height);
     c2.drawImage(NG(n,tl.cv.width,tl.cv.height,time,RM?0:tx*2,RM?0:ty*2,k*1.7,kind.rest?0:0.35),0,0);
@@ -538,7 +545,7 @@ function drawTiles(t,time){
   noteRow.style.height=line+"px";                                     // the row ends exactly on the bottom line: nothing shows below it
   var ph0=mob?Math.min(R.h*0.34,260):Math.min(R.h*0.5,400), d=Math.min(dpr,2);   // kept clear of the Order button above
   if(mob){ drawTilesPhone(t,time,R,line,d); return; }
-  TILES.forEach(function(tl){ tl.el.style.bottom="0px"; tl.tg.style.transform="";
+  TILES.forEach(function(tl){ tl.el.style.bottom="0px"; tl.tg.style.transform=""; if(tl.tg.parentNode!==tl.el){ tl.el.appendChild(tl.tg); tl.tg.style.zIndex=""; }
     var k=tl.k, has=tl.n.ok===3 && NG; tl.el.style.display=has?"block":"none"; if(!has) return;   // notes without a picture yet are left out
     var kind=NOTE_KIND[slug(tl.nm)]||{};
     var asp=tl.n.img.naturalWidth/tl.n.img.naturalHeight, h=Math.round(ph0*(mob?[1,.8,.9][k%3]:1)*(kind.size||1)), w=Math.round(h*asp);
