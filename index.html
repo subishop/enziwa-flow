@@ -177,6 +177,8 @@ var BL = [
    bot:"o",   // its own bottle frames, lit by this scene (img/spray3/ob*), shown while this scene is behind the bottle
    // pattern button, as a share of the scene image: wide, on the horizon above the lion's back; tall, on the grass between the tree and the lion
    seal:{wide:[0.156,0.405], tall:[0.27,0.60]},
+   // order of the note pictures in the pop-up, tall and low alternating (the note data above keeps its own order)
+   row:{top:["Neroli","Bergamot","African marigold"], heart:["Violet","Jasmine","Cyclamen"], base:["Cedar","Vetiver","Musk"]},
    // three layer scene: sky with the people and tree taken out, then the glass name, then people, lion, tree and land in front
    layers:{wide:{w:2752,h:1536,sky:"img/scenes/omeya-dew-sky.webp",fg:"img/scenes/omeya-dew-fg.webp"},
            tall:{w:1536,h:2752,sky:"img/scenes/omeya-dew-sky-tall.webp",fg:"img/scenes/omeya-dew-fg-tall.webp"}}},
@@ -435,7 +437,7 @@ function fillPop(j){
   var b=BL[j]; $("pNum").textContent="No. "+b.n; $("pName").textContent=b.name; $("pDesc").textContent=b.desc;
   noteRow.innerHTML=""; TILES=[];
   TIERS.forEach(function(t,ti){            // nine slots in order: top notes left, heart middle, base right
-    b[t].forEach(function(nm){
+    ((b.row&&b.row[t])||b[t]).forEach(function(nm){
       var bt=document.createElement("button"); bt.type="button"; bt.className="nt"; bt.setAttribute("aria-label",nm);
       var cv=document.createElement("canvas"); var lb=document.createElement("span"); lb.className="nl"; lb.textContent=nm;
       bt.appendChild(cv); bt.appendChild(lb); bt.onclick=function(e){openCard(nm,t,bt,e)}; noteRow.appendChild(bt);
@@ -482,7 +484,8 @@ var NG=(function(){
 var SLOT_M=[0.16,0.32,0.06, 0.38,0.50,0.62, 0.84,0.68,0.94];
 // how each kind of note sits on the line. Plants grow on a stem and sway (the default). Resting things (pods, woods, resins,
 // powders) lie on the line, sit lower and do not sway. Add a note here only when it is not a plant.
-var NOTE_KIND={"musk":{rest:1, size:0.42}};
+var NOTE_KIND={"musk":{rest:1, size:0.42}, "bergamot":{rest:1, size:0.42}, "cedar":{rest:1, size:0.42},
+               "violet":{size:0.86}, "cyclamen":{size:0.86}, "african-marigold":{size:0.94}};
 function drawTiles(t,time){
   var R=popRect(), mob=mq.matches, line=R.y+R.h;
   noteRow.style.display=t>0.0005?"block":"none"; if(t<=0.0005) return;
@@ -491,7 +494,7 @@ function drawTiles(t,time){
   TILES.forEach(function(tl){
     var k=tl.k, has=tl.n.ok===3 && NG; tl.el.style.display=has?"block":"none"; if(!has) return;   // notes without a picture yet are left out
     var kind=NOTE_KIND[slug(tl.nm)]||{};
-    var asp=tl.n.img.naturalWidth/tl.n.img.naturalHeight, h=Math.round(ph0*(mob?[1,.8,.9][k%3]:[1,.88,.94][k%3])*(kind.size||1)), w=Math.round(h*asp);
+    var asp=tl.n.img.naturalWidth/tl.n.img.naturalHeight, h=Math.round(ph0*(mob?[1,.8,.9][k%3]:1)*(kind.size||1)), w=Math.round(h*asp);
     var cx=R.x+R.w*(mob?SLOT_M[k]:(k+0.5)/9);
     if(tl.w!==w){ tl.w=w; tl.cv.style.width=w+"px"; tl.cv.style.height=h+"px"; tl.cv.width=Math.round(w*d); tl.cv.height=Math.round(h*d); }
     tl.el.style.left=(cx-w/2)+"px"; tl.el.style.zIndex=10-Math.abs(k-4);
