@@ -253,12 +253,27 @@ function imgs(pre,n,k,ext){var a=[];for(var j=0;j<n;j++){var im=new Image();im.d
 // Bottle sheets hold only the strip the bottle occupies (x 752 to 956, y 96 to 880 of the 1708 x 960 frame), 10 per row.
 // Rebuild the sheets with tools/make_sheets.py whenever frames change.
 var BOTC=[752/1708, 96/960, 204/1708, 784/960], FULLC=[0,0,1,1];
-function sheetSeq(file,n,cols,cw,ch,c){ var im=new Image(); im.decoding="async"; im.src="img/spray3/"+file; var a=[];
+// Loading queue (15 Nov 2026): on a slow connection everything downloading at once means nothing finishes early. Files are
+// fetched three at a time in the order the visitor needs them (lower number first), the page redraws as each one lands,
+// and a failed file is tried once more. Opening the pop-up moves its note pictures to the front.
+var LQ=[], LACT=0;
+function qload(im,url,prio){ LQ.push({im:im,url:url,p:prio,tries:0}); LQ.sort(function(a,b){return a.p-b.p}); pump(); }
+function qbump(im){ LQ.forEach(function(it){ if(it.im===im) it.p=-1; }); LQ.sort(function(a,b){return a.p-b.p}); }
+function pump(){ while(LACT<3 && LQ.length){ (function(it){ LACT++;
+    var okf=it.im.onload, errf=it.im.onerror;
+    it.im.onload=function(e){ LACT--; key=""; bDrawn=""; if(okf) okf.call(this,e); pump(); };
+    it.im.onerror=function(e){ LACT--; it.im.onload=okf; it.im.onerror=errf;
+      if(it.tries<1){ it.tries++; setTimeout(function(){ LQ.unshift(it); pump(); },1500); } else if(errf) errf.call(this,e);
+      pump(); };
+    it.im.src=it.url+(it.tries?"?r="+it.tries:""); })(LQ.shift()); } }
+function sheetSeq(file,n,cols,cw,ch,c,prio){ var im=new Image(); im.decoding="async"; qload(im,"img/spray3/"+file,prio==null?3:prio); var a=[];
   for(var k=0;k<n;k++) a.push({img:im, sx:(k%cols)*cw, sy:Math.floor(k/cols)*ch, sw:cw, sh:ch, c:c}); return a; }
 function drawF(ctx,f,x,y,w,h){ var c=f.c; ctx.drawImage(f.img,f.sx,f.sy,f.sw,f.sh,x+c[0]*w,y+c[1]*h,c[2]*w,c[3]*h); }
 // bottle frame sets: the studio set (b*) on cream and placeholder scenes, and per scene lit sets (for example ob* for Omeya Dew)
 var BSETS={};
-function bset(pre){ if(!BSETS[pre]){ var o=function(p,n){return sheetSeq("sheet-"+pre+p+".webp",n,10,204,784,BOTC)};
+// order: the studio spin-in and cap lift first (seen before the first spray), then the scene lit set, studio cap down and spin out last
+var BPRIO={bs:1, bl:1, obl:3, obd:3, obo:3, obs:4, bd:5, bo:5};
+function bset(pre){ if(!BSETS[pre]){ var o=function(p,n){return sheetSeq("sheet-"+pre+p+".webp",n,10,204,784,BOTC,BPRIO[pre+p])};
   BSETS[pre]={s:o("s",SQ.spin), l:o("l",SQ.lift), d:o("d",SQ.down), o:o("o",SQ.out)}; } return BSETS[pre]; }
 function preFor(j){ return (j>=0 && j<BL.length && BL[j].bot) ? BL[j].bot+"b" : "b"; }
 // load order matters on slow connections (each file takes about a second to start from GitHub in Kampala, and there are
@@ -270,8 +285,8 @@ bset("b"); BL.forEach(function(b,j){ if(b.bot) bset(preFor(j)); });
 // per blend mist and masks load on demand: the current blend and the next one
 var MIST=BL.map(function(){return []}), MASK=BL.map(function(){return []});
 function ensure(j){ if(j<BL.length && !MIST[j].length){ var k=CLIPK[j];   /* mist at half size in 3 sheets of 50, masks at half size in one sheet */
-  MASK[j]=sheetSeq("sheet-"+k+"-m.webp",SQ.mask,15,214,240,FULLC);
-  MIST[j]=[0,1,2].reduce(function(a,s){return a.concat(sheetSeq("sheet-"+k+"-w"+s+".webp",50,10,427,240,FULLC))},[]); } }
+  MASK[j]=sheetSeq("sheet-"+k+"-m.webp",SQ.mask,15,214,240,FULLC,2);
+  MIST[j]=[0,1,2].reduce(function(a,s){return a.concat(sheetSeq("sheet-"+k+"-w"+s+".webp",50,10,427,240,FULLC,2))},[]); } }
 function ok(im){ if(im && im.img) im=im.img; return im && im.complete && im.naturalWidth>0 }
 function pick(arr,j){if(!arr.length) return null; j=Math.max(0,Math.min(arr.length-1,j)); while(j>=0 && !ok(arr[j])) j--; return j<0?null:arr[j]}
 
@@ -472,7 +487,7 @@ function noteAsset(nm,wide){        // wide: the lying-down version made for the
   var k=slug(nm)+(wide?"-wide":""); if(NOTES[k]) return NOTES[k];
   var n=NOTES[k]={img:new Image(), dep:new Image(), ok:0, tex:null};
   n.img.onload=function(){n.ok|=1}; n.dep.onload=function(){n.ok|=2}; n.img.onerror=n.dep.onerror=function(){n.ok=-1};
-  n.img.src="img/notes/"+k+".webp"; n.dep.src="img/notes/"+k+"-depth.webp"; return n;
+  qload(n.img,"img/notes/"+k+".webp",6); qload(n.dep,"img/notes/"+k+"-depth.webp",6); return n;   // notes come last unless the pop-up is opened
 }
 function fillPop(j){
   var b=BL[j]; $("pNum").textContent="No. "+b.n; $("pName").textContent=b.name; $("pDesc").textContent=b.desc;
@@ -485,6 +500,7 @@ function fillPop(j){
       var hl=document.createElement("span"); hl.className="hl"; var hd=document.createElement("span"); hd.className="hd";
       bt.appendChild(cv); bt.appendChild(hl); bt.appendChild(hd); bt.appendChild(tg); bt.onclick=function(e){openCard(nm,t,bt,e)}; noteRow.appendChild(bt);
       TILES.push({el:bt, cv:cv, tg:tg, hl:hl, hd:hd, n:noteAsset(nm), nw:mq.matches?noteAsset(nm,1):null, nm:nm, w:0, k:TILES.length});
+      [TILES[TILES.length-1].n, TILES[TILES.length-1].nw].forEach(function(a){ if(a){ qbump(a.img); qbump(a.dep); } });   // pop-up open: its notes jump the queue
     });
   });
 }
