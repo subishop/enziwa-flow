@@ -719,12 +719,12 @@ function sizeHero(){
   var lw=lh*817.72/197;                         // the logo's width at that height
   /* optical centring (TJ, 15 Nov): the heavy E wall and the open top of the last A make the true centre look left, so the
      logo sits 3 percent of its width to the right; KAMPALA ends under the body of the A, not the tip of its foot */
-  var lx=(W-lw)/2+lw*0.03, cw=lw*0.955;
+  var lx=(W-lw)/2+lw*0.03, ci=lw*0.045, cw=lw-2*ci;   // KAMPALA inset by the same amount at both ends (TJ, 15 Nov)
   wd.style.top=top.toFixed(1)+"px"; wd.style.height=lh.toFixed(1)+"px"; wd.style.left=lx.toFixed(1)+"px";
   city.style.fontSize=Math.max(11,lh*0.2).toFixed(1)+"px"; city.style.letterSpacing="0px"; city.style.marginRight="0px";
   var w0=city.getBoundingClientRect().width, n=city.textContent.length, ls=(cw-w0)/(n-1);
   city.style.letterSpacing=ls.toFixed(2)+"px"; city.style.marginRight=(-ls).toFixed(2)+"px";
-  city.style.top=(top+lh+lh*0.22).toFixed(1)+"px"; city.style.left=lx.toFixed(1)+"px";   // placed by its visible letters, not the trailing spacing
+  city.style.top=(top+lh+lh*0.22).toFixed(1)+"px"; city.style.left=(lx+ci).toFixed(1)+"px";   // placed by its visible letters, not the trailing spacing
 }
 sizeHero(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(sizeHero);
 mq.addEventListener && mq.addEventListener("change",function(){closeCard()});
