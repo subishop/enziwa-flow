@@ -790,7 +790,7 @@ function layoutHero(top,lh,lx,lw){
 var HS=(function(){
   var SET={emb:.09,sc:.94,sm:.54,sp:.77,ang:35,rip:.40,rf:1.4,lo:.26,hi:.28,plu:.9,gr:.02};   /* Settings 4 */
   var cv=$("heroSpray"), sp=$("heroSprayer"), bw=$("heroBreath"), T0=performance.now(), PER=7000, last=0, Fd=0, Rs=0, Pf=0;
-  var AR=562/1339, HX=0.348, HY=0.039;            // sprayer image shape (width over height) and where its spray hole sits in it
+  var AR=562/1339, HX=0.352, HY=0.026;            // sprayer image shape (width over height) and where its spray hole sits in it
   var SRC=[.9,.5], FACE=[.5,.5], SPRR=[0,0,0,0], FADE=0, cw=1, chh=1;
   var gl=cv.getContext("webgl",{premultipliedAlpha:false}), U={}, ok=!!gl;
   var VS="attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
