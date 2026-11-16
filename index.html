@@ -45,22 +45,22 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
    The couple is a stand in shape until the breathing video exists; its frame is 4:5 on every screen, so one video serves both.
    Mist and couple share one breath: in slowly, hold, out a little quicker (7 s). Positions are set by sizeHero(). */
 #hero .word{z-index:3} #hero .city{z-index:3}
-#hero .hcouple{position:absolute;z-index:1;animation:hBreath 7s ease-in-out infinite;transform-origin:50% 100%}
+#hero .hcouple{position:absolute;z-index:1;transform-origin:50% 100%}
+/* the sprayer (test, 16 Nov): the same bottle with its cap off, on its side, oversized and cropped by the screen edge.
+   For now it is the last cap lift frame turned with CSS; a proper side lit render replaces it if TJ likes the placement. */
+#hero .hspr{position:absolute;z-index:3;background:url(img/spray3/sheet-bl.webp) no-repeat;background-size:1073.7% auto;background-position:66.54% 99.68%}
+#hero canvas.hsp{position:absolute;inset:0;width:100%;height:100%;z-index:2}
 #hero .hcouple svg{display:block;width:100%;height:100%}
 #hero .hbottle{position:absolute;z-index:4;background:url(img/spray3/bl_00.webp) no-repeat;background-size:813.3% auto;background-position:50% 82%}
 #hero .hmist{position:absolute;inset:0;z-index:0;overflow:hidden}
-#hero .hmist i{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(242,234,207,.24),rgba(242,234,207,0));
-  animation:hMist 7s ease-in-out infinite}
-#hero .hmist i:nth-child(2){animation-delay:-.6s} #hero .hmist i:nth-child(3){animation-delay:-1.2s}
+#hero .hmist i{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(242,234,207,.24),rgba(242,234,207,0))}
 #hero .htext{position:absolute;z-index:4;color:var(--cream);pointer-events:auto}
 #hero .hh{font:300 1em/1.08 var(--serif);margin:0}
 #hero .hs{font:300 .4em/1.4 var(--sans);opacity:.85;margin:.55em 0 1em}
 #hero .hcta{font:500 .3em var(--label);letter-spacing:.24em;text-transform:uppercase;color:var(--cream);background:transparent;
   border:1px solid var(--cream);padding:1.1em 1.6em 1em 1.84em;border-radius:0;cursor:pointer;transition:background .25s,color .25s}
 #hero .hcta:hover,#hero .hcta:focus-visible{background:var(--cream);color:var(--blue)}
-@keyframes hBreath{0%{transform:scale(1)}45%{transform:scale(1.025)}62%{transform:scale(1.025)}100%{transform:scale(1)}}
-@keyframes hMist{0%{transform:scale(.92);opacity:.55}45%{transform:scale(1.08);opacity:1}62%{transform:scale(1.08);opacity:1}100%{transform:scale(.92);opacity:.55}}
-@media (prefers-reduced-motion:reduce){ #hero .hcouple,#hero .hmist i{animation:none} }
+
 
 /* composite layer: previous scene (or cream before the first spray), the new scene revealed through the mist,
    the Blender bottle (multiply for tint and shadow, screen for highlights), the white mist on top */
@@ -186,6 +186,8 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <p class="city" id="heroCity">Kampala</p>
       <div class="hmist" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="hcouple" id="heroCouple" aria-hidden="true"><svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMax meet"><g fill="rgba(242,234,207,.2)"><circle cx="82" cy="92" r="31"/><circle cx="127" cy="102" r="28"/><path d="M10 250 Q12 160 82 144 Q106 140 114 152 Q128 146 150 152 Q192 166 192 250Z"/></g></svg></div>
+      <canvas class="hsp" id="heroSpray" aria-hidden="true"></canvas>
+      <div class="hspr" id="heroSprayer" aria-hidden="true"></div>
       <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA bottle"></div>
       <div class="htext" id="heroText"><p class="hh">Breathe in.<br>Become.</p><p class="hs">Fragrance made in Kampala.</p><button class="hcta" id="heroCta" type="button">Find your scent</button></div>
       <div class="sub"><b>Scroll</b></div>
@@ -761,7 +763,8 @@ function layoutHero(top,lh,lx,lw){
     ch=H-cTop; cw=ch*0.8; put(cp,cx-cw/2,cTop,cw,ch);
     bh=Math.min(H*0.5,(cx-cw/2)*0.9*BA); bw=bh/BA; put(bt,(cx-cw/2)/2-bw/2,H*0.66-bh/2,bw,bh);
     var tl=cx+cw/2+W*0.035; tx.style.fontSize=Math.max(26,Math.min(46,W*0.028)).toFixed(1)+"px";
-    put(tx,tl,H*0.47,Math.max(200,W-tl-W*0.04)); tx.style.top=(H*0.47).toFixed(1)+"px";
+    put(tx,tl,H*0.6,Math.max(200,W-tl-W*0.04)); tx.style.top=(H*0.6).toFixed(1)+"px";
+    HS.set(W-W*0.05, H*0.17, H*0.78, -115, cx+cw*0.02, cTop+ch*0.36);
     put(mi[0],cx-cw*0.75,cTop+ch*0.05,cw*1.5,ch*1.1); put(mi[1],W*0.02,H*0.45,W*0.3,H*0.5); put(mi[2],W*0.66,H*0.1,W*0.28,H*0.42);
   } else {                                       // phone: stacked
     var zone=Math.max(200,H*0.3); ch=Math.max(160,H-zone-70-cTop+H*0.06); cw=Math.min(W-24,ch*0.8); ch=cw*1.25;
@@ -769,9 +772,58 @@ function layoutHero(top,lh,lx,lw){
     bh=Math.min(H*0.3,zone+20); bw=bh/BA; var bl=W*0.065, bTop=H-78-bh; put(bt,bl,bTop,bw,bh);
     tx.style.fontSize=Math.max(22,Math.min(30,W*0.072)).toFixed(1)+"px";
     var tl2=bl+bw+W*0.05; put(tx,tl2,0,W-tl2-12); tx.style.top=(H-92-tx.offsetHeight).toFixed(1)+"px";
+    var fy=cTop+ch*0.36, sh=H*0.62; HS.set(W+sh*0.27, fy-sh*0.02, sh, -94, W*0.42, fy+ch*0.02);
     put(mi[0],-W*0.15,cTop,W*1.3,ch*1.1); put(mi[1],-W*0.2,H*0.6,W*0.8,H*0.35); put(mi[2],W*0.5,H*0.08,W*0.6,H*0.3);
   }
 }
+/* one breath drives everything in the hero (7 s): breath in 0 to .45, hold to .62, breath out to 1. The sprayer puffs at .90,
+   the mist drifts across, is drawn in to the couple on the breath in, and what is left rises away on the breath out. */
+var HS=(function(){
+  var cv=$("heroSpray"), sp=$("heroSprayer"), ctx=cv.getContext("2d"), P=[], T0=performance.now(), PER=7000, last=0, puffed=-1;
+  var nz={x:0,y:0,dx:-1,dy:0}, face={x:0,y:0}, scale=1;
+  var dot=mk(64,64), dc=dot.getContext("2d"), g=dc.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,"rgba(252,248,234,1)"); g.addColorStop(.45,"rgba(252,248,234,.35)"); g.addColorStop(1,"rgba(252,248,234,0)"); dc.fillStyle=g; dc.fillRect(0,0,64,64);
+  function breath(ph){ var e=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
+    return ph<.45?e(ph/.45):ph<.62?1:1-e((ph-.62)/.38); }
+  function set(cx,cy,h,deg,fx,fy){
+    var w=h*190/458, a=deg*Math.PI/180; scale=h/458;
+    sp.style.left=(cx-w/2).toFixed(1)+"px"; sp.style.top=(cy-h/2).toFixed(1)+"px"; sp.style.width=w.toFixed(1)+"px"; sp.style.height=h.toFixed(1)+"px";
+    sp.style.transform="rotate("+deg+"deg)";
+    var tipL=h/2-h*0.012;                        // the sprayer's tip, near the top edge of the crop
+    nz.x=cx+tipL*Math.sin(a); nz.y=cy-tipL*Math.cos(a); nz.dx=Math.sin(a); nz.dy=-Math.cos(a);
+    face.x=fx; face.y=fy;
+    var d=Math.min(2,window.devicePixelRatio||1); cv.width=Math.round(W*d); cv.height=Math.round(H*d); ctx.setTransform(d,0,0,d,0,0);
+  }
+  function puff(){
+    var n=W<700?160:240, sp0=Math.max(W,H)*0.5;
+    for(var i=0;i<n;i++){ var spread=(Math.random()-.5)*0.8, v=sp0*(0.35+Math.random()*0.75), c=Math.cos(spread), s=Math.sin(spread);
+      P.push({x:nz.x,y:nz.y,vx:(nz.dx*c-nz.dy*s)*v,vy:(nz.dx*s+nz.dy*c)*v,r:(8+Math.random()*22)*Math.max(.7,scale*1.4),a:0,age:0,life:1}); }
+  }
+  function tick(now){
+    requestAnimationFrame(tick);
+    if(hero.style.visibility==="hidden"){ last=now; return; }
+    var dt=Math.min(.05,(now-(last||now))/1000); last=now;
+    var cyc=(now-T0)/PER, ph=cyc-Math.floor(cyc), b=breath(ph), k=Math.floor(cyc);
+    var cp=$("heroCouple"); if(cp) cp.style.transform="scale("+(1+0.025*b).toFixed(4)+")";
+    hero.querySelectorAll(".hmist i").forEach(function(m){ m.style.opacity=(.55+.45*b).toFixed(3); m.style.transform="scale("+(.92+.16*b).toFixed(4)+")"; });
+    if(RM){ ctx.clearRect(0,0,W,H); return; }
+    if(ph>=.9 && puffed!==k){ puffed=k; puff(); }
+    var inh=ph<.45||ph>=.97, exh=ph>=.62&&ph<.9;
+    ctx.clearRect(0,0,W,H);
+    for(var i=P.length-1;i>=0;i--){ var q=P[i]; q.age+=dt;
+      var drag=Math.pow(0.18,dt); q.vx*=drag; q.vy*=drag;
+      if(inh&&q.age>.35){ var ddx=face.x-q.x, ddy=face.y-q.y, dd=Math.hypot(ddx,ddy)+1; q.vx+=ddx/dd*260*dt; q.vy+=ddy/dd*260*dt; if(dd<40) q.life-=dt*2.2; }
+      if(exh){ q.vy-=60*dt; q.vx+=(Math.random()-.5)*40*dt; q.life-=dt*.55; }
+      q.x+=q.vx*dt; q.y+=q.vy*dt; q.r+=dt*34; q.life-=dt*.05;
+      q.a=Math.min(1,q.age*5)*Math.max(0,q.life);
+      if(q.life<=0){ P.splice(i,1); continue; }
+      ctx.globalAlpha=q.a*.075; ctx.drawImage(dot,q.x-q.r,q.y-q.r,q.r*2,q.r*2);
+    }
+    ctx.globalAlpha=1;
+  }
+  requestAnimationFrame(tick);
+  return {set:set};
+})();
 sizeHero(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(sizeHero);
 $("heroCta").addEventListener("click",function(e){ e.stopPropagation(); if(pillBtns[0]) pillBtns[0].click(); });
 mq.addEventListener && mq.addEventListener("change",function(){closeCard()});
