@@ -50,7 +50,10 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
    side_hole: hole turned to the left), cropped by the right edge. Mist leaves the hole sideways, as on a real atomiser. */
 #hero .hspr{position:absolute;z-index:3;background:url(img/spray3/hero-sprayer.webp) no-repeat;background-size:100% 100%}
 @media (max-width:700px){ #hero .hspr{-webkit-mask-image:linear-gradient(#000 45%,transparent 92%);mask-image:linear-gradient(#000 45%,transparent 92%)} }   /* phone: the body fades away below, so it reads as a sprayer in use, not a third bottle */
-#hero canvas.hsp{position:absolute;inset:0;width:100%;height:100%;z-index:2}
+#hero canvas.hsp{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+#hero .hmist{display:none}
+#hero .hbreath{position:absolute;left:16px;bottom:16px;z-index:5;font:500 11px var(--label);letter-spacing:.2em;text-transform:uppercase;color:var(--cream);opacity:.8;transform-origin:0 100%;white-space:nowrap}
+@media (max-width:700px){ #hero .hbreath{bottom:auto;top:14px;left:14px;transform-origin:0 0} }   /* phone: top corner, clear of the bottle and the scene bar */
 #hero .hcouple svg{display:block;width:100%;height:100%}
 #hero .hbottle{position:absolute;z-index:4;background:url(img/spray3/bl_00.webp) no-repeat;background-size:813.3% auto;background-position:50% 82%}
 #hero .hmist{position:absolute;inset:0;z-index:0;overflow:hidden}
@@ -188,6 +191,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <div class="hmist" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="hcouple" id="heroCouple" aria-hidden="true"><svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMax meet"><g fill="rgba(242,234,207,.2)"><circle cx="82" cy="92" r="31"/><circle cx="127" cy="102" r="28"/><path d="M10 250 Q12 160 82 144 Q106 140 114 152 Q128 146 150 152 Q192 166 192 250Z"/></g></svg></div>
       <canvas class="hsp" id="heroSpray" aria-hidden="true"></canvas>
+      <div class="hbreath" id="heroBreath" aria-hidden="true">breathe in</div>
       <div class="hspr" id="heroSprayer" aria-hidden="true"></div>
       <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA bottle"></div>
       <div class="htext" id="heroText"><p class="hh">Breathe in.<br>Become.</p><p class="hs">Fragrance made in Kampala.</p><button class="hcta" id="heroCta" type="button">Find your scent</button></div>
@@ -779,49 +783,128 @@ function layoutHero(top,lh,lx,lw){
     put(mi[0],-W*0.15,cTop,W*1.3,ch*1.1); put(mi[1],-W*0.2,H*0.6,W*0.8,H*0.35); put(mi[2],W*0.5,H*0.08,W*0.6,H*0.3);
   }
 }
-/* one breath drives everything in the hero (7 s): breath in 0 to .45, hold to .62, breath out to 1. The sprayer puffs at .90,
-   the mist drifts across, is drawn in to the couple on the breath in, and what is left rises away on the breath out. */
+/* one breath drives everything in the hero (7 s): breath in 0 to .45, hold to .62, breath out to 1. The sprayer puffs at .90.
+   The background is the lab's "Pattern in mist" at TJ's Settings 4 (16 Nov): the embossed master pattern rippling like a curtain,
+   smoke rolling out of the spray hole across the couple to the far edge, each burst thinning away as it rises. The sprayer
+   is drawn inside the same picture so the plume leaves the hole in front of it. Built from fragrance-project/lab/background-lab. */
 var HS=(function(){
-  var cv=$("heroSpray"), sp=$("heroSprayer"), ctx=cv.getContext("2d"), P=[], T0=performance.now(), PER=7000, last=0, puffed=-1;
-  var nz={x:0,y:0,dx:-1,dy:0}, face={x:0,y:0}, scale=1;
-  var dot=mk(64,64), dc=dot.getContext("2d"), g=dc.createRadialGradient(32,32,0,32,32,32);
-  g.addColorStop(0,"rgba(252,248,234,1)"); g.addColorStop(.45,"rgba(252,248,234,.35)"); g.addColorStop(1,"rgba(252,248,234,0)"); dc.fillStyle=g; dc.fillRect(0,0,64,64);
+  var SET={emb:.09,sc:.94,sm:.54,sp:.77,ang:35,rip:.40,rf:1.4,lo:.26,hi:.28,plu:.9,gr:.02};   /* Settings 4 */
+  var cv=$("heroSpray"), sp=$("heroSprayer"), bw=$("heroBreath"), T0=performance.now(), PER=7000, last=0, Fd=0, Rs=0, Pf=0;
+  var AR=562/1339, HX=0.348, HY=0.039;            // sprayer image shape (width over height) and where its spray hole sits in it
+  var SRC=[.9,.5], FACE=[.5,.5], SPRR=[0,0,0,0], FADE=0, cw=1, chh=1;
+  var gl=cv.getContext("webgl",{premultipliedAlpha:false}), U={}, ok=!!gl;
+  var VS="attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
+  var FS=`precision highp float;
+uniform vec2 R; uniform float T,B,S,F,PF,plu,lo,hi,K,BI,RISE,ang,rip,rf,uEmb,uGrain,uSmoke,uScale,patA; uniform vec2 src,face; uniform vec4 sprR; uniform float uFade; uniform sampler2D pat,spr;
+float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+  return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<5;i++){v+=a*noise(p);p=m*p;a*=.5;}return v;}
+float segd(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}
+float along(vec2 p,vec2 a,vec2 b){vec2 ba=b-a;return clamp(dot(p-a,ba)/dot(ba,ba),0.,1.);}
+float H(vec2 q){return texture2D(pat,q).r;}
+void main(){
+  vec2 uv=gl_FragCoord.xy/R; float asp=R.x/R.y; vec2 p=vec2(uv.x*asp,uv.y);
+  vec2 s=vec2(src.x*asp,src.y), f=vec2(face.x*asp,face.y); vec2 d=normalize(f-s);
+  vec2 na=vec2(cos(ang),sin(ang));   // the chosen direction: light bands and the curtain ripple travel along it
+  vec3 blue=vec3(.067,.420,.620), deep=vec3(.040,.290,.450), cream=vec3(.949,.918,.812), gold=vec3(.96,.80,.48);
+  float LV=mix(lo,hi,S);   // the plume's level: 'quietest' between puffs, 'brightest' right after a puff
+  vec3 col=mix(deep,blue,.55+.45*uv.y);
+  // a slow moving light in the blue (visible gradient): two soft glows that drift with the flow and swell on the breath in
+  float g1=fbm(p*.7-d*F*.6+vec2(0.,T*.01)), g2=fbm(p*.9+vec2(3.1,7.7)-d*F*.4);
+  col=mix(col,vec3(.16,.55,.74),smoothstep(.35,.8,g1)*(.55+.35*B));
+  col=mix(col,deep*.85,smoothstep(.45,.85,g2)*.5);
+  col+=vec3(.95,.85,.6)*.10*B*exp(-pow(length(p-f)/.35,2.));
+  // flow field: everything drifts from the sprayer towards the couple; F is the distance flowed so far, RISE the lift on the breath out
+  vec2 fp=p-d*F+vec2(0.,-RISE)+vec2(BI*3.7,BI*1.3);   // each burst gets its own fresh smoke shapes
+  // the life of one burst (K: 0 at the puff, 1 just before the next): it rolls out of the nozzle, rises, thins into wisps and is gone
+  float uB=dot(p-s,d), front=2.6*smoothstep(0.,.5,K);
+  float born=smoothstep(front+.02,front-.18,uB);                       // only where this burst has reached so far
+  float fade=1.-smoothstep(.55,.97,K);                                  // dissipates during the rise on the breath out
+  float erode=.42*smoothstep(.45,1.,K);                                 // breaks into thinner and thinner wisps as it goes
+  vec2 q=vec2(fbm(fp*1.6),fbm(fp*1.6+vec2(5.2,1.3)));
+  vec2 r=vec2(fbm(fp*1.6+3.5*q+vec2(1.7,9.2)),fbm(fp*1.6+3.5*q+vec2(8.3,2.8)));
+  float sm=fbm(fp*1.6+3.*r);
+  // the stream: a widening ribbon from the hole to the faces, strongest just after a puff
+  // the stream runs from the hole, past the couple, right across to the far edge (TJ, 16 Nov), widening as it goes
+  vec2 e2=s+d*3.;
+  float ab=max(dot(p-s,d),0.), w=.04+.2*min(ab/length(f-s),1.)+.06*max(ab-length(f-s),0.), band=exp(-pow(segd(p,s,e2)/w,2.));
+  // the smoke of the current burst
+  float dens=smoothstep(.32+erode,.8+erode*.4,sm)*(.35+band*1.6)*mix(lo*.25,hi,born*fade);
+  float uN=dot(p-s,d); dens*=smoothstep(-.06,.12,uN);   // nothing upstream of the hole: the smoke only exists where the bottle has sent it
+  dens*=uSmoke;
+  // embossed pattern: the master pattern as a raised surface, lit from the top left
+  // tiles repeat side by side; every other row is mirrored top to bottom, so every line that reaches the edge meets itself and carries on
+  float ph=dot(p,na)*rf*6.2832 - F*9. + (fbm(p*.6+vec2(0.,T*.02))-.5)*2.;
+  float fold=sin(ph), slope=cos(ph);
+  vec2 pc=p + na*fold*rip*.014;                   // the pressed paper moves with the ripple, like a curtain
+  vec2 pt=vec2(pc.x/(uScale*patA),pc.y/uScale); float rowk=floor(pt.y), mir=mod(rowk,2.)>.5?-1.:1.;
+  vec2 pu=vec2(fract(pt.x), mir>0.? 1.-fract(pt.y) : fract(pt.y));
+  float e=1.6/1024.;
+  float hc=H(pu), hl=H(pu-vec2(e,0.)), hr=H(pu+vec2(e,0.)), hd=H(pu+vec2(0.,e)), hu=H(pu-vec2(0.,e));
+  vec3 n=normalize(vec3((hl-hr)*2.2,(hd-hu)*2.2*mir,1.)+vec3(-na*slope*rip*.35,0.));
+  vec3 L=normalize(vec3(-.6,.65,.75));
+  float shade=dot(n,L)-L.z;
+  float vis=.15+.8*dens;   // the pattern rises out of the paper where the smoke is
+  col+=shade*uEmb*vis*.9;
+  col*=1.+slope*rip*.06;                            // the folds themselves catch the light
+  col=mix(col,cream,hc*smoothstep(.05,.5,dens)*.55);   // the smoke fills the pattern's lines as it passes
+  col=mix(col,cream,clamp(dens,0.,1.)*.7);
+  col+=gold*pow(clamp(dens,0.,1.),3.)*.18;
+  // the sprayer, drawn here so the plume can sit in front of it
+  vec2 suv=vec2((uv.x-sprR.x)/sprR.z, 1.-(uv.y-sprR.y)/sprR.w);
+  if(suv.x>0.&&suv.x<1.&&suv.y>0.&&suv.y<1.){vec4 bc=texture2D(spr,suv); bc.a*=1.-uFade*smoothstep(.45,.92,suv.y); col=mix(col,bc.rgb,bc.a);}
+  // the plume: born at the hole, narrow and dense there, widening, swaying and thinning as it travels towards the couple
+  vec2 rel=p-s, perp=vec2(-d.y,d.x); float u=dot(rel,d), v=dot(rel,perp);
+  v+=sin(u*6.-T*.9)*.025*u+(fbm(vec2(u*3.-PF*3.,T*.1))-.5)*.09*u;
+  float pw=.004+.16*pow(max(u,0.),.85), cr=exp(-pow(v/pw,2.));
+  float len=.18+.55*S, alongE=smoothstep(-.004,.012,u)*exp(-max(u,0.)/len);
+  float turb=fbm(vec2(u*7.-PF*7.,v/(pw+.001)*1.2)+vec2(0.,T*.05));
+  float pl=alongE*cr*smoothstep(.25,.75,turb+.15)*1.2*LV*plu;
+  col=mix(col,cream,clamp(pl,0.,1.)*.75);
+  col+=vec3(1.,.95,.85)*.22*S*hi*plu*exp(-pow(length(rel)/.012,2.));   // a soft breath of light at the hole on each puff
+  col*=1.-.18*pow(length(uv-.5)*1.25,2.);
+  col+=(h21(gl_FragCoord.xy+fract(T*7.)*97.)-.5)*uGrain;
+  gl_FragColor=vec4(col,1.);
+}`;
+  function sh(k,s){var o=gl.createShader(k);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o}
+  function tex(unit,src,fmt){var tx=gl.createTexture(),im=new Image();im.onload=function(){gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,tx);
+    gl.texImage2D(gl.TEXTURE_2D,0,fmt,fmt,gl.UNSIGNED_BYTE,im);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.activeTexture(gl.TEXTURE0);};im.src=src;}
+  if(ok){ try{
+    var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
+    var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+    var al=gl.getAttribLocation(pr,"a");gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
+    ["R","T","B","S","F","PF","plu","lo","hi","K","BI","sprR","spr","RISE","ang","rip","rf","uEmb","uGrain","uSmoke","uScale","patA","src","face","pat","uFade"].forEach(function(k){U[k]=gl.getUniformLocation(pr,k)});
+    tex(0,"img/spray3/hero-pattern.png",gl.LUMINANCE); tex(1,"img/spray3/hero-sprayer.webp",gl.RGBA);
+    sp.style.visibility="hidden";                 // the shader draws the sprayer; the plain image stays only as the fallback
+  }catch(e){ ok=false; } }
   function breath(ph){ var e=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
     return ph<.45?e(ph/.45):ph<.62?1:1-e((ph-.62)/.38); }
-  var AR=562/1339, HX=0.348, HY=0.039;            // sprayer image shape (width over height) and where its spray hole sits in it
+  function stream(ph){var x=(ph+.1)%1;return x<.08?x/.08:Math.exp(-(x-.08)*3.2);}   // jumps up at the puff (.90), fades over the breath
   function set(left,holeY,h,fx,fy){
-    var w=h*AR, top=holeY-HY*h; scale=h/448;   // droplet size reference (the first render was 448 px tall)
+    var w=h*AR, top=holeY-HY*h;
     sp.style.left=left.toFixed(1)+"px"; sp.style.top=top.toFixed(1)+"px"; sp.style.width=w.toFixed(1)+"px"; sp.style.height=h.toFixed(1)+"px";
-    nz.x=left+HX*w; nz.y=holeY; nz.dx=-0.995; nz.dy=0.1;   // out of the hole sideways, towards the couple
-    face.x=fx; face.y=fy;
-    var d=Math.min(2,window.devicePixelRatio||1); cv.width=Math.round(W*d); cv.height=Math.round(H*d); ctx.setTransform(d,0,0,d,0,0);
-  }
-  function puff(){
-    var n=W<700?260:420, sp0=Math.max(W,H)*0.5;
-    for(var i=0;i<n;i++){ var spread=(Math.random()-.5)*0.45, v=sp0*(0.35+Math.random()*0.75), c=Math.cos(spread), s=Math.sin(spread);
-      P.push({x:nz.x,y:nz.y,vx:(nz.dx*c-nz.dy*s)*v,vy:(nz.dx*s+nz.dy*c)*v,r:(1.5+Math.random()*4)*Math.max(.7,scale*1.4),a:0,age:0,life:1}); }
+    SPRR=[left/W,1-(top+h)/H,w/W,h/H]; SRC=[(left+HX*w)/W,1-holeY/H]; FACE=[fx/W,1-fy/H]; FADE=W/H<0.9?1:0;
+    var d=Math.min(1.5,window.devicePixelRatio||1); cv.width=Math.round(W*d); cv.height=Math.round(H*d); if(ok) gl.viewport(0,0,cv.width,cv.height);
   }
   function tick(now){
     requestAnimationFrame(tick);
     if(hero.style.visibility==="hidden"){ last=now; return; }
     var dt=Math.min(.05,(now-(last||now))/1000); last=now;
-    var cyc=(now-T0)/PER, ph=cyc-Math.floor(cyc), b=breath(ph), k=Math.floor(cyc);
+    var c=RM?0.5:(now-T0)/PER, ph=c-Math.floor(c), b=breath(ph), s=stream(ph);
     var cp=$("heroCouple"); if(cp) cp.style.transform="scale("+(1+0.025*b).toFixed(4)+")";
-    hero.querySelectorAll(".hmist i").forEach(function(m){ m.style.opacity=(.55+.45*b).toFixed(3); m.style.transform="scale("+(.92+.16*b).toFixed(4)+")"; });
-    if(RM){ ctx.clearRect(0,0,W,H); return; }
-    if(ph>=.9 && puffed!==k){ puffed=k; puff(); }
-    var inh=ph<.45||ph>=.97, exh=ph>=.62&&ph<.9;
-    ctx.clearRect(0,0,W,H);
-    for(var i=P.length-1;i>=0;i--){ var q=P[i]; q.age+=dt;
-      var drag=Math.pow(0.18,dt); q.vx*=drag; q.vy*=drag;
-      if(inh&&q.age>.35){ var ddx=face.x-q.x, ddy=face.y-q.y, dd=Math.hypot(ddx,ddy)+1; q.vx+=ddx/dd*260*dt; q.vy+=ddy/dd*260*dt; if(dd<160) q.life-=dt*(2.4-dd/90); }
-      if(exh){ q.vy-=60*dt; q.vx+=(Math.random()-.5)*40*dt; q.life-=dt*.55; }
-      q.x+=q.vx*dt; q.y+=q.vy*dt; q.r+=dt*(10+q.age*22); q.life-=dt*.05;
-      q.a=Math.min(1,q.age*5)*Math.max(0,q.life);
-      if(q.life<=0){ P.splice(i,1); continue; }
-      ctx.globalAlpha=q.a*.6*(5/(q.r+5));   /* fine droplets near the hole, a thin veil once spread */ ctx.drawImage(dot,q.x-q.r,q.y-q.r,q.r*2,q.r*2);
-    }
-    ctx.globalAlpha=1;
+    if(bw){ var bt=ph<.62?"breathe in":"breathe out"; if(bw.textContent!==bt) bw.textContent=bt; bw.style.transform="scale("+(1+.9*b).toFixed(3)+")"; }   /* grows with the breath in, shrinks with the breath out */
+    if(!ok) return;
+    if(!RM){ var inh=ph<.45||ph>=.9, exh=ph>=.62&&ph<.9;
+      Fd+=dt*SET.sp*(inh? .05+.18*s : exh? .015:.02); Rs+=dt*SET.sp*(exh? .03:.004); Pf+=dt*SET.sp*(.04+.25*s); }
+    gl.uniform2f(U.R,cv.width,cv.height);gl.uniform1f(U.T,RM?0:(now-T0)/1000);gl.uniform1f(U.B,b);gl.uniform1f(U.S,s);gl.uniform1f(U.F,Fd);gl.uniform1f(U.PF,Pf);
+    gl.uniform1f(U.plu,SET.plu);gl.uniform1f(U.K,((ph-.9)%1+1)%1);gl.uniform1f(U.BI,Math.floor(c+.1));gl.uniform1f(U.lo,SET.lo);gl.uniform1f(U.hi,SET.hi);
+    gl.uniform4f(U.sprR,SPRR[0],SPRR[1],SPRR[2],SPRR[3]);gl.uniform1i(U.spr,1);gl.uniform1f(U.RISE,Rs);gl.uniform1f(U.uFade,FADE);
+    gl.uniform1f(U.ang,SET.ang*Math.PI/180);gl.uniform1f(U.rip,SET.rip);gl.uniform1f(U.rf,SET.rf);gl.uniform1f(U.uEmb,SET.emb);gl.uniform1f(U.uGrain,SET.gr);gl.uniform1f(U.uSmoke,SET.sm);
+    gl.uniform1f(U.uScale,SET.sc);gl.uniform1f(U.patA,1024/1598);gl.uniform2f(U.src,SRC[0],SRC[1]);gl.uniform2f(U.face,FACE[0],FACE[1]);
+    gl.uniform1i(U.pat,0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   }
   requestAnimationFrame(tick);
   return {set:set, AR:AR, HY:HY};
