@@ -39,7 +39,28 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #hero .word svg{width:auto;height:100%}
 #hero .city{position:absolute;margin:0;font:300 16px var(--label);color:var(--cream);
   text-transform:uppercase;white-space:nowrap;line-height:1}
-#hero .sub{color:var(--cream)} #hero .sub b{color:var(--cream);opacity:.8}
+#hero .sub{display:none}
+/* hero layout (TJ, 16 Nov): computer = bottle left, couple centre under the logo, words and button right;
+   phone = logo top, couple filling the middle, bottle bottom left over the couple's lower edge, words beside it.
+   The couple is a stand in shape until the breathing video exists; its frame is 4:5 on every screen, so one video serves both.
+   Mist and couple share one breath: in slowly, hold, out a little quicker (7 s). Positions are set by sizeHero(). */
+#hero .word{z-index:3} #hero .city{z-index:3}
+#hero .hcouple{position:absolute;z-index:1;animation:hBreath 7s ease-in-out infinite;transform-origin:50% 100%}
+#hero .hcouple svg{display:block;width:100%;height:100%}
+#hero .hbottle{position:absolute;z-index:4;background:url(img/spray3/bl_00.webp) no-repeat;background-size:813.3% auto;background-position:50% 82%}
+#hero .hmist{position:absolute;inset:0;z-index:0;overflow:hidden}
+#hero .hmist i{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(242,234,207,.24),rgba(242,234,207,0));
+  animation:hMist 7s ease-in-out infinite}
+#hero .hmist i:nth-child(2){animation-delay:-.6s} #hero .hmist i:nth-child(3){animation-delay:-1.2s}
+#hero .htext{position:absolute;z-index:4;color:var(--cream);pointer-events:auto}
+#hero .hh{font:300 1em/1.08 var(--serif);margin:0}
+#hero .hs{font:300 .4em/1.4 var(--sans);opacity:.85;margin:.55em 0 1em}
+#hero .hcta{font:500 .3em var(--label);letter-spacing:.24em;text-transform:uppercase;color:var(--cream);background:transparent;
+  border:1px solid var(--cream);padding:1.1em 1.6em 1em 1.84em;border-radius:0;cursor:pointer;transition:background .25s,color .25s}
+#hero .hcta:hover,#hero .hcta:focus-visible{background:var(--cream);color:var(--blue)}
+@keyframes hBreath{0%{transform:scale(1)}45%{transform:scale(1.025)}62%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes hMist{0%{transform:scale(.92);opacity:.55}45%{transform:scale(1.08);opacity:1}62%{transform:scale(1.08);opacity:1}100%{transform:scale(.92);opacity:.55}}
+@media (prefers-reduced-motion:reduce){ #hero .hcouple,#hero .hmist i{animation:none} }
 
 /* composite layer: previous scene (or cream before the first spray), the new scene revealed through the mist,
    the Blender bottle (multiply for tint and shadow, screen for highlights), the white mist on top */
@@ -163,6 +184,10 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <img src="img/spray3/bl_00.webp" alt="">
       <h1 class="word"><svg viewBox="0 0 817.72 197" role="img" aria-label="ENZIWA"><path fill="currentColor" fill-rule="evenodd" d="M89.00 71.00 L8.00 71.00 L8.00 8.00 L97.00 8.00 L97.00 0.00 L0.00 0.00 L0.00 197.00 L97.00 197.00 L97.00 189.00 L8.00 189.00 L8.00 114.00 L89.00 114.00 Z M8.00 106.00 L8.00 79.00 L81.00 79.00 L81.00 106.00 Z M533.19 173.46 L465.93 0.00 L456.82 0.00 L533.20 197.00 L571.92 96.88 L611.00 197.00 L685.87 0.00 L676.78 0.00 L610.89 173.35 L576.46 85.14 L609.39 0.00 L534.11 0.00 L567.34 85.15 Z M597.18 8.00 L571.89 73.41 L546.36 8.00 Z M243.50 172.47 L127.67 0.00 L126.00 0.00 L126.00 197.00 L134.00 197.00 L134.00 151.23 L179.46 91.47 L250.33 197.00 L251.50 197.00 L251.50 0.00 L243.50 0.00 Z M134.00 23.78 L174.45 84.02 L134.00 137.19 Z M387.32 8.00 L355.76 61.63 L354.15 60.94 L353.34 60.63 L352.41 60.28 L351.59 60.01 L350.64 59.71 L349.80 59.47 L348.84 59.21 L347.99 59.01 L347.02 58.80 L346.17 58.64 L345.19 58.48 L344.33 58.35 L343.34 58.23 L342.47 58.15 L341.48 58.08 L340.49 58.03 L339.62 58.00 L338.75 58.00 L337.76 58.02 L336.76 58.06 L335.90 58.12 L334.91 58.21 L334.04 58.30 L333.06 58.44 L332.20 58.58 L331.22 58.75 L330.37 58.93 L329.52 59.12 L328.56 59.37 L327.72 59.60 L326.77 59.89 L325.94 60.16 L325.01 60.49 L324.08 60.85 L323.27 61.18 L322.36 61.58 L321.57 61.94 L320.02 62.72 L319.15 63.20 L318.39 63.63 L317.65 64.09 L316.81 64.62 L315.99 65.17 L315.28 65.68 L314.58 66.19 L313.79 66.80 L313.02 67.43 L312.36 68.00 L311.62 68.66 L310.98 69.25 L310.27 69.95 L309.67 70.57 L308.99 71.30 L308.41 71.95 L307.77 72.71 L307.23 73.39 L306.69 74.08 L306.10 74.88 L305.60 75.59 L305.05 76.41 L304.52 77.25 L304.07 78.00 L303.58 78.86 L303.17 79.63 L302.39 81.18 L301.97 82.09 L301.63 82.89 L301.30 83.69 L300.95 84.62 L300.62 85.56 L300.35 86.39 L300.07 87.34 L299.84 88.18 L299.60 89.14 L299.40 89.99 L299.21 90.96 L299.05 91.82 L298.92 92.68 L298.79 93.67 L298.68 94.65 L298.61 95.52 L298.56 96.39 L298.52 97.38 L298.50 98.25 L298.51 99.25 L298.53 100.11 L298.58 101.11 L298.65 101.97 L298.75 102.96 L298.85 103.83 L298.99 104.81 L299.16 105.79 L299.33 106.64 L299.54 107.62 L299.74 108.46 L300.00 109.42 L300.24 110.26 L300.54 111.20 L300.83 112.03 L301.17 112.96 L301.49 113.77 L302.18 115.37 L302.60 116.26 L302.99 117.04 L303.40 117.81 L303.88 118.68 L304.33 119.43 L304.85 120.27 L305.33 121.00 L305.89 121.82 L306.40 122.53 L307.00 123.32 L307.54 124.00 L308.17 124.76 L308.74 125.42 L309.41 126.16 L310.01 126.78 L310.72 127.49 L311.44 128.17 L312.08 128.76 L312.83 129.41 L313.50 129.96 L314.91 131.05 L276.10 197.00 L401.00 197.00 L401.00 189.00 L290.09 189.00 L321.78 135.15 L322.59 135.53 L323.50 135.92 L324.31 136.24 L325.24 136.59 L326.06 136.88 L327.01 137.18 L327.84 137.43 L328.80 137.69 L329.64 137.90 L330.61 138.12 L331.46 138.29 L332.44 138.47 L333.43 138.61 L334.29 138.73 L335.28 138.83 L336.14 138.90 L337.14 138.96 L338.01 138.99 L339.00 139.00 L339.87 138.99 L340.74 138.96 L341.73 138.91 L342.72 138.83 L343.71 138.73 L344.57 138.61 L345.56 138.47 L346.41 138.32 L347.39 138.12 L348.36 137.90 L349.20 137.69 L350.16 137.43 L350.99 137.18 L351.94 136.88 L352.76 136.59 L353.69 136.24 L354.50 135.92 L355.41 135.53 L356.20 135.16 L357.10 134.73 L357.87 134.33 L358.64 133.92 L359.50 133.43 L360.35 132.91 L361.19 132.38 L361.91 131.90 L362.72 131.32 L363.42 130.81 L364.21 130.20 L364.88 129.65 L365.64 129.00 L366.38 128.34 L367.02 127.75 L367.73 127.05 L368.33 126.43 L369.01 125.70 L369.59 125.05 L370.23 124.29 L370.77 123.61 L371.38 122.82 L371.90 122.12 L372.40 121.41 L372.95 120.59 L373.48 119.75 L373.93 119.00 L374.42 118.14 L374.83 117.37 L375.23 116.60 L375.66 115.70 L376.03 114.91 L376.42 114.00 L376.74 113.19 L377.09 112.26 L377.38 111.44 L377.68 110.49 L377.93 109.66 L378.19 108.70 L378.40 107.86 L378.62 106.89 L378.79 106.04 L378.97 105.06 L379.11 104.07 L379.23 103.21 L379.33 102.22 L379.40 101.36 L379.46 100.36 L379.49 99.49 L379.50 98.50 L379.49 97.63 L379.46 96.76 L379.41 95.77 L379.33 94.78 L379.23 93.79 L379.11 92.93 L378.97 91.94 L378.79 90.96 L378.62 90.11 L378.40 89.14 L378.19 88.30 L377.93 87.34 L377.68 86.51 L377.38 85.56 L377.09 84.74 L376.74 83.81 L376.42 83.00 L376.03 82.09 L375.66 81.30 L375.23 80.40 L374.83 79.63 L374.42 78.86 L373.93 78.00 L373.48 77.25 L372.95 76.41 L372.40 75.59 L371.90 74.88 L371.31 74.08 L370.77 73.39 L370.23 72.71 L369.59 71.95 L369.01 71.30 L368.33 70.57 L367.73 69.95 L367.02 69.25 L366.38 68.66 L365.64 68.00 L364.98 67.43 L364.21 66.80 L363.42 66.19 L362.68 65.65 L401.32 0.00 L277.00 0.00 L277.00 8.00 Z M371.49 99.10 L371.43 100.69 L371.28 102.28 L371.06 103.86 L370.75 105.43 L370.38 106.98 L369.92 108.51 L369.39 110.01 L368.79 111.49 L368.12 112.93 L367.38 114.35 L366.56 115.72 L365.69 117.05 L364.74 118.34 L363.74 119.58 L362.68 120.77 L361.55 121.90 L360.38 122.98 L359.15 124.00 L357.88 124.96 L356.56 125.85 L355.19 126.68 L353.79 127.44 L352.35 128.13 L350.88 128.75 L349.38 129.30 L347.86 129.77 L346.32 130.17 L344.75 130.49 L343.18 130.73 L341.59 130.90 L340.00 130.98 L338.40 130.99 L336.81 130.93 L335.22 130.78 L333.64 130.56 L332.07 130.25 L330.52 129.88 L328.99 129.42 L327.49 128.89 L326.01 128.29 L324.57 127.62 L323.15 126.88 L321.78 126.06 L320.45 125.19 L319.16 124.24 L317.92 123.24 L316.73 122.18 L315.60 121.05 L314.52 119.88 L313.50 118.65 L312.54 117.38 L311.65 116.06 L310.82 114.69 L310.06 113.29 L309.37 111.85 L308.75 110.38 L308.20 108.88 L307.73 107.36 L307.33 105.82 L307.01 104.25 L306.77 102.68 L306.60 101.09 L306.52 99.50 L306.51 97.90 L306.57 96.31 L306.72 94.72 L306.94 93.14 L307.25 91.57 L307.62 90.02 L308.08 88.49 L308.61 86.99 L309.21 85.51 L309.88 84.07 L310.62 82.65 L311.44 81.28 L312.31 79.95 L313.26 78.66 L314.26 77.42 L315.32 76.23 L316.45 75.10 L317.62 74.02 L318.85 73.00 L320.12 72.04 L321.44 71.15 L322.81 70.32 L324.21 69.56 L325.65 68.87 L327.12 68.25 L328.62 67.70 L330.14 67.23 L331.68 66.83 L333.25 66.51 L334.82 66.27 L336.41 66.10 L338.00 66.02 L339.60 66.01 L341.19 66.07 L342.78 66.22 L344.36 66.44 L345.93 66.75 L347.48 67.12 L349.01 67.58 L350.51 68.11 L351.99 68.71 L353.43 69.38 L354.85 70.12 L356.22 70.94 L357.55 71.81 L358.84 72.76 L360.08 73.76 L361.27 74.82 L362.40 75.95 L363.48 77.12 L364.50 78.35 L365.46 79.62 L366.35 80.94 L367.18 82.31 L367.94 83.71 L368.63 85.15 L369.25 86.62 L369.80 88.12 L370.27 89.64 L370.67 91.18 L370.99 92.75 L371.23 94.32 L371.40 95.91 L371.48 97.50 Z M436.00 197.00 L436.00 0.00 L428.00 0.00 L428.00 197.00 Z M678.36 197.00 L711.69 109.00 L775.66 109.00 L808.64 197.00 L817.72 197.00 L743.89 0.00 L669.27 197.00 Z M725.33 73.00 L743.85 24.11 L762.17 73.00 Z M722.30 81.00 L765.17 81.00 L772.66 101.00 L714.72 101.00 Z"/></svg></h1>
       <p class="city" id="heroCity">Kampala</p>
+      <div class="hmist" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="hcouple" id="heroCouple" aria-hidden="true"><svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMax meet"><g fill="rgba(242,234,207,.2)"><circle cx="82" cy="92" r="31"/><circle cx="127" cy="102" r="28"/><path d="M10 250 Q12 160 82 144 Q106 140 114 152 Q128 146 150 152 Q192 166 192 250Z"/></g></svg></div>
+      <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA bottle"></div>
+      <div class="htext" id="heroText"><p class="hh">Breathe in.<br>Become.</p><p class="hs">Fragrance made in Kampala.</p><button class="hcta" id="heroCta" type="button">Find your scent</button></div>
       <div class="sub"><b>Scroll</b></div>
     </div>
 
@@ -725,8 +750,30 @@ function sizeHero(){
   var w0=city.getBoundingClientRect().width, n=city.textContent.length, ls=(cw-w0)/(n-1);
   city.style.letterSpacing=ls.toFixed(2)+"px"; city.style.marginRight=(-ls).toFixed(2)+"px";
   city.style.top=(top+lh+lh*0.22).toFixed(1)+"px"; city.style.left=(lx+ci-lw*0.005).toFixed(1)+"px";   /* nudged left by eye (TJ, 15 Nov): about 3.5 px on his screen */   // placed by its visible letters, not the trailing spacing
+  layoutHero(top,lh,lx,lw);
+}
+function layoutHero(top,lh,lx,lw){
+  var cp=$("heroCouple"), bt=$("heroBottle"), tx=$("heroText"), mi=hero.querySelectorAll(".hmist i"); if(!cp||!bt||!tx) return;
+  var BA=537/210, cx=lx+lw/2-lw*0.03;           // bottle crop shape (height over width); the logo's optical centre
+  function put(el,x,y,w,h){ el.style.left=x.toFixed(1)+"px"; el.style.top=y.toFixed(1)+"px"; el.style.width=w.toFixed(1)+"px"; if(h!=null) el.style.height=h.toFixed(1)+"px"; }
+  var cTop=top+lh*0.85, ch, cw, bh, bw;
+  if(W/H>=0.9){                                  // computer: three columns
+    ch=H-cTop; cw=ch*0.8; put(cp,cx-cw/2,cTop,cw,ch);
+    bh=Math.min(H*0.5,(cx-cw/2)*0.9*BA); bw=bh/BA; put(bt,(cx-cw/2)/2-bw/2,H*0.66-bh/2,bw,bh);
+    var tl=cx+cw/2+W*0.035; tx.style.fontSize=Math.max(26,Math.min(46,W*0.028)).toFixed(1)+"px";
+    put(tx,tl,H*0.47,Math.max(200,W-tl-W*0.04)); tx.style.top=(H*0.47).toFixed(1)+"px";
+    put(mi[0],cx-cw*0.75,cTop+ch*0.05,cw*1.5,ch*1.1); put(mi[1],W*0.02,H*0.45,W*0.3,H*0.5); put(mi[2],W*0.66,H*0.1,W*0.28,H*0.42);
+  } else {                                       // phone: stacked
+    var zone=Math.max(200,H*0.3); ch=Math.max(160,H-zone-70-cTop+H*0.06); cw=Math.min(W-24,ch*0.8); ch=cw*1.25;
+    put(cp,W/2-cw/2,cTop,cw,ch);
+    bh=Math.min(H*0.3,zone+20); bw=bh/BA; var bl=W*0.065, bTop=H-78-bh; put(bt,bl,bTop,bw,bh);
+    tx.style.fontSize=Math.max(22,Math.min(30,W*0.072)).toFixed(1)+"px";
+    var tl2=bl+bw+W*0.05; put(tx,tl2,0,W-tl2-12); tx.style.top=(H-92-tx.offsetHeight).toFixed(1)+"px";
+    put(mi[0],-W*0.15,cTop,W*1.3,ch*1.1); put(mi[1],-W*0.2,H*0.6,W*0.8,H*0.35); put(mi[2],W*0.5,H*0.08,W*0.6,H*0.3);
+  }
 }
 sizeHero(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(sizeHero);
+$("heroCta").addEventListener("click",function(e){ e.stopPropagation(); if(pillBtns[0]) pillBtns[0].click(); });
 mq.addEventListener && mq.addEventListener("change",function(){closeCard()});
 
 // the pill lands in that blend's revealed scene: blends passed on the way count as already sprayed
