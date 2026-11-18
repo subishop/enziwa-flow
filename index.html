@@ -60,9 +60,11 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #hero .htext{position:absolute;z-index:4;color:var(--cream);pointer-events:auto}
 #hero .hh{font:300 1em/1.08 var(--serif);margin:0}
 #hero .hs{font:300 .4em/1.4 var(--sans);opacity:.85;margin:.55em 0 1em}
-#hero .hcta{font:500 .3em var(--label);letter-spacing:.24em;text-transform:uppercase;color:var(--cream);background:transparent;
-  border:1px solid var(--cream);padding:1.1em 1.6em 1em 1.84em;border-radius:0;cursor:pointer;transition:background .25s,color .25s}
-#hero .hcta:hover,#hero .hcta:focus-visible{background:var(--cream);color:var(--blue)}
+#hero .hcta{font:500 .3em var(--label);letter-spacing:.24em;text-transform:uppercase;color:var(--cream);background:var(--blue);
+  border:1px solid var(--cream);padding:1.1em 1.6em 1em 1.84em;border-radius:0;cursor:pointer;transition:background .25s,color .25s,border-color .25s}
+#hero .hcta:active{background:var(--flame);border-color:var(--flame);color:var(--cream)}
+@media (hover:hover){ #hero .hcta:hover{background:var(--flame);border-color:var(--flame);color:var(--cream)} }
+#hero .hcta:focus-visible{outline:2px solid var(--flame);outline-offset:3px}   /* solid blue, orange when pressed (TJ, 18 Nov) */
 
 
 /* composite layer: previous scene (or cream before the first spray), the new scene revealed through the mist,
@@ -220,8 +222,9 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #hero .hsx{position:absolute;top:6px;right:6px;width:30px;height:30px;border:0;background:none;color:var(--blue);font:300 24px/1 var(--label);cursor:pointer;opacity:0}
 #hero .htext .hcta{position:relative;z-index:6;transition:background .3s,border-color .3s,color .3s}
 #hero .htext.sampling .hcta{background:var(--blue);border-color:var(--blue);color:var(--cream)}
-#hero .htext.sampling .hcta:hover,#hero .htext.sampling .hcta:active{background:var(--flame);border-color:var(--flame)}
-@media (max-aspect-ratio:9/10){ #hero .hst{font-size:22px} #hero .hsd{font-size:13px} #hero .hsin{top:36px} }
+#hero .htext.sampling .hcta:active{background:var(--flame);border-color:var(--flame)}
+@media (hover:hover){ #hero .htext.sampling .hcta:hover{background:var(--flame);border-color:var(--flame)} }
+@media (max-aspect-ratio:9/10){ #hero .hsin{top:42px;text-align:center} #hero .hst{font-size:30px;margin-bottom:12px} #hero .hsd{font-size:16.5px;line-height:1.5} }
 #shop .foot{margin-top:56px;font:400 12px var(--label);letter-spacing:.3em;text-transform:uppercase;opacity:.6}
 </style>
 </head>
@@ -1165,8 +1168,11 @@ window.__spray=function(){return {i:sp.i,state:sp.state,p:+sp.p.toFixed(2),cap:+
   function ln(e,x1,y1,x2,y2,w,o){ e.setAttribute("x1",x1.toFixed(1)); e.setAttribute("y1",y1.toFixed(1)); e.setAttribute("x2",x2.toFixed(1)); e.setAttribute("y2",y2.toFixed(1)); e.setAttribute("stroke-width",w.toFixed(2)); e.style.opacity=o; }
   function draw(){
     var r=tx.getBoundingClientRect(), s=l.querySelector("span").getBoundingClientRect();
-    var Wc=Math.min(r.width+2*PADX, innerWidth-8-(r.left-PADX)), Hc=s.bottom+4-r.top+PADT, ul=s.left-(r.left-PADX), uw=s.width;   /* stays on screen */
-    c.style.width=Wc+"px"; c.style.height=Hc+"px"; sv.setAttribute("width",Wc); sv.setAttribute("height",Hc);
+    var phone=innerWidth/innerHeight<0.9, bt=document.getElementById("heroCta").getBoundingClientRect(), Wc, X0;
+    if(phone){ Wc=Math.min(290,innerWidth-24); X0=Math.max(12,Math.min(innerWidth-12-Wc,bt.left+bt.width/2-Wc/2)); }   /* phone: a narrow card centred on the button (TJ, 18 Nov) */
+    else { X0=r.left-PADX; Wc=Math.min(r.width+2*PADX, innerWidth-8-X0); }
+    var Hc=s.bottom+4-r.top+PADT, ul=s.left-X0, uw=s.width;
+    c.style.left=(X0-r.left)+"px"; c.style.width=Wc+"px"; c.style.height=Hc+"px"; sv.setAttribute("width",Wc); sv.setAttribute("height",Hc);
     var k=Math.min(110,Wc*0.45)/(2*BHALF), sw=0.25*k, e=BHALF*k, xc=Wc/2;
     var a=ez(rg(t,0,.3)), cc=ez(rg(t,.25,.6)), b=ez(rg(t,.5,.85)), rr=ez(rg(t,.7,1)), v=ez(rg(t,.75,1));
     c.style.visibility=t>0.001?"visible":"hidden";
@@ -1212,7 +1218,7 @@ window.__spray=function(){return {i:sp.i,state:sp.state,p:+sp.p.toFixed(2),cap:+
     var b=e.target.closest&&e.target.closest("[data-wa],.order,#heroCta"); if(!b) return;
     e.preventDefault(); e.stopPropagation();
     if(b.hasAttribute("data-wa")) return go(b.getAttribute("data-wa"));
-    if(b.id==="heroCta") return go(document.getElementById("heroText").classList.contains("sampling")?"samples":"");
+    if(b.id==="heroCta") return go(document.getElementById("heroSample").classList.contains("on")?"samples":"");
     var inPop=b.closest("#veil"), n=document.getElementById(inPop?"pNum":"num"), nm=document.getElementById(inPop?"pName":"name");
     go(((n&&n.textContent.trim())+" "+(nm&&nm.textContent.trim())).trim());
   },true);
