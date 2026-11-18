@@ -180,10 +180,6 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
   #seal span::after{transition:none}
 }
 
-/* hero price under the bottle */
-#hero .hprice{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin:10px 0 0;white-space:nowrap;
-  font:400 12px var(--label);letter-spacing:.22em;text-transform:uppercase;color:var(--cream);text-align:center}
-#hero .hprice span{display:block;margin-top:4px;font-weight:300;font-size:15px;letter-spacing:.12em}
 /* after the scenes: find your number, samples, gifts, delivery (placeholder wording, 18 Nov) */
 #shop{background:var(--blue);color:var(--cream);padding:72px 6vw 56px;position:relative;z-index:30}
 #shop h2{font:300 clamp(30px,4vw,48px)/1.1 var(--serif);margin:0 0 10px;letter-spacing:.01em}
@@ -202,7 +198,6 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #shop .row{border-top:1px solid rgba(242,234,207,.35);padding-top:20px;display:flex;flex-direction:column}
 #shop .row h3{font:300 24px/1.2 var(--serif);margin:0 0 8px}
 #shop .row p{font:300 15px/1.55 var(--label);margin:0;opacity:.85}
-@media (max-aspect-ratio:9/10){ #hero .hprice{display:none} }   /* phone: the cards carry the price; the bottle sits on the scene bar */
 #pill{transition:opacity .4s}#pill.away{opacity:0;pointer-events:none}
 
 /* sample card (TJ, 18 Nov): the underline under "Need a sample?" grows into a frame like the Omeya Dew pop-up,
@@ -225,6 +220,22 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 #hero .htext.sampling .hcta:active{background:var(--flame);border-color:var(--flame)}
 @media (hover:hover){ #hero .htext.sampling .hcta:hover{background:var(--flame);border-color:var(--flame)} }
 @media (max-aspect-ratio:9/10){ #hero .hsin{top:42px;text-align:center} #hero .hst{font-size:30px;margin-bottom:12px} #hero .hsd{font-size:16.5px;line-height:1.5} }
+
+/* prices on a label across the hero bottle's glass, sized from the bottle's width (TJ, 18 Nov) */
+#hero .hbottle{container-type:inline-size}
+#hero .hlabel{position:absolute;left:17%;right:17%;top:58%;background:var(--cream);color:var(--blue);
+  padding:5cqw 6cqw 4cqw;box-shadow:inset 0 0 0 1px rgba(17,107,158,.35);font:500 8cqw/1.25 var(--label);text-align:center}
+#hero .hlabel b{display:block;font-weight:500;font-size:6.2cqw;letter-spacing:.28em;text-transform:uppercase;margin:0 0 3cqw;padding-left:.28em}
+#hero .hlabel span{display:flex;justify-content:space-between;gap:4cqw;letter-spacing:.04em}
+#hero .hlabel i{font-style:normal}
+#hero .hlabel span i:first-child{font-weight:400}
+/* phone: a soft glow of the background blue behind the headline, so it reads over the couple (TJ, 18 Nov) */
+@media (max-aspect-ratio:9/10){
+  #hero .htext::before{content:"";position:absolute;left:-34px;right:-30px;top:-36px;bottom:-30px;z-index:-1;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(17,107,158,.88),rgba(17,107,158,.7) 55%,rgba(17,107,158,0))}
+  #hero .htext .hh,#hero .htext .hs{text-shadow:0 1px 10px rgba(17,107,158,.9)}
+  #hero .hlabel{left:8%;right:8%;top:55%;padding:5cqw 6cqw 4cqw;font-size:10.5cqw} #hero .hlabel b{font-size:7.5cqw}   /* phone: as big as the glass allows */
+}
 #shop .foot{margin-top:56px;font:400 12px var(--label);letter-spacing:.3em;text-transform:uppercase;opacity:.6}
 </style>
 </head>
@@ -241,7 +252,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <div class="hcouple" id="heroCouple" aria-hidden="true"><video id="coupleVid" src="img/scenes/couple-breath.webm" muted playsinline preload="auto"></video></div><script>/* load the couple clip whole, so the breath can show any frame at once on any server */(function(){ var v=document.getElementById("coupleVid"); fetch(v.getAttribute("src")).then(function(r){return r.blob()}).then(function(b){ v.src=URL.createObjectURL(b); }).catch(function(){}); })();</script>
       <canvas class="hsp" id="heroSpray" aria-hidden="true"></canvas>
       <div class="hspr" id="heroSprayer" aria-hidden="true"></div>
-      <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA bottle, 50ml, 80,000 shillings"><p class="hprice">50ml <span>UGX 80,000</span></p></div>
+      <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA prices: 30ml 50,000, 50ml 80,000, 100ml 150,000 shillings"><div class="hlabel" aria-hidden="true"><b>Prices</b><span><i>30ml</i><i>50k</i></span><span><i>50ml</i><i>80k</i></span><span><i>100ml</i><i>150k</i></span></div></div>
       <div class="htext" id="heroText"><p class="hh">Smell<br>Expensive<br>All Day</p><p class="hs">African Artisan Perfume.<br>Unisex</p><button class="hcta" id="heroCta" type="button">Order on WhatsApp</button><button class="hlink" id="heroSampleLink" type="button"><span>Need a sample?</span></button><div class="hsample" id="heroSample" role="dialog" aria-label="Sample set" aria-hidden="true"><div class="hfrost"></div><svg class="hframe" aria-hidden="true"><g class="hb"><use href="#enzBand"/></g><g fill="none" stroke="currentColor" stroke-linecap="square"><line/><line/><line/><line/><line/><circle/><circle/><circle/><circle/></g></svg><div class="hsin"><p class="hst">Sample Set</p><p class="hsd">Three scents of your choice.<br>UGX 10,000, with free delivery anywhere in Kampala.</p></div><button class="hsx" id="heroSampleX" type="button" aria-label="Close">&times;</button></div></div>
       <div class="sub"><b>Scroll</b></div>
     </div>
