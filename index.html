@@ -52,8 +52,6 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 @media (max-width:700px){ #hero .hspr{-webkit-mask-image:linear-gradient(#000 45%,transparent 92%);mask-image:linear-gradient(#000 45%,transparent 92%)} }   /* phone: the body fades away below, so it reads as a sprayer in use, not a third bottle */
 #hero canvas.hsp{position:absolute;inset:0;width:100%;height:100%;z-index:0}
 #hero .hmist{display:none}
-#hero .hbreath{position:absolute;left:16px;bottom:16px;z-index:5;font:500 11px var(--label);letter-spacing:.2em;text-transform:uppercase;color:var(--cream);opacity:.8;transform-origin:0 100%;white-space:nowrap}
-@media (max-width:700px){ #hero .hbreath{bottom:auto;top:14px;left:14px;transform-origin:0 0} }   /* phone: top corner, clear of the bottle and the scene bar */
 #hero .hcouple svg{display:block;width:100%;height:100%}
 #hero .hcouple video{display:block;height:100%;width:auto;margin:0 auto}
 #hero .hbottle{position:absolute;z-index:4;background:url(img/spray3/bl_00.webp) no-repeat;background-size:813.3% auto;background-position:50% 82%}
@@ -789,7 +787,7 @@ function layoutHero(top,lh,lx,lw){
    is drawn inside the same picture so the plume leaves the hole in front of it. Built from fragrance-project/lab/background-lab. */
 var HS=(function(){
   var SET={emb:.09,sc:.94,sm:.54,sp:.77,ang:35,rip:.40,rf:1.4,lo:.26,hi:.28,plu:.9,gr:.02};   /* Settings 4 */
-  var cv=$("heroSpray"), sp=$("heroSprayer"), bw=$("heroBreath"), T0=performance.now(), PER=9367, last=0, Fd=0, Rs=0, Pf=0;
+  var cv=$("heroSpray"), sp=$("heroSprayer"), T0=performance.now(), PER=9367, last=0, Fd=0, Rs=0, Pf=0;
   var AR=562/1339, HX=0.352, HY=0.026;            // sprayer image shape (width over height) and where its spray hole sits in it
   var SRC=[.9,.5], FACE=[.5,.5], SPRR=[0,0,0,0], FADE=0, cw=1, chh=1;
   var gl=cv.getContext("webgl",{premultipliedAlpha:false}), U={}, ok=!!gl;
@@ -901,7 +899,6 @@ void main(){
     if(cp){ var pc=W/H>=0.9?[179,58.5]:[153,29.5];   /* size %, drop % of screen height: computer, phone (TJ, 17 Nov) */
       cp.style.transform="translate(0,"+(pc[1]*H/100).toFixed(1)+"px) scale("+(pc[0]/100)+")"; }
     if(cv2&&cv2.readyState>=1){ var vt=coupleTime(ph); if(Math.abs(cv2.currentTime-vt)>0.02) cv2.currentTime=vt; }
-    if(bw){ var bt=ph<.46?"breathe in":"breathe out"; if(bw.textContent!==bt) bw.textContent=bt; bw.style.transform="scale("+(1+.9*b).toFixed(3)+")"; }   /* grows with the breath in, shrinks with the breath out */
     if(!ok) return;
     if(!RM){ var inh=ph<.45||ph>=.9, exh=ph>=.62&&ph<.9;
       Fd+=dt*SET.sp*(inh? .05+.18*s : exh? .015:.02); Rs+=dt*SET.sp*(exh? .03:.004); Pf+=dt*SET.sp*(.04+.25*s); }
