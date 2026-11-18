@@ -176,6 +176,32 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
   #card{transition:none !important}
   #seal span::after{transition:none}
 }
+
+/* hero price under the bottle */
+#hero .hprice{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin:10px 0 0;white-space:nowrap;
+  font:400 12px var(--label);letter-spacing:.22em;text-transform:uppercase;color:var(--cream);text-align:center}
+#hero .hprice span{display:block;margin-top:4px;font-weight:300;font-size:15px;letter-spacing:.12em}
+/* after the scenes: find your number, samples, gifts, delivery (placeholder wording, 18 Nov) */
+#shop{background:var(--blue);color:var(--cream);padding:72px 6vw 56px;position:relative;z-index:30}
+#shop h2{font:300 clamp(30px,4vw,48px)/1.1 var(--serif);margin:0 0 10px;letter-spacing:.01em}
+#shop .lead{font:300 17px/1.5 var(--label);margin:0 0 34px;opacity:.85;max-width:560px}
+#shop .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+#shop .bl{border:1px solid rgba(242,234,207,.35);padding:22px 20px 20px;display:flex;flex-direction:column}
+#shop .bl .n{font:300 44px/1 var(--serif)}
+#shop .bl h3{font:400 15px var(--label);letter-spacing:.2em;text-transform:uppercase;margin:10px 0 12px}
+#shop .bl p{font:300 14px/1.55 var(--label);margin:0 0 4px;opacity:.85}
+#shop .bl p b{font-weight:500;opacity:1}
+#shop .bl .pr{margin-top:auto;padding-top:14px;font:400 13px var(--label);letter-spacing:.12em}
+#shop .bl .wa,#shop .row .wa{margin-top:14px;align-self:flex-start;font:500 12px var(--label);letter-spacing:.22em;text-transform:uppercase;
+  padding:12px 22px;background:transparent;color:var(--cream);border:1px solid var(--cream);cursor:pointer;border-radius:0}
+#shop .wa:hover{background:var(--flame);border-color:var(--flame)}
+#shop .rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:56px}
+#shop .row{border-top:1px solid rgba(242,234,207,.35);padding-top:20px;display:flex;flex-direction:column}
+#shop .row h3{font:300 24px/1.2 var(--serif);margin:0 0 8px}
+#shop .row p{font:300 15px/1.55 var(--label);margin:0;opacity:.85}
+@media (max-aspect-ratio:9/10){ #hero .hprice{display:none} }   /* phone: the cards carry the price; the bottle sits on the scene bar */
+#pill{transition:opacity .4s}#pill.away{opacity:0;pointer-events:none}
+#shop .foot{margin-top:56px;font:400 12px var(--label);letter-spacing:.3em;text-transform:uppercase;opacity:.6}
 </style>
 </head>
 <body>
@@ -191,8 +217,8 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <div class="hcouple" id="heroCouple" aria-hidden="true"><video id="coupleVid" src="img/scenes/couple-breath.webm" muted playsinline preload="auto"></video></div><script>/* load the couple clip whole, so the breath can show any frame at once on any server */(function(){ var v=document.getElementById("coupleVid"); fetch(v.getAttribute("src")).then(function(r){return r.blob()}).then(function(b){ v.src=URL.createObjectURL(b); }).catch(function(){}); })();</script>
       <canvas class="hsp" id="heroSpray" aria-hidden="true"></canvas>
       <div class="hspr" id="heroSprayer" aria-hidden="true"></div>
-      <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA bottle"></div>
-      <div class="htext" id="heroText"><p class="hh">Breathe in.<br>Become.</p><p class="hs">Fragrance made in Kampala.</p><button class="hcta" id="heroCta" type="button">Find your scent</button></div>
+      <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA bottle, 50ml, 80,000 shillings"><p class="hprice">50ml <span>UGX 80,000</span></p></div>
+      <div class="htext" id="heroText"><p class="hh">Smell expensive.</p><p class="hs">Artisan perfume from Kampala.</p><button class="hcta" id="heroCta" type="button">Order on WhatsApp</button></div>
       <div class="sub"><b>Scroll</b></div>
     </div>
 
@@ -204,6 +230,19 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
     <button id="seal" type="button" aria-label="Explore this scent"><svg viewBox="7.05 11.1 25.65 6.45" aria-hidden="true"><use href="#enzBand"/></svg><span>Explore this scent</span></button>
   </div>
 </div>
+<section id="shop" aria-label="Order">
+  <h2>Got a sample? Find your number.</h2>
+  <p class="lead">Every ENZIWA sample carries a number. Find yours, and order the full bottle on WhatsApp.</p>
+  <div class="grid"><div class="bl"><div class="n">3</div><h3>Velvet Zawadi</h3><p><b>Top</b> Strawberry</p><p><b>Heart</b> Chocolate</p><p><b>Base</b> Whiskey</p><div class="pr">50ml, UGX 80,000</div><button class="wa" type="button" data-wa="3 Velvet Zawadi">Order</button></div><div class="bl"><div class="n">13</div><h3>Ruby Oba</h3><p><b>Top</b> Black cherry, bitter almond, strawberry</p><p><b>Heart</b> Chocolate, cherry liqueur, rose</p><p><b>Base</b> Vanilla, tonka, cinnamon</p><div class="pr">50ml, UGX 80,000</div><button class="wa" type="button" data-wa="13 Ruby Oba">Order</button></div><div class="bl"><div class="n">31</div><h3>Oud Panga</h3><p><b>Top</b> Strawberry, candied pear, marshmallow</p><p><b>Heart</b> Caramel, jasmine</p><p><b>Base</b> Oud, sandalwood, vanilla</p><div class="pr">50ml, UGX 80,000</div><button class="wa" type="button" data-wa="31 Oud Panga">Order</button></div><div class="bl"><div class="n">34</div><h3>Omeya Dew</h3><p><b>Top</b> Neroli, African marigold, bergamot</p><p><b>Heart</b> Violet, jasmine, cyclamen</p><p><b>Base</b> Vetiver, cedar, musk</p><div class="pr">50ml, UGX 80,000</div><button class="wa" type="button" data-wa="34 Omeya Dew">Order</button></div><div class="bl"><div class="n">36</div><h3>Timbila Truffle Royale</h3><p><b>Top</b> Rum, bitter orange, cardamom</p><p><b>Heart</b> Dried fruits, white tobacco, saffron</p><p><b>Base</b> Tonka, vanilla, myrrh</p><div class="pr">50ml, UGX 80,000</div><button class="wa" type="button" data-wa="36 Timbila Truffle Royale">Order</button></div></div>
+  <div class="rows">
+    <div class="row"><h3>Try before you buy</h3><p>Three samples, free. You pay UGX 10,000 for delivery, and we take it off your first bottle.</p>
+      <button class="wa" type="button" data-wa="samples">Ask for samples</button></div>
+    <div class="row"><h3>Buying gifts?</h3><p>Ordering several bottles for people who matter? Message us and we will put it together.</p>
+      <button class="wa" type="button" data-wa="gifts">Message us</button></div>
+    <div class="row"><h3>Delivery</h3><p>Across Kampala, from UGX 10,000. Pay by mobile money.</p></div>
+  </div>
+  <p class="foot">ENZIWA, Kampala</p>
+</section>
 <div id="scrim"></div>
 <div id="card" role="dialog" aria-live="polite"><button type="button" aria-label="Close" id="cardX">&times;</button>
       <h4 id="cName"></h4><div class="tier" id="cTier"></div><p>Placeholder line about this note, to be written.</p></div>
@@ -913,7 +952,7 @@ void main(){
   return {set:set, AR:AR, HY:HY};
 })();
 sizeHero(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(sizeHero);
-$("heroCta").addEventListener("click",function(e){ e.stopPropagation(); if(pillBtns[0]) pillBtns[0].click(); });
+/* the hero button now opens WhatsApp (see the ordering script at the end) */
 mq.addEventListener && mq.addEventListener("change",function(){closeCard()});
 
 // the pill lands in that blend's revealed scene: blends passed on the way count as already sprayed
@@ -1081,6 +1120,31 @@ window.__setScroll=function(v){window.scrollTo(0,v*H);tgt=cur=v};
 window.__spray=function(){return {i:sp.i,state:sp.state,p:+sp.p.toFixed(2),cap:+capShown.toFixed(2),out:+outShown.toFixed(2)}};
 })();
 
+</script>
+<script>
+/* WhatsApp ordering (18 Nov): every order button opens a chat with the message written for them.
+   WA is the ENZIWA business number in international form, digits only (for example 2567XXXXXXXX). Empty until TJ sends it. */
+(function(){
+  var WA="";
+  function msg(k){
+    if(k==="samples") return "Hi ENZIWA, I would like to try three samples, please.";
+    if(k==="gifts") return "Hi ENZIWA, I would like to order several bottles as gifts.";
+    if(k) return "Hi ENZIWA, I would like to order "+k+", 50ml.";
+    return "Hi ENZIWA, I would like to order a bottle.";
+  }
+  /* the scene bar steps aside once the order section is on screen */
+  var sh=document.getElementById("shop"), pl=document.getElementById("pill");
+  if(sh&&pl&&window.IntersectionObserver) new IntersectionObserver(function(es){ pl.classList.toggle("away",es[0].isIntersecting); },{threshold:0.05}).observe(sh);
+  function go(k){ window.open("https://wa.me/"+WA+"?text="+encodeURIComponent(msg(k)),"_blank","noopener"); }
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("[data-wa],.order,#heroCta"); if(!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if(b.hasAttribute("data-wa")) return go(b.getAttribute("data-wa"));
+    if(b.id==="heroCta") return go("");
+    var inPop=b.closest("#veil"), n=document.getElementById(inPop?"pNum":"num"), nm=document.getElementById(inPop?"pName":"name");
+    go(((n&&n.textContent.trim())+" "+(nm&&nm.textContent.trim())).trim());
+  },true);
+})();
 </script>
 </body>
 </html>
