@@ -203,23 +203,25 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
 @media (max-aspect-ratio:9/10){ #hero .hprice{display:none} }   /* phone: the cards carry the price; the bottle sits on the scene bar */
 #pill{transition:opacity .4s}#pill.away{opacity:0;pointer-events:none}
 
-/* sample link under the hero button, and the frosted sample card over the text area (TJ, 18 Nov) */
+/* sample card (TJ, 18 Nov): the underline under "Need a sample?" grows into a frame like the Omeya Dew pop-up,
+   with the pattern band in the top edge, then frosted glass fills it. The order button stays and turns blue. */
 #hero .hlink{display:block;margin-top:.7em;padding:4px 0;background:none;border:0;cursor:pointer;color:var(--cream);
-  font:400 13px var(--label);letter-spacing:.06em;text-decoration:underline;text-underline-offset:4px;opacity:.9}
-#hero .hlink:hover{opacity:1;color:#fff}
-#hero .hsample{position:absolute;left:-22px;right:-22px;bottom:-18px;min-height:calc(100% + 36px);box-sizing:border-box;
-  padding:22px 24px 22px;display:flex;flex-direction:column;justify-content:center;
-  background:rgba(255,248,232,.42);-webkit-backdrop-filter:blur(16px) saturate(1.08);backdrop-filter:blur(16px) saturate(1.08);
-  color:var(--blue);opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .35s,transform .35s,visibility 0s .35s}
-#hero .hsample.on{opacity:1;visibility:visible;transform:none;transition:opacity .35s,transform .35s,visibility 0s}
-#hero .hsband{display:block;width:110px;height:auto;color:var(--blue);margin:0 0 14px}
+  font:400 13px var(--label);letter-spacing:.06em;text-align:left}
+#hero .hlink span{text-decoration:underline;text-underline-offset:4px}
+#hero .hlink:hover{color:#fff}
+#hero .hsample{position:absolute;left:-22px;top:-30px;pointer-events:none;visibility:hidden;z-index:5}
+#hero .hsample.on{pointer-events:auto}
+#hero .hfrost{position:absolute;inset:0;opacity:0;background:rgba(255,248,232,.42);
+  -webkit-backdrop-filter:blur(16px) saturate(1.08);backdrop-filter:blur(16px) saturate(1.08)}
+#hero .hframe{position:absolute;left:0;top:0;overflow:visible;color:#FCF8EA}
+#hero .hsin{position:absolute;left:22px;right:22px;top:40px;opacity:0;color:var(--blue)}
 #hero .hst{font:300 26px/1.1 var(--serif);margin:0 0 10px}
-#hero .hsd{font:400 14px/1.55 var(--label);margin:0 0 16px;color:var(--ink)}
-#hero .hsc{align-self:flex-start;font:500 11px var(--label);letter-spacing:.22em;text-transform:uppercase;padding:12px 18px;
-  background:var(--blue);color:var(--cream);border:1px solid var(--blue);border-radius:0;cursor:pointer}
-#hero .hsc:hover{background:var(--flame);border-color:var(--flame)}
-#hero .hsx{position:absolute;top:6px;right:8px;width:30px;height:30px;border:0;background:none;color:var(--blue);font:300 24px/1 var(--label);cursor:pointer}
-@media (max-aspect-ratio:9/10){ #hero .hsample{left:-14px;right:-14px} #hero .hst{font-size:22px} #hero .hsd{font-size:13px} }
+#hero .hsd{font:400 14px/1.55 var(--label);margin:0;color:var(--ink)}
+#hero .hsx{position:absolute;top:6px;right:6px;width:30px;height:30px;border:0;background:none;color:var(--blue);font:300 24px/1 var(--label);cursor:pointer;opacity:0}
+#hero .htext .hcta{position:relative;z-index:6;transition:background .3s,border-color .3s,color .3s}
+#hero .htext.sampling .hcta{background:var(--blue);border-color:var(--blue);color:var(--cream)}
+#hero .htext.sampling .hcta:hover,#hero .htext.sampling .hcta:active{background:var(--flame);border-color:var(--flame)}
+@media (max-aspect-ratio:9/10){ #hero .hst{font-size:22px} #hero .hsd{font-size:13px} #hero .hsin{top:36px} }
 #shop .foot{margin-top:56px;font:400 12px var(--label);letter-spacing:.3em;text-transform:uppercase;opacity:.6}
 </style>
 </head>
@@ -237,7 +239,7 @@ html,body{background:var(--cream);color:var(--ink);font-family:var(--sans);overf
       <canvas class="hsp" id="heroSpray" aria-hidden="true"></canvas>
       <div class="hspr" id="heroSprayer" aria-hidden="true"></div>
       <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA bottle, 50ml, 80,000 shillings"><p class="hprice">50ml <span>UGX 80,000</span></p></div>
-      <div class="htext" id="heroText"><p class="hh">Smell<br>Expensive<br>All Day</p><p class="hs">African Artisan Perfume.<br>Unisex</p><button class="hcta" id="heroCta" type="button">Order on WhatsApp</button><button class="hlink" id="heroSampleLink" type="button">Need a sample?</button><div class="hsample" id="heroSample" role="dialog" aria-label="Sample set" aria-hidden="true"><button class="hsx" id="heroSampleX" type="button" aria-label="Close">&times;</button><svg class="hsband" viewBox="7.05 11.1 25.65 6.45" aria-hidden="true"><use href="#enzBand"/></svg><p class="hst">Sample Set</p><p class="hsd">Three scents of your choice, 2ml each.<br>UGX 10,000, delivery included in Kampala.</p><button class="hsc" type="button" data-wa="samples">Message us for your samples</button></div></div>
+      <div class="htext" id="heroText"><p class="hh">Smell<br>Expensive<br>All Day</p><p class="hs">African Artisan Perfume.<br>Unisex</p><button class="hcta" id="heroCta" type="button">Order on WhatsApp</button><button class="hlink" id="heroSampleLink" type="button"><span>Need a sample?</span></button><div class="hsample" id="heroSample" role="dialog" aria-label="Sample set" aria-hidden="true"><div class="hfrost"></div><svg class="hframe" aria-hidden="true"><g class="hb"><use href="#enzBand"/></g><g fill="none" stroke="currentColor" stroke-linecap="square"><line/><line/><line/><line/><line/><circle/><circle/><circle/><circle/></g></svg><div class="hsin"><p class="hst">Sample Set</p><p class="hsd">Three scents of your choice.<br>UGX 10,000, with free delivery anywhere in Kampala.</p></div><button class="hsx" id="heroSampleX" type="button" aria-label="Close">&times;</button></div></div>
       <div class="sub"><b>Scroll</b></div>
     </div>
 
@@ -1149,14 +1151,48 @@ window.__spray=function(){return {i:sp.i,state:sp.state,p:+sp.p.toFixed(2),cap:+
 </script>
 <script>
 
-/* the frosted sample card in the hero */
+/* the sample card: t runs 0 to 1. The underline stretches into the bottom edge, the sides rise, the top edge draws out
+   from the pattern band in its middle, rings settle on the corners, then the glass and the words arrive. */
 (function(){
-  var c=document.getElementById("heroSample"), l=document.getElementById("heroSampleLink"), x=document.getElementById("heroSampleX");
-  if(!c||!l) return;
-  function set(on){ c.classList.toggle("on",on); c.setAttribute("aria-hidden",on?"false":"true"); }
+  var tx=document.getElementById("heroText"), c=document.getElementById("heroSample"), l=document.getElementById("heroSampleLink"),
+      x=document.getElementById("heroSampleX"); if(!tx||!c||!l) return;
+  var fr=c.querySelector(".hfrost"), sv=c.querySelector(".hframe"), band=c.querySelector(".hb"), inn=c.querySelector(".hsin"),
+      L=[].slice.call(sv.querySelectorAll("line")), R=[].slice.call(sv.querySelectorAll("circle"));
+  var BCX=19.865, BCY=14.325, BHALF=12.63, PADX=22, PADT=30;
+  var t=0, goal=0, last=0, run=false;
+  function cl(v){return v<0?0:v>1?1:v} function rg(v,a,b){return cl((v-a)/(b-a))}
+  function ez(v){return v<.5?2*v*v:1-Math.pow(-2*v+2,2)/2}
+  function ln(e,x1,y1,x2,y2,w,o){ e.setAttribute("x1",x1.toFixed(1)); e.setAttribute("y1",y1.toFixed(1)); e.setAttribute("x2",x2.toFixed(1)); e.setAttribute("y2",y2.toFixed(1)); e.setAttribute("stroke-width",w.toFixed(2)); e.style.opacity=o; }
+  function draw(){
+    var r=tx.getBoundingClientRect(), s=l.querySelector("span").getBoundingClientRect();
+    var Wc=Math.min(r.width+2*PADX, innerWidth-8-(r.left-PADX)), Hc=s.bottom+4-r.top+PADT, ul=s.left-(r.left-PADX), uw=s.width;   /* stays on screen */
+    c.style.width=Wc+"px"; c.style.height=Hc+"px"; sv.setAttribute("width",Wc); sv.setAttribute("height",Hc);
+    var k=Math.min(110,Wc*0.45)/(2*BHALF), sw=0.25*k, e=BHALF*k, xc=Wc/2;
+    var a=ez(rg(t,0,.3)), cc=ez(rg(t,.25,.6)), b=ez(rg(t,.5,.85)), rr=ez(rg(t,.7,1)), v=ez(rg(t,.75,1));
+    c.style.visibility=t>0.001?"visible":"hidden";
+    l.style.opacity=(1-rg(t,0,.12)).toFixed(3);
+    ln(L[0], ul+(0-ul)*a, Hc, ul+uw+(Wc-ul-uw)*a, Hc, sw, 1);                     // the underline becomes the bottom edge
+    ln(L[1], 0, Hc, 0, Hc-Hc*cc, sw, cc>0?1:0); ln(L[2], Wc, Hc, Wc, Hc-Hc*cc, sw, cc>0?1:0);   // the sides rise
+    ln(L[3], xc-e, 0, xc-e-(xc-e)*b, 0, sw, b>0?1:0); ln(L[4], xc+e, 0, xc+e+(Wc-xc-e)*b, 0, sw, b>0?1:0);  // the top edge leaves the band
+    band.setAttribute("transform","translate("+xc.toFixed(1)+",0) scale("+(k*(0.6+0.4*b)).toFixed(4)+") translate("+(-BCX)+","+(-BCY)+")");
+    band.style.opacity=b.toFixed(3);
+    [[0,0],[Wc,0],[0,Hc],[Wc,Hc]].forEach(function(q,n){ R[n].setAttribute("cx",q[0]); R[n].setAttribute("cy",q[1]);
+      R[n].setAttribute("r",(0.57*k*rr).toFixed(2)); R[n].setAttribute("stroke-width",sw.toFixed(2)); });
+    fr.style.opacity=v.toFixed(3); inn.style.opacity=v.toFixed(3); x.style.opacity=v.toFixed(3);
+    tx.classList.toggle("sampling",v>0.5);
+  }
+  function step(now){
+    var dt=Math.min(.05,(now-(last||now))/1000); last=now;
+    t=goal?Math.min(1,t+dt/1.1):Math.max(0,t-dt/0.45); draw();
+    if(t!==goal){ requestAnimationFrame(step); } else { run=false; last=0; }
+  }
+  function set(on){ goal=on?1:0; c.classList.toggle("on",on); c.setAttribute("aria-hidden",on?"false":"true");
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches){ t=goal; draw(); return; }
+    if(!run){ run=true; requestAnimationFrame(step); } }
   l.addEventListener("click",function(e){ e.stopPropagation(); set(true); });
   x.addEventListener("click",function(e){ e.stopPropagation(); set(false); });
   document.addEventListener("keydown",function(e){ if(e.key==="Escape") set(false); });
+  addEventListener("resize",function(){ if(t>0) draw(); });
 })();
 /* WhatsApp ordering (18 Nov): every order button opens a chat with the message written for them.
    WA is the ENZIWA business number in international form, digits only (for example 2567XXXXXXXX). Set 18 Nov. */
@@ -1176,7 +1212,7 @@ window.__spray=function(){return {i:sp.i,state:sp.state,p:+sp.p.toFixed(2),cap:+
     var b=e.target.closest&&e.target.closest("[data-wa],.order,#heroCta"); if(!b) return;
     e.preventDefault(); e.stopPropagation();
     if(b.hasAttribute("data-wa")) return go(b.getAttribute("data-wa"));
-    if(b.id==="heroCta") return go("");
+    if(b.id==="heroCta") return go(document.getElementById("heroText").classList.contains("sampling")?"samples":"");
     var inPop=b.closest("#veil"), n=document.getElementById(inPop?"pNum":"num"), nm=document.getElementById(inPop?"pName":"name");
     go(((n&&n.textContent.trim())+" "+(nm&&nm.textContent.trim())).trim());
   },true);
