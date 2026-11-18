@@ -815,13 +815,24 @@ function sizeHero(){
   var lw=lh*817.72/197;                         // the logo's width at that height
   /* optical centring (TJ, 15 Nov): the heavy E wall and the open top of the last A make the true centre look left, so the
      logo sits 3 percent of its width to the right; KAMPALA ends under the body of the A, not the tip of its foot */
-  var lx=(W-lw)/2+lw*0.03, ci=lw*0.045, cw=lw-2*ci;   // KAMPALA inset by the same amount at both ends (TJ, 15 Nov)
-  wd.style.top=top.toFixed(1)+"px"; wd.style.height=lh.toFixed(1)+"px"; wd.style.left=lx.toFixed(1)+"px";
-  city.style.fontSize=Math.max(11,lh*0.2).toFixed(1)+"px"; city.style.letterSpacing="0px"; city.style.marginRight="0px";
-  var w0=city.getBoundingClientRect().width, n=city.textContent.length, ls=(cw-w0)/(n-1);
-  city.style.letterSpacing=ls.toFixed(2)+"px"; city.style.marginRight=(-ls).toFixed(2)+"px";
-  city.style.top=(top+lh+lh*0.22).toFixed(1)+"px"; city.style.left=(lx+ci-lw*0.005).toFixed(1)+"px";   /* nudged left by eye (TJ, 15 Nov): about 3.5 px on his screen */   // placed by its visible letters, not the trailing spacing
+  var lx=(W-lw)/2+lw*0.03;
+  function placeLogo(h){                          // ENZIWA at height h and KAMPALA under it, always in the same proportions
+    var w=h*817.72/197, x=(W-w)/2+w*0.03, ci=w*0.045, cw=w-2*ci;   // KAMPALA inset by the same amount at both ends (TJ, 15 Nov)
+    wd.style.top=top.toFixed(1)+"px"; wd.style.height=h.toFixed(1)+"px"; wd.style.left=x.toFixed(1)+"px";
+    city.style.fontSize=Math.max(11,h*0.2).toFixed(1)+"px"; city.style.letterSpacing="0px"; city.style.marginRight="0px";
+    var w0=city.getBoundingClientRect().width, n=city.textContent.length, ls=(cw-w0)/(n-1);
+    city.style.letterSpacing=ls.toFixed(2)+"px"; city.style.marginRight=(-ls).toFixed(2)+"px";
+    city.style.top=(top+h+h*0.22).toFixed(1)+"px"; city.style.left=(x+ci-w*0.005).toFixed(1)+"px";   /* nudged left by eye (TJ, 15 Nov): about 3.5 px on his screen */   // placed by its visible letters, not the trailing spacing
+  }
+  placeLogo(lh);
   layoutHero(top,lh,lx,lw);
+  /* phone: ENZIWA and KAMPALA grow together until the gap down to the man's head is half what it was (TJ, 18 Nov).
+     His head starts 9.8 percent down the couple video; the couple box is scaled 1.53 from its foot and dropped 29.5 percent of the screen. */
+  if(W/H<0.9){
+    var cpx=$("heroCouple"), chh=cpx.offsetHeight, head=cpx.offsetTop+chh-1.53*chh+0.295*H+0.098*1.53*chh;
+    var cityB=city.offsetTop+city.offsetHeight, gap=head-cityB, hb=cityB-top;
+    if(gap>0) placeLogo(lh*Math.min(1+gap/(2*hb),(W-24)/lw));
+  }
 }
 function layoutHero(top,lh,lx,lw){
   var cp=$("heroCouple"), bt=$("heroBottle"), tx=$("heroText"), mi=hero.querySelectorAll(".hmist i"); if(!cp||!bt||!tx) return;
@@ -831,6 +842,12 @@ function layoutHero(top,lh,lx,lw){
   if(W/H>=0.9){                                  // computer: three columns
     ch=H-cTop; cw=ch*0.8; put(cp,cx-cw/2,cTop,cw,ch);
     bh=Math.min(H*0.5,(cx-cw/2)*0.9*BA); bw=bh/BA; put(bt,(cx-cw/2)/2-bw/2,H*0.66-bh/2,bw,bh);
+    /* the price bottle grows from its base until the top of the cap is level with the top of KAMPALA (TJ, 18 Nov).
+       In hero-bottle.webp (1708 x 960, drawn at 813.3 percent of the box width, 82 percent down) the bottle runs from row 358 to 873. */
+    var span=function(h){ var s=8.133*(h/BA)/1708, off=(h-960*s)*0.82; return [off+358*s, off+873*s]; };
+    var s0=span(bh), yb=H*0.66-bh/2+s0[1], cyEl=$("heroCity"), cfs=parseFloat(cyEl.style.fontSize)||12;
+    var kTop=cyEl.offsetTop+(cyEl.offsetHeight-cfs*0.7)/2, kk=(yb-kTop)/(s0[1]-s0[0]);
+    if(kk>1){ bh*=kk; bw=bh/BA; put(bt,(cx-cw/2)/2-bw/2,yb-span(bh)[1],bw,bh); }
     var tl=cx+cw/2+W*0.02; tx.style.fontSize=Math.max(26,Math.min(42,W*0.024)).toFixed(1)+"px";
     var fy=cTop+ch*0.36, sh=H*1.0, sl=W-0.70*sh*HS.AR;   // sprayer: hole at face height, body runs off the bottom and right
     put(tx,tl,H*0.6,Math.max(180,sl-tl-16)); tx.style.top=(H*0.6).toFixed(1)+"px";
