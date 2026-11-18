@@ -857,6 +857,12 @@ function layoutHero(top,lh,lx,lw){
     var zone=Math.max(200,H*0.3); ch=Math.max(160,H-zone-70-cTop+H*0.06); cw=Math.min(W-24,ch*0.8); ch=cw*1.25;
     put(cp,W/2-cw/2,cTop,cw,ch);
     bh=Math.min(H*0.3,zone+20); bw=bh/BA; var bl=W*0.065, bTop=H-78-bh; put(bt,bl,bTop,bw,bh);
+    /* phone: the price bottle grows from its base until the top of the cap reaches the man's wrist, 54 percent down the
+       couple video (the couple box is scaled 1.53 from its foot and dropped 29.5 percent of the screen) (TJ, 18 Nov) */
+    var pspan=function(h){ var s=8.133*(h/BA)/1708, off=(h-960*s)*0.82; return [off+358*s, off+873*s]; };
+    var ps0=pspan(bh), pyb=bTop+ps0[1], pch=cp.offsetHeight, wrist=cp.offsetTop+pch-1.53*pch+0.295*H+0.54*1.53*pch;
+    var pk=(pyb-wrist)/(ps0[1]-ps0[0]);
+    if(pk>1){ var pcx=bl+bw/2; bh*=pk; bw=bh/BA; bl=pcx-bw/2; bTop=pyb-pspan(bh)[1]; put(bt,bl,bTop,bw,bh); }
     tx.style.fontSize=Math.max(22,Math.min(30,W*0.072)).toFixed(1)+"px";
     /* phone: the text group sits in the middle of the screen, as wide as its widest line (the button), words left aligned to it (TJ, 18 Nov) */
     tx.style.width="auto"; tx.style.maxWidth=(W-24)+"px"; tx.style.left="0px"; var tw=tx.offsetWidth;
