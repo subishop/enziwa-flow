@@ -881,7 +881,7 @@ function layoutHero(top,lh,lx,lw){
    smoke rolling out of the spray hole across the couple to the far edge, each burst thinning away as it rises. The sprayer
    is drawn inside the same picture so the plume leaves the hole in front of it. Built from fragrance-project/lab/background-lab. */
 var HS=(function(){
-  var SET={emb:.09,sc:.94,sm:.54,sp:.77,ang:35,rip:.40,rf:1.4,lo:.26,hi:.28,plu:.9,gr:.02};   /* Settings 4 */
+  var SET={emb:.09,sc:.94,sm:.54,sp:.77,ang:35,rip:.40,rf:1.4,lo:.26,hi:.28,plu:.9,gr:.02};   /* Settings 4 */ var SM_PHONE=.98;   /* phones get more smoke, 0.98 (TJ, 19 Nov) */
   var cv=$("heroSpray"), sp=$("heroSprayer"), T0=performance.now(), PER=9367, last=0, Fd=0, Rs=0, Pf=0;
   var AR=562/1339, HX=0.352, HY=0.026;            // sprayer image shape (width over height) and where its spray hole sits in it
   var SRC=[.9,.5], FACE=[.5,.5], SPRR=[0,0,0,0], FADE=0, cw=1, chh=1;
@@ -1000,7 +1000,7 @@ void main(){
     gl.uniform2f(U.R,cv.width,cv.height);gl.uniform1f(U.T,RM?0:(now-T0)/1000);gl.uniform1f(U.B,b);gl.uniform1f(U.S,s);gl.uniform1f(U.F,Fd);gl.uniform1f(U.PF,Pf);
     gl.uniform1f(U.plu,SET.plu);gl.uniform1f(U.K,((ph-.9)%1+1)%1);gl.uniform1f(U.BI,Math.floor(c+.1));gl.uniform1f(U.lo,SET.lo);gl.uniform1f(U.hi,SET.hi);
     gl.uniform4f(U.sprR,SPRR[0],SPRR[1],SPRR[2],SPRR[3]);gl.uniform1i(U.spr,1);gl.uniform1f(U.RISE,Rs);gl.uniform1f(U.uFade,FADE);
-    gl.uniform1f(U.ang,SET.ang*Math.PI/180);gl.uniform1f(U.rip,SET.rip);gl.uniform1f(U.rf,SET.rf);gl.uniform1f(U.uEmb,SET.emb);gl.uniform1f(U.uGrain,SET.gr);gl.uniform1f(U.uSmoke,SET.sm);
+    gl.uniform1f(U.ang,SET.ang*Math.PI/180);gl.uniform1f(U.rip,SET.rip);gl.uniform1f(U.rf,SET.rf);gl.uniform1f(U.uEmb,SET.emb);gl.uniform1f(U.uGrain,SET.gr);gl.uniform1f(U.uSmoke,mq.matches?SM_PHONE:SET.sm);
     gl.uniform1f(U.uScale,SET.sc);gl.uniform1f(U.patA,1024/1598);gl.uniform2f(U.src,SRC[0],SRC[1]);gl.uniform2f(U.face,FACE[0],FACE[1]);
     gl.uniform1i(U.pat,0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   }
