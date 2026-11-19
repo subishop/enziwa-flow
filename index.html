@@ -115,38 +115,37 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
 /* the bar (TJ, 19 Nov): a caption over it (Pick your blend, or the blend's name), Home fixed at the left, About fixed at the
    right, and between them a strip of numbers in square boxes that slides sideways, fading at an edge where there is more,
    with a chevron on the fade */
-#pill{flex-direction:column;align-items:stretch;gap:5px;padding:7px 7px 6px;max-width:calc(100vw - 24px)}
+#pill{flex-direction:column;align-items:stretch;gap:3px;padding:7px 8px 6px;max-width:calc(100vw - 24px)}
 #pill .cur{display:block;min-width:0;padding:0 4px;text-align:center;font:400 10px var(--label);letter-spacing:.32em;text-transform:uppercase;opacity:.9}
-#pill .prow{display:flex;align-items:center;gap:6px}
-#pill .home,#pill .about{flex:0 0 auto;height:36px;border:0}
-#pill .home{border-right:1px solid rgba(242,234,207,.3)}
-#pill .about{width:auto;padding:0 12px;text-transform:uppercase;letter-spacing:.2em;font-size:11px;border-left:1px solid rgba(242,234,207,.3)}
-#pill .about.active{background:var(--cream);color:var(--blue)}
-/* the number wheel (TJ, 19 Nov): the numbers turn in a loop, the chosen one in the middle at full strength, the rest fading
-   into the thin lines beside Home and About, like the line under the TPS testimonial names */
-#pill .swrap{position:relative;flex:1 1 300px;width:300px;min-width:0;height:44px;margin:-4px 0}
-#pill .strip{position:relative;height:44px;overflow:hidden;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;
-  -webkit-mask-image:linear-gradient(90deg,transparent,rgba(0,0,0,.5) 14%,#000 36%,#000 64%,rgba(0,0,0,.5) 86%,transparent);
-  mask-image:linear-gradient(90deg,transparent,rgba(0,0,0,.5) 14%,#000 36%,#000 64%,rgba(0,0,0,.5) 86%,transparent)}   /* dissolves into the dividers */
-#pill .strip button{position:absolute;left:0;top:4px;width:44px;height:36px;border:1px solid rgba(242,234,207,.55);font-size:13px;opacity:var(--o,1)}
-#pill .strip button:hover{opacity:min(1,calc(var(--o,1) + .45));border-color:var(--cream)}
-#pill .strip button.active{border-color:var(--cream)}
-#pill .chev{display:none}
-@keyframes pnudge{0%,100%{box-shadow:0 0 0 0 rgba(242,234,207,0)}50%{box-shadow:0 0 0 4px rgba(242,234,207,.45)}}
-#pill .strip button.hint{animation:pnudge 1.1s ease-in-out 2}
+/* the bar in two levels (TJ, 19 Nov). Base level, flat on the blue: Home and About as plain words at the ends, the blend number
+   in the middle with no box, and the numbers either side fading away under the chevrons. Raised level: two chevron buttons,
+   shaded so they stand up off the bar. Only taps move it: a chevron steps one blend along the loop and plays it. */
+#pill .prow{display:flex;align-items:center;justify-content:space-between;gap:2px}
+#pill .home,#pill .about{flex:0 0 auto;width:auto;height:44px;border:0;padding:0 10px;text-transform:uppercase;letter-spacing:.2em;font-size:11px;opacity:.82}
+#pill .home:hover,#pill .about:hover,#pill .about.active{opacity:1;background:none;color:var(--cream)}
+@media (max-width:700px){ #pill .home,#pill .about{padding:0 6px} }
+#pill .about.active{text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1px}
+#pill .dial{position:relative;flex:1 1 270px;width:270px;min-width:180px;max-width:290px;height:44px}
+#pill .nums{position:absolute;inset:0;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent 1%,rgba(0,0,0,.6) 20%,#000 38%,#000 62%,rgba(0,0,0,.6) 80%,transparent 99%);
+  mask-image:linear-gradient(90deg,transparent 1%,rgba(0,0,0,.6) 20%,#000 38%,#000 62%,rgba(0,0,0,.6) 80%,transparent 99%)}
+#pill .nums button{position:absolute;left:0;top:0;width:56px;height:44px;padding:0;border:0;background:none;color:var(--cream);
+  font:400 23px/44px var(--serif);letter-spacing:.02em;pointer-events:none}
+#pill .nums button.mid{pointer-events:auto}
+#pill .nums button.side{font-size:18px;font-weight:300}
+#pill .nums button.active{background:none;color:var(--cream)}
+#pill .chv{position:absolute;top:5px;width:34px;height:34px;z-index:2;padding:0 0 2px;border:0;color:var(--cream);font:300 24px/1 var(--label);
+  background:linear-gradient(180deg,#2c8cc3 0%,#16709f 55%,#0e5b87 100%);
+  box-shadow:0 5px 12px rgba(0,20,40,.42),0 1px 2px rgba(0,20,40,.35),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -2px 0 rgba(0,0,0,.18);
+  transition:transform .12s,box-shadow .12s,filter .12s}
+#pill .chv.l{left:calc(50% - 66px)} #pill .chv.r{left:calc(50% + 32px)}
+#pill .chv:hover{filter:brightness(1.1)}
+#pill .chv:active{transform:translateY(2px);box-shadow:0 1px 3px rgba(0,20,40,.4),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.15)}
+@keyframes cnudge{0%,100%{box-shadow:0 5px 12px rgba(0,20,40,.42),0 0 0 0 rgba(242,234,207,0),inset 0 1px 0 rgba(255,255,255,.32)}
+  50%{box-shadow:0 5px 12px rgba(0,20,40,.42),0 0 0 4px rgba(242,234,207,.5),inset 0 1px 0 rgba(255,255,255,.32)}}
+#pill .chv.hint{animation:cnudge 1.1s ease-in-out 2}
 /* the flying price bottle: carries the hero bottle to the centre and back, so it turns into the blend bottle */
 #flyB{position:fixed;left:0;top:0;z-index:7;pointer-events:none;display:none;background:url(img/spray3/hero-bottle.webp?v=3) no-repeat;background-size:100% 100%}
-/* About (TJ, 19 Nov): the footer as a panel; it holds who we are, the sample cards, delivery, contact and the policy links,
-   and scrolls inside itself only */
-#shop{position:fixed;z-index:31;left:12px;right:12px;top:12px;bottom:var(--barH,96px);overflow:auto;overscroll-behavior:contain;
-  padding:56px 6vw 40px;border:1px solid rgba(242,234,207,.45);opacity:0;visibility:hidden;transform:translateY(12px);
-  transition:opacity .35s,transform .35s,visibility 0s .35s}
-#shop.on{opacity:1;visibility:visible;transform:none;transition:opacity .35s,transform .35s,visibility 0s}
-#shop .ax{position:sticky;top:0;float:right;margin:-40px -3vw 0 0;border:0;background:none;color:var(--cream);font-size:30px;line-height:1;cursor:pointer}
-#shop .story{font:300 17px/1.6 var(--label);max-width:640px;margin:0 0 48px;opacity:.9}
-#shop .contact{margin-top:48px;font:300 15px/1.7 var(--label)}
-#shop .contact a,#shop .legal a{color:var(--cream)}
-#shop .legal{margin-top:20px;font:400 12px var(--label);letter-spacing:.2em;text-transform:uppercase;display:flex;gap:22px;flex-wrap:wrap}
 
 /* mobile */
 @media (max-width:700px){
@@ -166,8 +165,6 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
   #card.show{transform:translateY(0);visibility:visible}
   #scrim{display:block;position:fixed;inset:0;background:rgba(29,42,51,.18);z-index:35;opacity:0;pointer-events:none;transition:opacity .3s}
   #scrim.show{opacity:1;pointer-events:auto}
-  #shop{left:8px;right:8px;top:8px;padding:48px 18px 32px}
-  #shop .ax{margin:-34px -6px 0 0}
 }
 /* pattern button: the label band in white, sitting in the scene; pressing it unfolds the band into the border of a pop-up */
 /* the button is now one quiet line (TJ, 15 Nov): a tiny motif mark, "Explore this scent" in small spaced Jost capitals in the
@@ -267,6 +264,47 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
   #hero .htext .hh,#hero .htext .hs{text-shadow:0 1px 10px rgba(17,107,158,.9)}
 }
 #shop .foot{margin-top:56px;font:400 12px var(--label);letter-spacing:.3em;text-transform:uppercase;opacity:.6}
+
+/* About as a page (TJ, 19 Nov): the counterpart of the hero, in the same blue. It rises from the bar to fill the screen above
+   it; nothing in it scrolls (the content is shrunk to fit if the screen is small). Phones show one tab at a time. */
+#shop{position:fixed;inset:0;z-index:29;overflow:hidden;padding:0;border:0;background:var(--blue);color:var(--cream);opacity:1;transform:none;
+  visibility:hidden;clip-path:inset(100% 0 0 0);transition:clip-path .55s cubic-bezier(.55,0,.75,.3),visibility 0s .55s}
+#shop.on{visibility:visible;clip-path:inset(0 0 0 0);transition:clip-path .9s cubic-bezier(.2,.75,.2,1),visibility 0s}
+#shop .abox{position:absolute;left:0;right:0;top:0;bottom:var(--barH,110px)}
+#shop .ain{position:absolute;left:50%;top:50%;width:min(1180px,calc(100vw - 96px));transform-origin:50% 50%;opacity:0;transition:opacity .25s}
+#shop.on .ain{opacity:1;transition:opacity .6s .45s}
+#shop .atabs{display:none}
+#shop .apane[data-p=story]{display:grid;grid-template-columns:1.4fr 1fr;column-gap:64px;align-items:end;margin-bottom:34px}
+#shop h2{font:300 clamp(34px,3.6vw,52px)/1.05 var(--serif);margin:0 0 14px}
+#shop .story{font:300 17px/1.6 var(--label);max-width:620px;margin:0;opacity:.9}
+#shop .contact{margin:0;font:300 15px/1.65 var(--label)} #shop .contact p{margin:0}
+#shop .contact a,#shop .legal a{color:var(--cream)}
+#shop .legal{margin:12px 0 0;font:400 11px var(--label);letter-spacing:.2em;text-transform:uppercase;display:flex;gap:22px;flex-wrap:wrap}
+#shop .ah{font:300 22px/1.2 var(--serif);margin:0 0 14px}
+#shop .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px}
+#shop .bl{padding:16px 14px 14px}
+#shop .bl .n{font:300 34px/1 var(--serif)}
+#shop .bl h3{font:400 11.5px/1.35 var(--label);letter-spacing:.16em;margin:8px 0 10px}
+#shop .bl p{font:300 12.5px/1.45 var(--label);margin:0 0 3px}
+#shop .bl .pr{padding-top:10px;font-size:11.5px;letter-spacing:.1em}
+#shop .bl .wa{margin-top:10px;padding:8px 14px;font-size:10.5px}
+#shop .rows{margin-top:30px;gap:24px}
+#shop .row{padding-top:16px} #shop .row h3{font-size:21px} #shop .row p{font-size:14px}
+#shop .row .wa{margin-top:12px;padding:9px 16px;font-size:10.5px}
+@media (max-width:700px){
+  #shop .ain{width:calc(100vw - 32px)}
+  #shop .atabs{display:flex;gap:0;margin:0 0 22px;border-bottom:1px solid rgba(242,234,207,.3)}
+  #shop .atabs button{flex:1;border:0;background:none;color:var(--cream);opacity:.7;padding:12px 4px;font:400 11px var(--label);letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  #shop .atabs button.on{opacity:1;border-bottom-color:var(--cream)}
+  #shop .apane{display:none !important} #shop .apane.on{display:block !important}
+  #shop .apane[data-p=story] .sr{margin-top:26px}
+  #shop h2{font-size:34px} #shop .story{font-size:15.5px}
+  #shop .grid{grid-template-columns:1fr 1fr;gap:10px}
+  #shop .bl{padding:12px 12px 12px} #shop .bl p{display:none}
+  #shop .bl .n{font-size:26px} #shop .bl h3{font-size:10.5px;margin:6px 0 2px} #shop .bl .pr{padding-top:4px;font-size:10.5px}
+  #shop .bl .wa{margin-top:8px;padding:7px 12px}
+  #shop .rows{grid-template-columns:1fr;margin-top:0;gap:18px}
+}
 </style>
 </head>
 <body>
@@ -295,24 +333,22 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
     <button id="seal" type="button" aria-label="Explore this scent"><svg viewBox="7.05 11.1 25.65 6.45" aria-hidden="true"><use href="#enzBand"/></svg><span>Explore this scent</span></button>
   </div>
 </div>
-<section id="shop" aria-label="About ENZIWA" role="dialog" aria-hidden="true">
-  <button class="ax" id="aboutX" type="button" aria-label="Close">&times;</button>
-  <h2>About ENZIWA</h2>
-  <p class="story">ENZIWA is an artisan perfume house in Kampala. Every blend is mixed by hand in small batches, given a number and a name, and made to smell expensive all day.</p>
-  <h2>Got a sample? Find your number.</h2>
-  <p class="lead">Every ENZIWA sample carries a number. Find yours, and order the full bottle on WhatsApp.</p>
-  <div class="grid"><div class="bl"><div class="n">3</div><h3>Velvet Zawadi</h3><p><b>Top</b> Strawberry</p><p><b>Heart</b> Chocolate</p><p><b>Base</b> Whiskey</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="3 Velvet Zawadi">Order</button></div><div class="bl"><div class="n">13</div><h3>Ruby Oba</h3><p><b>Top</b> Black cherry, bitter almond, strawberry</p><p><b>Heart</b> Chocolate, cherry liqueur, rose</p><p><b>Base</b> Vanilla, tonka, cinnamon</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="13 Ruby Oba">Order</button></div><div class="bl"><div class="n">31</div><h3>Oud Panga</h3><p><b>Top</b> Strawberry, candied pear, marshmallow</p><p><b>Heart</b> Caramel, jasmine</p><p><b>Base</b> Oud, sandalwood, vanilla</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="31 Oud Panga">Order</button></div><div class="bl"><div class="n">34</div><h3>Omeya Dew</h3><p><b>Top</b> Neroli, African marigold, bergamot</p><p><b>Heart</b> Violet, jasmine, cyclamen</p><p><b>Base</b> Vetiver, cedar, musk</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="34 Omeya Dew">Order</button></div><div class="bl"><div class="n">36</div><h3>Timbila Truffle Royale</h3><p><b>Top</b> Rum, bitter orange, cardamom</p><p><b>Heart</b> Dried fruits, white tobacco, saffron</p><p><b>Base</b> Tonka, vanilla, myrrh</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="36 Timbila Truffle Royale">Order</button></div></div>
-  <div class="rows">
+<section id="shop" aria-label="About ENZIWA" aria-hidden="true"><div class="abox"><div class="ain">
+  <div class="atabs" role="tablist"><button type="button" role="tab" data-t="story" class="on" aria-selected="true">Our story</button><button type="button" role="tab" data-t="blends" aria-selected="false">Blends</button><button type="button" role="tab" data-t="more" aria-selected="false">Samples</button></div>
+  <div class="apane on" data-p="story"><div class="sl"><h2>About ENZIWA</h2>
+    <p class="story">ENZIWA is an artisan perfume house in Kampala. Every blend is mixed by hand in small batches, given a number and a name, and made to smell expensive all day.</p></div>
+    <div class="sr"><div class="contact"><p>Order on WhatsApp: <a href="https://wa.me/256773344075">+256 773 344075</a></p><p>Kampala, Uganda. Pay by mobile money.</p></div>
+    <p class="legal"><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms</a></p></div></div>
+  <div class="apane" data-p="blends"><h3 class="ah">Got a sample? Find your number.</h3>
+    <div class="grid"><div class="bl"><div class="n">2</div><h3>Tamu Orchard</h3><p><b>Top</b> Crisp apple</p><p><b>Heart</b> Soft vanilla</p><p><b>Base</b> Powdered vanilla, musk</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="2 Tamu Orchard">Order</button></div><div class="bl"><div class="n">3</div><h3>Velvet Zawadi</h3><p><b>Top</b> Strawberry</p><p><b>Heart</b> Chocolate</p><p><b>Base</b> Whiskey</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="3 Velvet Zawadi">Order</button></div><div class="bl"><div class="n">13</div><h3>Ruby Oba</h3><p><b>Top</b> Black cherry, bitter almond, strawberry</p><p><b>Heart</b> Chocolate, cherry liqueur, rose</p><p><b>Base</b> Vanilla, tonka, cinnamon</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="13 Ruby Oba">Order</button></div><div class="bl"><div class="n">31</div><h3>Oud Panga</h3><p><b>Top</b> Strawberry, candied pear, marshmallow</p><p><b>Heart</b> Caramel, jasmine</p><p><b>Base</b> Oud, sandalwood, vanilla, sugar</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="31 Oud Panga">Order</button></div><div class="bl"><div class="n">34</div><h3>Omeya Dew</h3><p><b>Top</b> Neroli, african marigold, bergamot</p><p><b>Heart</b> Violet, jasmine, cyclamen</p><p><b>Base</b> Vetiver, cedar, musk</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="34 Omeya Dew">Order</button></div><div class="bl"><div class="n">36</div><h3>Timbila Truffle Royale</h3><p><b>Top</b> Rum, bitter orange, cardamom</p><p><b>Heart</b> Dried fruits, white tobacco, saffron</p><p><b>Base</b> Tonka, vanilla, myrrh</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="36 Timbila Truffle Royale">Order</button></div><div class="bl"><div class="n">37</div><h3>Sabo Silk</h3><p><b>Top</b> Blueberry, grapefruit, bergamot</p><p><b>Heart</b> Magnolia, jasmine, ginger</p><p><b>Base</b> Musk, cedar, amber</p><div class="pr">50ml, Unisex<br>UGX 80,000</div><button class="wa" type="button" data-wa="37 Sabo Silk">Order</button></div></div></div>
+  <div class="apane" data-p="more"><div class="rows">
     <div class="row"><h3>Try before you buy</h3><p>A sample set of three scents of your choice, 2ml each. UGX 10,000, delivery included in Kampala.</p>
       <button class="wa" type="button" data-wa="samples">Ask for samples</button></div>
     <div class="row"><h3>Buying gifts?</h3><p>Ordering several bottles for people who matter? Message us and we will put it together.</p>
       <button class="wa" type="button" data-wa="gifts">Message us</button></div>
     <div class="row"><h3>Delivery</h3><p>Across Kampala, from UGX 10,000. Pay by mobile money.</p></div>
-  </div>
-  <div class="contact"><p>Order on WhatsApp: <a href="https://wa.me/256773344075">+256 773 344075</a></p><p>Kampala, Uganda. Pay by mobile money.</p></div>
-  <p class="legal"><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms</a></p>
-  <p class="foot">ENZIWA, Kampala</p>
-</section>
+  </div></div>
+</div></div></section>
 <div id="flyB" aria-hidden="true"></div>
 <div id="scrim"></div>
 <div id="card" role="dialog" aria-live="polite"><button type="button" aria-label="Close" id="cardX">&times;</button>
@@ -330,8 +366,8 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
   <g fill="none" stroke="currentColor" stroke-linecap="square"><line id="ln0"/><line id="ln1"/><line id="ln2"/><line id="ln3"/><line id="ln4"/><line id="ln5"/><line id="ln6"/><line id="ln7"/>
   <circle id="rg0"/><circle id="rg1"/><circle id="rg2"/><circle id="rg3"/></g></svg>
 <nav id="pill" aria-label="Blends"><p class="cur" id="pillCur" aria-live="polite">Pick your blend</p>
-  <div class="prow"><button type="button" class="home" id="pillHome" aria-label="Home">Home</button>
-  <div class="swrap" id="pWrap"><div class="strip" id="pStrip"><button type="button" data-i="0" aria-label="Blend 2, Tamu Orchard">2</button><button type="button" data-i="1" aria-label="Blend 3, Velvet Zawadi">3</button><button type="button" data-i="2" aria-label="Blend 13, Ruby Oba">13</button><button type="button" data-i="3" aria-label="Blend 31, Oud Panga">31</button><button type="button" data-i="4" aria-label="Blend 34, Omeya Dew">34</button><button type="button" data-i="5" aria-label="Blend 36, Timbila Truffle Royale">36</button><button type="button" data-i="6" aria-label="Blend 37, Sabo Silk">37</button></div></div>
+  <div class="prow"><button type="button" class="home" id="pillHome">Home</button>
+  <div class="dial" id="pWrap"><div class="nums" id="pStrip"></div><button type="button" class="chv l" id="pPrev" aria-label="Previous blend">&#8249;</button><button type="button" class="chv r" id="pNext" aria-label="Next blend">&#8250;</button></div>
   <button type="button" class="about" id="pillAbout">About</button></div></nav>
 
 <script>
@@ -1105,12 +1141,12 @@ function lerpR(a,b,e){ return a.map(function(v,n){ return v+(b[n]-v)*e; }); }
 function flyAt(r,op){ flyB.style.display="block"; flyB.style.left=r[0].toFixed(1)+"px"; flyB.style.top=r[1].toFixed(1)+"px";
   flyB.style.width=r[2].toFixed(1)+"px"; flyB.style.height=r[3].toFixed(1)+"px"; flyB.style.opacity=op.toFixed(3); }
 function flyOff(){ flyB.style.display="none"; }
-function setCap(i){ pillCur.textContent = i<0 ? "Pick your blend" : BL[i].name; wheelPick(i); }
+function setCap(i){ pillCur.textContent = $("shop").classList.contains("on") ? "About ENZIWA" : i<0 ? "Pick your blend" : BL[i].name; wheelPick(i); }
 function go(target){
   closeAbout();
   if(NV.busy){ NV.next=target; setCap(target); return; }
   if(target===NV.at) return;
-  NV.busy=true; NV.next=null; setCap(target); if(target>=0) ensure(target);
+  NV.busy=true; NV.tgt=target; NV.next=null; setCap(target); if(target>=0) ensure(target);
   var from=NV.at, q=NV.q, r0, h0;
   q.push({wait:function(){ closePop(); return pop.t<=0.0005; }});
   if(from>=0){
@@ -1141,86 +1177,93 @@ function go(target){
 }
 $("pillHome").onclick=function(e){ e.stopPropagation(); go(-1); };
 
-// the number wheel (TJ, 19 Nov): Home and About stay put; between them the numbers turn in a loop (after 37 comes 2 again).
-// The chosen number sits in the middle at full strength and the others fade the further they are from it, to nothing at the
-// thin lines beside Home and About. Tapping or clicking any number you can see brings it to the middle and plays it.
-// Swiping, dragging and the mouse wheel only turn the row to look around; nothing plays until a number is tapped.
-var strip=$("pStrip"), NB=BL.length, SLOT=50;
-var WH={pos:0, aim:0, pickM:null, pool:[], drag:null, moved:false, dirty:true, hint:false, acc:0};
-strip.innerHTML=""; pillBtns=[];
+// the number dial (TJ, 19 Nov): only taps move it. The number in the middle is the blend (tap it to play it); the ones either
+// side fade away under the raised chevrons. A chevron steps one blend along the loop (after 37 comes 2 again) and plays it.
+var strip=$("pStrip"), NB=BL.length, SLOT=58;   // SLOT is reset from the dial width: the side numbers peek out from under the chevrons
+var WH={pos:0, aim:0, pickM:null, pool:[], dirty:true};
+pillBtns=[];
 function mod(a,n){ return ((a%n)+n)%n; }
 function wheelBtn(){ var b=document.createElement("button"); b.type="button"; strip.appendChild(b);
-  b.onclick=function(e){ e.stopPropagation(); if(WH.moved) return; var m=+b.dataset.m; WH.aim=m; WH.dirty=true; go(mod(m,NB)); };
-  return b; }
+  b.onclick=function(e){ e.stopPropagation(); var m=+b.dataset.m; WH.aim=m; WH.dirty=true; go(mod(m,NB)); }; return b; }
 function wheelPick(i){
   if(i<0){ WH.pickM=null; WH.dirty=true; return; }
-  if(WH.pickM!==null && mod(WH.pickM,NB)===i) return;   // already chosen: leave the row where the visitor has turned it
-  var c=Math.round(WH.aim), d=mod(i-mod(c,NB),NB); if(d>NB/2) d-=NB;   // the nearest copy of that number, so the row takes the short way round
+  if(WH.pickM!==null && mod(WH.pickM,NB)===i) return;
+  var c=Math.round(WH.aim), d=mod(i-mod(c,NB),NB); if(d>NB/2) d-=NB;   // the nearest copy, so the dial takes the short way round
   WH.aim=c+d; WH.pickM=c+d; WH.dirty=true;
 }
 function wheelDraw(){
-  var w=strip.clientWidth||300, half=w/2, R=Math.ceil(half/SLOT)+1, base=Math.round(WH.pos), k=0;
+  var w=strip.clientWidth||270, half=w/2; SLOT=Math.max(56,half*0.56); var R=Math.ceil(half/SLOT)+1, base=Math.round(WH.pos), k=0;
   for(var m=base-R;m<=base+R;m++,k++){
-    var b=WH.pool[k]||(WH.pool[k]=wheelBtn()), j=mod(m,NB), dx=(m-WH.pos)*SLOT;
-    var f=Math.min(1,Math.abs(dx)/(half+22)), o=Math.max(0,1-Math.pow(f,3)*0.6);   // the boxes run right up to the dividers; the mask does the fading
+    var b=WH.pool[k]||(WH.pool[k]=wheelBtn()), j=mod(m,NB), dx=(m-WH.pos)*SLOT, mid=Math.abs(dx)<SLOT/2;
     b.style.display=""; b.dataset.m=m;
     if(b.textContent!==String(BL[j].n)){ b.textContent=BL[j].n; b.setAttribute("aria-label","Blend "+BL[j].n+", "+BL[j].name); }
-    b.style.transform="translateX("+(half+dx-22).toFixed(1)+"px)"; b.style.setProperty("--o",o.toFixed(3));
-    var live=Math.abs(dx)<half-24; b.style.pointerEvents=live?"auto":"none"; b.tabIndex=live?0:-1;
+    b.style.transform="translateX("+(half+dx-28).toFixed(1)+"px)";
+    b.classList.toggle("mid",mid); b.classList.toggle("side",!mid); b.tabIndex=mid?0:-1;
     b.classList.toggle("active",WH.pickM!==null && m===WH.pickM);
-    b.classList.toggle("hint",WH.hint && m===0);
   }
   for(;k<WH.pool.length;k++) WH.pool[k].style.display="none";
 }
 var wLast=0;
-(function wheelTick(now){   // eases by time, not by frame, so a slow phone settles in the same quarter second or so
+(function wheelTick(now){   // eases by time, not by frame, so a slow phone settles just as quickly
   var dt=Math.min(0.1,((now||0)-wLast)/1000)||0.016; wLast=now||0;
-  if(!WH.drag){ var d=WH.aim-WH.pos; if(d){ WH.pos=(RM||Math.abs(d)<0.003)?WH.aim:WH.pos+d*(1-Math.pow(0.0005,dt)); WH.dirty=true; } }
+  var d=WH.aim-WH.pos; if(d){ WH.pos=(RM||Math.abs(d)<0.003)?WH.aim:WH.pos+d*(1-Math.pow(0.0005,dt)); WH.dirty=true; }
   if(WH.dirty){ WH.dirty=false; wheelDraw(); }
   requestAnimationFrame(wheelTick);
 })();
 window.addEventListener("resize",function(){ WH.dirty=true; });
-// the mouse wheel or a trackpad over the row turns it one number at a time
-strip.addEventListener("wheel",function(e){ e.preventDefault(); e.stopPropagation();
-  var v=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY; if(e.deltaMode===1) v*=20;
-  WH.acc+=v; while(WH.acc>=50){ WH.aim=Math.round(WH.aim)+1; WH.acc-=50; } while(WH.acc<=-50){ WH.aim=Math.round(WH.aim)-1; WH.acc+=50; }
-  WH.dirty=true; },{passive:false});
-// dragging with a finger or the mouse turns it freely, then it settles on the nearest number
-strip.addEventListener("pointerdown",function(e){ WH.drag={x:e.clientX,p:WH.pos}; WH.moved=false; });
-window.addEventListener("pointermove",function(e){ if(!WH.drag) return; var dx=e.clientX-WH.drag.x;
-  if(Math.abs(dx)>6) WH.moved=true; if(WH.moved){ WH.pos=WH.drag.p-dx/SLOT; WH.aim=WH.pos; WH.dirty=true; } });
-window.addEventListener("pointerup",function(){ if(!WH.drag) return; WH.drag=null; WH.aim=Math.round(WH.pos);
-  setTimeout(function(){ WH.moved=false; },0); });
-// first visit: the row turns a little and back to show it moves, and the number in the middle pulses softly twice
-var hinted=false;
-function stopHint(){ hinted=true; WH.hint=false; WH.dirty=true; }
+function stepBlend(dir){   // one along the loop from the blend on show (or, from Home or About, from the number in the middle)
+  var c=NV.next!==null?NV.next:(NV.busy?NV.tgt:NV.at), n;
+  if(c<0){ WH.aim=Math.round(WH.aim)+dir; WH.dirty=true; n=mod(WH.aim,NB); } else n=mod(c+dir,NB);
+  go(n);
+}
+$("pPrev").onclick=function(e){ e.stopPropagation(); stepBlend(-1); };
+$("pNext").onclick=function(e){ e.stopPropagation(); stepBlend(1); };
+// first visit: the right chevron pulses softly twice
+var hinted=false, chR=$("pNext");
+function stopHint(){ hinted=true; chR.classList.remove("hint"); }
 document.addEventListener("pointerdown",stopHint,{once:true});
-setTimeout(function(){ if(hinted||RM) return;
-  WH.hint=true; WH.dirty=true; WH.aim=0.8;
-  setTimeout(function(){ if(!hinted) WH.aim=0; },650);
-  setTimeout(function(){ WH.hint=false; WH.dirty=true; },3000);
-},1800);
+setTimeout(function(){ if(!hinted&&!RM) chR.classList.add("hint"); },1800);
 
-// About: the footer as a panel above everything but the bar
-var about=$("shop"), aboutB=$("pillAbout");
-function setBarH(){ var r=$("pill").getBoundingClientRect(); document.documentElement.style.setProperty("--barH",(innerHeight-r.top+8).toFixed(0)+"px"); }
-function openAbout(){ setBarH(); closePop(); about.classList.add("on"); about.setAttribute("aria-hidden","false"); aboutB.classList.add("active"); about.scrollTop=0; }
-function closeAbout(){ about.classList.remove("on"); about.setAttribute("aria-hidden","true"); aboutB.classList.remove("active"); }
-aboutB.onclick=function(e){ e.stopPropagation(); if(about.classList.contains("on")) closeAbout(); else openAbout(); };
-$("aboutX").onclick=function(e){ e.stopPropagation(); closeAbout(); };
+// About (TJ, 19 Nov): not a pop-up but a page, the counterpart of the hero. It rises up from the bar and fills the screen above
+// it, with nothing to scroll: everything is laid out to fit, and shrunk a little to fit a small screen. Phones get tabs.
+// Opening it from a blend sends that blend home behind it, so Home or any number afterwards plays from the hero as usual.
+var about=$("shop"), aboutB=$("pillAbout"), ain=about.querySelector(".ain");
+function setBarH(){ var r=$("pill").getBoundingClientRect(); document.documentElement.style.setProperty("--barH",(innerHeight-r.top+10).toFixed(0)+"px"); }
+function fitAbout(){
+  if(!about.classList.contains("on")) return; setBarH();
+  var box=about.querySelector(".abox"); ain.style.transform="translate(-50%,-50%)";
+  var k=Math.min(1,(box.clientWidth-8)/ain.offsetWidth,(box.clientHeight-8)/ain.offsetHeight);
+  ain.style.transform="translate(-50%,-50%) scale("+k.toFixed(4)+")";
+}
+function openAbout(){
+  if(about.classList.contains("on")) return;
+  closePop(); if(NV.at>=0||NV.busy) go(-1);
+  about.classList.add("on"); about.setAttribute("aria-hidden","false"); aboutB.classList.add("active");
+  pillCur.textContent="About ENZIWA"; fitAbout();
+}
+function closeAbout(){
+  if(!about.classList.contains("on")) return;
+  about.classList.remove("on"); about.setAttribute("aria-hidden","true"); aboutB.classList.remove("active");
+  var c=NV.next!==null?NV.next:(NV.busy?NV.tgt:NV.at); pillCur.textContent=c<0?"Pick your blend":BL[c].name;
+}
+aboutB.onclick=function(e){ e.stopPropagation(); openAbout(); };
 about.addEventListener("click",function(e){ e.stopPropagation(); });
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeAbout(); });
-window.addEventListener("resize",setBarH);
+[].slice.call(about.querySelectorAll(".atabs button")).forEach(function(t){ t.onclick=function(e){ e.stopPropagation();
+  [].slice.call(about.querySelectorAll(".atabs button")).forEach(function(x){ x.classList.toggle("on",x===t); x.setAttribute("aria-selected",x===t); });
+  [].slice.call(about.querySelectorAll(".apane")).forEach(function(pn){ pn.classList.toggle("on",pn.dataset.p===t.dataset.t); });
+  fitAbout(); }; });
+window.addEventListener("resize",function(){ setBarH(); fitAbout(); });
 
-// nothing scrolls the page: wheel, swipe and keys only move the pop-up, About and the number strip, which scroll inside themselves
-function inScroller(el){ return el && el.closest && el.closest("#veil .pin, #shop.on, #pStrip"); }
+// nothing scrolls: wheel, swipe and keys only move the notes pop-up, which scrolls inside itself
+function inScroller(el){ return el && el.closest && el.closest("#veil .pin"); }
 window.addEventListener("wheel",function(e){ if(!inScroller(e.target)) e.preventDefault(); },{passive:false});
 window.addEventListener("touchmove",function(e){ if(!inScroller(e.target)) e.preventDefault(); },{passive:false});
 window.addEventListener("keydown",function(e){
-  var ae=document.activeElement; if(inScroller(ae) && !ae.closest("#pStrip")) return;   // a focused number still lets the arrow keys step
+  if(inScroller(document.activeElement)) return;
   if([" ","PageDown","PageUp","ArrowDown","ArrowUp","Home","End"].indexOf(e.key)>=0) e.preventDefault();
   if(e.key==="ArrowRight"||e.key==="ArrowLeft"){ e.preventDefault();   // arrow keys step through the blends
-    var c=NV.next!==null?NV.next:NV.at, r=e.key==="ArrowRight", n=c<0?(r?0:BL.length-1):mod(c+(r?1:-1),BL.length); if(n!==c) go(n); }
+    stepBlend(e.key==="ArrowRight"?1:-1); }
 });
 window.addEventListener("scroll",function(){ if(window.scrollY) window.scrollTo(0,0); });
 var capShown=0, liftShown=0, outShown=0, panelGate=0, lastTime=0, lastI=-2, key="", sv=0;
