@@ -126,11 +126,36 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
 #pill button.active b{font-weight:500}
 #pill button.active i{max-width:270px;opacity:1;margin-left:11px}
 #pill button:active{background:var(--flame);border-color:var(--flame);color:var(--cream)}
+/* Explore this scent lives inside the chosen tag (TJ, 20 Nov), not as a link on the scene. Once the scene has played, the tag
+   grows a second part: the pattern band, the words and a small arrow. The whole tag is then the button that opens the notes
+   pop-up, and the band flies out of the tag to become the pop-up's frame. */
+#pill button .ex{display:flex;align-items:center;gap:9px;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;
+  font:500 9.5px/1 var(--label);letter-spacing:.2em;text-transform:uppercase;transition:max-width .5s ease,opacity .4s ease .1s,margin .5s ease,padding .5s ease,border-color .4s;
+  border-left:1px solid rgba(17,107,158,0)}
+#pill button .ex svg{display:block;flex:0 0 auto;width:50px;height:auto;overflow:visible;transition:opacity .2s}
+#pill button .ex u{text-decoration:none}
+#pill button .ex em{font:300 17px/1 var(--label);font-style:normal;margin:-2px 0 0 -2px;transition:transform .2s}
+#pill.ex button.active .ex{max-width:300px;opacity:1;margin-left:14px;padding-left:14px;border-left-color:rgba(17,107,158,.4)}
+#pill.popped button.active .ex svg{opacity:0}
+@media (hover:hover){ #pill.ex button.active:hover .ex em{transform:translateX(3px)} }
 @media (hover:hover){ #pill button:not(.active):hover{background:rgba(242,234,207,.22);border-color:var(--cream)} }
 #pill button:focus-visible,.tnav:focus-visible{outline:1px solid var(--cream);outline-offset:3px}
 @media (max-width:700px){
   #pill{left:10px;top:max(104px,13vh);bottom:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
   #pill button{height:42px}
+  #pill button.active{height:auto;min-height:42px;flex-wrap:wrap;justify-content:flex-start;align-content:center}
+  #pill button.active b{line-height:40px}
+  #pill button .ex{flex:0 0 auto;width:0;min-width:100%;max-width:none;max-height:0;border-left:0;border-top:1px solid rgba(17,107,158,0);
+    transition:max-height .5s ease,opacity .4s ease .1s,padding .5s ease,border-color .4s}
+  #pill.ex button.active .ex{max-width:none;max-height:34px;margin-left:0;padding:9px 0 10px;border-top-color:rgba(17,107,158,.35)}
+  #pill button.active{transition:background .25s,color .25s,border-color .25s,padding .3s,min-width .5s ease}
+  #pill.ex button.active{min-width:142px}
+  #pill button:not(.active) .ex{display:none}
+  #pill button.active{padding:0 12px}
+  #pill button.active i{letter-spacing:.16em;margin-left:9px}
+  #pill button .ex{gap:7px}
+  #pill button .ex u{display:none}      /* phone: just Explore, so the tag stays clear of the bottle */
+  #pill button .ex svg{width:36px}
   #pill .cur{left:0;right:auto;text-align:left;text-indent:0;font-size:8.5px;line-height:12px;letter-spacing:.2em;margin-bottom:6px}
   #pill .cur br{display:inline}
   #pill.ab{opacity:0;pointer-events:none}      /* the About page has the whole phone screen */
@@ -652,6 +677,10 @@ var BCX=19.865, BCY=14.325, BHALF=12.63;       // band centre and half length to
 var pop={t:0, goal:0, i:-1, drawn:"", s0:null}, sealJ=-1;
 function placeSeal(i,p,show){
   var b=BL[i], ps=PS[i], shape=shapeNow(); sealJ=i;
+  /* the link is no longer drawn on the scene: it is part of the chosen blend's tag (TJ, 20 Nov) */
+  seal.style.opacity=0; seal.style.pointerEvents="none";
+  if(typeof setEx==="function" && typeof SK!=="undefined" && SK) setEx(!!(b&&b.seal&&ps&&show>0.5&&SK.cur===i), pop.t>0||pop.goal>0);
+  return;
   if(!b||!b.seal||!ps||!b.seal[shape]||show<=0){ seal.style.opacity=0; seal.style.pointerEvents="none"; return; }
   var u=sceneU(i,p), of=layerOff(ps,u,DEPTH.fg), f=b.seal[shape];
   var x=(W-ps.w)/2+of[0]+f[0]*ps.w, y=(H-ps.h)/2+of[1]+f[1]*ps.h, half=seal.offsetWidth/2+8;
@@ -830,7 +859,8 @@ function drawBloom(t){
 }
 function openPop(e){
   if(e) e.stopPropagation();
-  var r=seal.querySelector("svg").getBoundingClientRect();   // start exactly on the button's band
+  var tg=pillBtns[sealJ], sv=tg&&tg.querySelector(".ex svg"); if(!sv) return;
+  var r=sv.getBoundingClientRect();   // start exactly on the band inside the chosen tag
   pop.s0={x:r.left+r.width*(BCX-7.05)/25.65, y:r.top+r.height*(BCY-11.1)/6.45, k:r.width/25.65};
   pop.i=sealJ; fillPop(sealJ); pop.goal=1; key="";
 }
@@ -1176,7 +1206,19 @@ function mod(a,n){ return ((a%n)+n)%n; }
 pillBtns=BL.map(function(b,j){
   var el=document.createElement("button"); el.type="button"; el.dataset.i=j; el.setAttribute("aria-label","Blend "+b.n+", "+b.name);
   var n=document.createElement("b"); n.textContent=b.n; var nm=document.createElement("i"); nm.textContent=b.name; el.appendChild(n); el.appendChild(nm);
-  el.onclick=function(e){ e.stopPropagation(); el.blur(); go(j); }; pillN.appendChild(el); return el; });
+  if(b.seal){ var ex=document.createElement("span"); ex.className="ex"; ex.setAttribute("aria-hidden","true");
+    ex.innerHTML='<svg viewBox="7.05 11.1 25.65 6.45" aria-hidden="true"><use href="#enzBand"/></svg><span>Explore<u> this scent</u></span><em>&rsaquo;</em>'; el.appendChild(ex); }
+  el.onclick=function(e){ e.stopPropagation(); el.blur();
+    if(j===SK.cur && pillN.classList.contains("ex")){ if(pop.goal===1) closePop(); else openPop(); return; }   // the chosen tag is the way into the scent
+    go(j); };
+  pillN.appendChild(el); return el; });
+var exOn=null, exPop=null;
+function setEx(ok,pp){   // the explore part slides out of the chosen tag when the scene has played
+  if(ok!==exOn){ exOn=ok; pillN.classList.toggle("ex",ok);
+    pillBtns.forEach(function(x,j){ var a=ok&&j===SK.cur;
+      x.setAttribute("aria-label","Blend "+BL[j].n+", "+BL[j].name+(a?". Explore this scent":"")); }); }
+  if(pp!==exPop){ exPop=pp; pillN.classList.toggle("popped",pp); }
+}
 function wheelPick(i){ SK.cur=i; pillN.classList.toggle("idle",i<0);      // called whenever the page heads for a blend, or for Home
   pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); }); }
 function turnDial(dir){   // arrow keys move along the buttons without playing anything; Enter plays the one in focus
