@@ -104,46 +104,37 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
 #card button{position:absolute;top:10px;right:12px;background:none;border:0;font-size:20px;color:#7a858e;cursor:pointer}
 #scrim{display:none}
 
-/* the seek row (TJ, 20 Nov). One slim row, no slab, no boxes: a fine chevron, the blend (number large, name small under it),
-   a fine chevron. The chevrons only seek: they change the number shown and nothing plays. Tapping the number plays it.
-   Holding a chevron keeps the numbers moving. Home and About are two small words in the top corners. Taps only. */
-#pill{position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;
-  width:min(340px,calc(100vw - 24px));height:64px;color:var(--cream);white-space:nowrap;display:flex;align-items:stretch;
-  text-shadow:0 1px 10px rgba(4,30,50,.8),0 0 2px rgba(4,30,50,.55);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#pill::before{content:"";position:absolute;inset:-22px -30px -12px;z-index:-1;pointer-events:none;
-  background:radial-gradient(ellipse 56% 62% at 50% 58%,rgba(5,36,60,.6),rgba(5,36,60,.3) 50%,rgba(5,36,60,0) 78%)}
+/* the blend buttons (TJ, 20 Nov). One small button for each blend, all on show, so nobody has to seek: tap a number and it
+   plays. The ones not chosen are clear with a fine cream edge. The chosen one is filled cream and carries the name as well as
+   the number. On a computer they run along the bottom; on a phone they stack down the left edge and the chosen one reaches
+   out to the right like a tag, which leaves the bottom of the screen to the order button. Home and About are two small words
+   in the top corners. Taps only. No chevrons while every blend fits on the screen. */
+#pill{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:6px;
+  color:var(--cream);white-space:nowrap;-webkit-user-select:none;user-select:none;transition:opacity .4s}
+#pill .cur{position:absolute;left:0;right:0;bottom:100%;margin:0 0 9px;text-align:center;font:400 10px/13px var(--label);letter-spacing:.3em;text-indent:.3em;
+  text-transform:uppercase;text-shadow:0 1px 10px rgba(4,30,50,.85),0 0 2px rgba(4,30,50,.6);opacity:0;transition:opacity .3s;pointer-events:none}
+#pill .cur br{display:none}
+#pill.idle .cur{opacity:1}
 #pill button,.tnav{border:0;background:none;color:var(--cream);cursor:pointer;padding:0;border-radius:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-#pill .chv{flex:0 0 56px;display:flex;align-items:center;justify-content:center;opacity:.9;transition:opacity .15s,transform .15s}
-#pill .chv svg{width:13px;height:26px;overflow:visible;filter:drop-shadow(0 1px 5px rgba(4,30,50,.8))}
-#pill .chv svg path{fill:none;stroke:var(--cream);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
-#pill .chv:hover{opacity:1}
-#pill .chv.l:active{transform:translateX(-3px)} #pill .chv.r:active{transform:translateX(3px)}
-#pill .mid{flex:1 1 auto;min-width:0;position:relative;overflow:hidden;text-shadow:inherit}
-#pill .mid .in{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
-#pill .mid b{display:block;font:300 34px/36px var(--serif);letter-spacing:.02em}
-#pill .mid i{display:block;position:relative;font:400 9.5px/14px var(--label);font-style:normal;letter-spacing:.24em;text-indent:.24em;text-transform:uppercase;padding-bottom:5px;margin-top:1px}
-#pill .mid i::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--cream);opacity:.85;transition:opacity .25s,transform .25s;transform-origin:50% 50%}
-#pill.on .mid i::after{opacity:0;transform:scaleX(.2)}      /* the blend on show needs no invitation */
-#pill.on .mid b{font-weight:400}
-@keyframes sinR{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
-@keyframes sinL{from{transform:translateX(-18px);opacity:0}to{transform:none;opacity:1}}
-#pill .mid .in.fr{animation:sinR .2s ease-out} #pill .mid .in.fl{animation:sinL .2s ease-out}
-/* glass and a real button (TJ, 20 Nov): people did not know the number and name could be pressed. The row now sits on a frosted
-   glass panel, and the middle is a box in the style of the order button: filled cream when it shows a blend that is not on
-   screen (ready, tap it), a quiet cream outline once that blend is playing. The chevrons stay as fine lines: browse, not choose. */
-#pill{height:68px;padding:7px 2px;box-sizing:border-box;background:rgba(9,48,76,.36);border:1px solid rgba(242,234,207,.34);
-  -webkit-backdrop-filter:blur(14px) saturate(1.25);backdrop-filter:blur(14px) saturate(1.25);box-shadow:0 10px 30px rgba(3,24,40,.28)}
-#pill::before{display:none}
-#pill .chv{flex-basis:50px}
-#pill .mid{border:1px solid var(--cream);background:var(--cream);color:var(--blue);text-shadow:none;transition:background .25s,color .25s}
-#pill .mid b{font:400 28px/29px var(--serif)}
-#pill .mid i{padding-bottom:0;margin-top:0;font-weight:500;line-height:13px}
-#pill .mid i::after{display:none}
-#pill.on .mid{background:transparent;color:var(--cream);text-shadow:0 1px 8px rgba(4,30,50,.6)}
-#pill .mid:active{background:var(--flame);border-color:var(--flame);color:var(--cream)}
-@media (hover:hover){ #pill .mid:hover{background:var(--flame);border-color:var(--flame);color:var(--cream)} #pill.on .mid:hover{background:transparent;border-color:var(--cream)} }
-@media (prefers-reduced-motion:reduce){ #pill .mid .in.fr,#pill .mid .in.fl{animation:none} }
-#pill button:focus-visible,.tnav:focus-visible{outline:1px solid var(--cream);outline-offset:-4px}
+#pill button{display:flex;align-items:center;justify-content:center;height:42px;min-width:44px;padding:0 10px;box-sizing:border-box;
+  border:1px solid rgba(242,234,207,.75);background:rgba(9,48,76,.15);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  text-shadow:0 1px 8px rgba(4,30,50,.7);transition:background .25s,color .25s,border-color .25s,padding .3s}
+#pill button b{font:400 16px/1 var(--serif);letter-spacing:.03em}
+#pill button i{display:block;font:500 10px/1 var(--label);font-style:normal;letter-spacing:.2em;text-transform:uppercase;max-width:0;opacity:0;overflow:hidden;
+  transition:max-width .35s,opacity .3s,margin .35s}
+#pill button.active{background:var(--cream);border-color:var(--cream);color:var(--blue);text-shadow:none;padding:0 16px;-webkit-backdrop-filter:none;backdrop-filter:none}
+#pill button.active b{font-weight:500}
+#pill button.active i{max-width:270px;opacity:1;margin-left:11px}
+#pill button:active{background:var(--flame);border-color:var(--flame);color:var(--cream)}
+@media (hover:hover){ #pill button:not(.active):hover{background:rgba(242,234,207,.22);border-color:var(--cream)} }
+#pill button:focus-visible,.tnav:focus-visible{outline:1px solid var(--cream);outline-offset:3px}
+@media (max-width:700px){
+  #pill{left:10px;top:max(104px,13vh);bottom:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+  #pill button{height:42px}
+  #pill .cur{left:0;right:auto;text-align:left;text-indent:0;font-size:8.5px;line-height:12px;letter-spacing:.2em;margin-bottom:6px}
+  #pill .cur br{display:inline}
+  #pill.ab{opacity:0;pointer-events:none}      /* the About page has the whole phone screen */
+}
 .tnav{position:fixed;top:max(6px,env(safe-area-inset-top));z-index:30;height:40px;padding:0 14px;font:500 11px/40px var(--label);letter-spacing:.22em;text-indent:.22em;
   text-transform:uppercase;opacity:.9;text-shadow:0 1px 10px rgba(4,30,50,.85),0 0 2px rgba(4,30,50,.6)}
 .tnav.l{left:4px} .tnav.r{right:4px}
@@ -238,7 +229,7 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
 #shop .row{border-top:1px solid rgba(242,234,207,.35);padding-top:20px;display:flex;flex-direction:column}
 #shop .row h3{font:300 24px/1.2 var(--serif);margin:0 0 8px}
 #shop .row p{font:300 15px/1.55 var(--label);margin:0;opacity:.85}
-#pill{transition:opacity .4s}#pill.away{opacity:0;pointer-events:none}
+
 
 /* sample card (TJ, 18 Nov): the underline under "Need a sample?" grows into a frame like the Omeya Dew pop-up,
    with the pattern band in the top edge, then frosted glass fills it. The order button stays and turns blue. */
@@ -371,10 +362,7 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
   <g fill="none" stroke="currentColor" stroke-linecap="square"><line id="ln0"/><line id="ln1"/><line id="ln2"/><line id="ln3"/><line id="ln4"/><line id="ln5"/><line id="ln6"/><line id="ln7"/>
   <circle id="rg0"/><circle id="rg1"/><circle id="rg2"/><circle id="rg3"/></g></svg>
 <button type="button" class="tnav l" id="pillHome">Home</button><button type="button" class="tnav r" id="pillAbout">About</button>
-<nav id="pill" aria-label="Blends">
-  <button type="button" class="chv l" id="pPrev" aria-label="Previous blend"><svg viewBox="0 0 13 26" aria-hidden="true"><path d="M11.5 1.5 L1.5 13 L11.5 24.5"/></svg></button>
-  <button type="button" class="mid" id="pMid"><span class="in" id="pIn"><b id="skNum"></b><i id="pillCur" aria-live="polite"></i></span></button>
-  <button type="button" class="chv r" id="pNext" aria-label="Next blend"><svg viewBox="0 0 13 26" aria-hidden="true"><path d="M1.5 1.5 L11.5 13 L1.5 24.5"/></svg></button></nav>
+<nav id="pill" class="idle" aria-label="Blends"><p class="cur" id="pillCur">Pick your<br> blend</p></nav>
 
 <script>
 (function(){
@@ -961,7 +949,7 @@ function layoutHero(top,lh,lx,lw){
   } else {                                       // phone: stacked
     var zone=Math.max(200,H*0.3); ch=Math.max(160,H-zone-70-cTop+H*0.06); cw=Math.min(W-24,ch*0.8); ch=cw*1.25;
     put(cp,W/2-cw/2,cTop,cw,ch);
-    bh=Math.min(H*0.3,zone+20); bw=bh/BA; var bl=W*0.065, bTop=H-78-bh; put(bt,bl,bTop,bw,bh);
+    bh=Math.min(H*0.3,zone+20); bw=bh/BA; var bl=W*0.065, bTop=H-30-bh; put(bt,bl,bTop,bw,bh);
     /* phone: the price bottle grows from its base until the top of the cap reaches the man's wrist, 54 percent down the
        couple video (the couple box is scaled 1.53 from its foot and dropped 29.5 percent of the screen) (TJ, 18 Nov) */
     var pspan=function(h){ var s=8.133*(h/BA)/1708, off=(h-960*s)*0.82; return [off+358*s, off+873*s]; };
@@ -971,7 +959,7 @@ function layoutHero(top,lh,lx,lw){
     tx.style.fontSize=Math.max(22,Math.min(30,W*0.072)).toFixed(1)+"px";
     /* phone: the text group sits in the middle of the screen, as wide as its widest line (the button), words left aligned to it (TJ, 18 Nov) */
     tx.style.width="auto"; tx.style.maxWidth=(W-24)+"px"; tx.style.left="0px"; var tw=tx.offsetWidth;
-    tx.style.left=((W-tw)/2).toFixed(1)+"px"; tx.style.top=(H-96-tx.offsetHeight).toFixed(1)+"px";   /* clear of the seek row */
+    tx.style.left=((W-tw)/2).toFixed(1)+"px"; tx.style.top=(H-40-tx.offsetHeight).toFixed(1)+"px";
     var fy=cTop+ch*0.36, ttop=parseFloat(tx.style.top), sh=Math.max(120,(ttop-14-fy)/(1-HS.HY)); sh=Math.min(sh*1.25,H*0.6);
     HS.set(W-0.66*sh*HS.AR, fy, sh, W*0.42, fy+ch*0.02);
     put(mi[0],-W*0.15,cTop,W*1.3,ch*1.1); put(mi[1],-W*0.2,H*0.6,W*0.8,H*0.35); put(mi[2],W*0.5,H*0.08,W*0.6,H*0.3);
@@ -1182,38 +1170,24 @@ function go(target){
 }
 $("pillHome").onclick=function(e){ e.stopPropagation(); go(-1); };
 
-// the seek row (TJ, 20 Nov): the chevrons only seek. Each tap shows the next number and name in the middle and nothing plays;
-// holding a chevron keeps them moving; after 37 comes 2 again. Tapping the number in the middle plays that blend.
-var pillN=$("pill"), NB=BL.length, SK={i:0, cur:-1};
-pillBtns=[];
+// the blend buttons (TJ, 20 Nov): one button for each blend, all on show. Tap one and it plays. The chosen one is filled and shows its name.
+var pillN=$("pill"), NB=BL.length, SK={cur:-1};
 function mod(a,n){ return ((a%n)+n)%n; }
-function seekDraw(dir){
-  var b=BL[SK.i], inn=$("pIn");
-  $("skNum").textContent=b.n; pillCur.textContent=b.name;
-  $("pMid").setAttribute("aria-label",(SK.cur===SK.i?"Now showing blend ":"Play blend ")+b.n+", "+b.name);
-  pillN.classList.toggle("on",SK.cur===SK.i);
-  if(dir && !RM){ inn.classList.remove("fr","fl"); void inn.offsetWidth; inn.classList.add(dir>0?"fr":"fl"); }
-}
-function wheelPick(i){ if(i>=0 && i!==SK.cur) SK.i=i; SK.cur=i; seekDraw(0); }      // called whenever the page heads for a blend, or for Home
-function turnDial(dir){ SK.i=mod(SK.i+dir,NB); seekDraw(dir); }
-function playTop(){ go(SK.i); }
-$("pMid").onclick=function(e){ e.stopPropagation(); playTop(); };
-[["pPrev",-1],["pNext",1]].forEach(function(c){
-  var el=$(c[0]), dir=c[1], t1=0, t2=0, byPtr=false;
-  function stop(){ clearTimeout(t1); clearInterval(t2); }
-  el.addEventListener("pointerdown",function(e){ if(e.button) return; byPtr=true; stop(); turnDial(dir);
-    t1=setTimeout(function(){ t2=setInterval(function(){ turnDial(dir); },190); },450); });
-  ["pointerup","pointerleave","pointercancel","blur"].forEach(function(n){ el.addEventListener(n,stop); });
-  el.addEventListener("contextmenu",function(e){ e.preventDefault(); });
-  el.onclick=function(e){ e.stopPropagation(); if(!byPtr) turnDial(dir); byPtr=false; };   // keyboard and assistive taps
-});
-seekDraw(0);
+pillBtns=BL.map(function(b,j){
+  var el=document.createElement("button"); el.type="button"; el.dataset.i=j; el.setAttribute("aria-label","Blend "+b.n+", "+b.name);
+  var n=document.createElement("b"); n.textContent=b.n; var nm=document.createElement("i"); nm.textContent=b.name; el.appendChild(n); el.appendChild(nm);
+  el.onclick=function(e){ e.stopPropagation(); el.blur(); go(j); }; pillN.appendChild(el); return el; });
+function wheelPick(i){ SK.cur=i; pillN.classList.toggle("idle",i<0);      // called whenever the page heads for a blend, or for Home
+  pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); }); }
+function turnDial(dir){   // arrow keys move along the buttons without playing anything; Enter plays the one in focus
+  var f=pillBtns.indexOf(document.activeElement); if(f<0) f=SK.cur>=0?SK.cur:(dir>0?-1:0); pillBtns[mod(f+dir,NB)].focus(); }
+function playTop(){}
 
 // About (TJ, 19 Nov): not a pop-up but a page, the counterpart of the hero. It rises up from the bar and fills the screen above
 // it, with nothing to scroll: everything is laid out to fit, and shrunk a little to fit a small screen. Phones get tabs.
 // Opening it from a blend sends that blend home behind it, so Home or any number afterwards plays from the hero as usual.
 var about=$("shop"), aboutB=$("pillAbout"), ain=about.querySelector(".ain");
-function setBarH(){ var r=$("pill").getBoundingClientRect(); document.documentElement.style.setProperty("--barH",(innerHeight-r.top+10).toFixed(0)+"px"); }
+function setBarH(){ var r=$("pill").getBoundingClientRect(); document.documentElement.style.setProperty("--barH",(innerWidth<=700?16:innerHeight-r.top+26).toFixed(0)+"px"); }
 function fitAbout(){
   if(!about.classList.contains("on")) return; setBarH();
   var box=about.querySelector(".abox"); ain.style.transform="translate(-50%,-50%)";
@@ -1223,12 +1197,12 @@ function fitAbout(){
 function openAbout(){
   if(about.classList.contains("on")) return;
   closePop(); if(NV.at>=0||NV.busy) go(-1);
-  about.classList.add("on"); about.setAttribute("aria-hidden","false"); aboutB.classList.add("active");
+  about.classList.add("on"); about.setAttribute("aria-hidden","false"); aboutB.classList.add("active"); $("pill").classList.add("ab");
   fitAbout();
 }
 function closeAbout(){
   if(!about.classList.contains("on")) return;
-  about.classList.remove("on"); about.setAttribute("aria-hidden","true"); aboutB.classList.remove("active");
+  about.classList.remove("on"); about.setAttribute("aria-hidden","true"); aboutB.classList.remove("active"); $("pill").classList.remove("ab");
   
 }
 aboutB.onclick=function(e){ e.stopPropagation(); openAbout(); };
