@@ -104,46 +104,38 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
 #card button{position:absolute;top:10px;right:12px;background:none;border:0;font-size:20px;color:#7a858e;cursor:pointer}
 #scrim{display:none}
 
-/* pill */
-#pill{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;
-  display:flex;align-items:center;gap:6px;padding:6px;border-radius:0;background:rgba(17,107,158,.94);
-  color:var(--cream);font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);white-space:nowrap}
-#pill .cur{padding:0 12px 0 10px;font-family:var(--serif);font-weight:300;font-size:15px;min-width:128px;text-align:center}
-#pill button{border:0;background:transparent;color:var(--cream);font:500 12px var(--label);width:34px;height:30px;border-radius:0;cursor:pointer;letter-spacing:.05em}
-#pill button.active{background:var(--cream);color:var(--blue)}
-#pill .home{width:auto;padding:0 12px;text-transform:uppercase;letter-spacing:.2em;font-size:11px;border-right:1px solid rgba(242,234,207,.3)}
-/* the bar (TJ, 19 Nov): a caption over it (Pick your blend, or the blend's name), Home fixed at the left, About fixed at the
-   right, and between them a strip of numbers in square boxes that slides sideways, fading at an edge where there is more,
-   with a chevron on the fade */
-#pill{flex-direction:column;align-items:stretch;gap:3px;padding:7px 8px 6px;max-width:calc(100vw - 24px)}
-#pill .cur{display:block;min-width:0;padding:0 4px;text-align:center;font:400 10px var(--label);letter-spacing:.32em;text-transform:uppercase;opacity:.9}
-/* the bar in two levels (TJ, 19 Nov). Base level, flat on the blue: Home and About as plain words at the ends, the blend number
-   in the middle with no box, and the numbers either side fading away under the chevrons. Raised level: two chevron buttons,
-   shaded so they stand up off the bar. Only taps move it: a chevron steps one blend along the loop and plays it. */
-#pill .prow{display:flex;align-items:center;justify-content:space-between;gap:2px}
-#pill .home,#pill .about{flex:0 0 auto;width:auto;height:44px;border:0;padding:0 10px;text-transform:uppercase;letter-spacing:.2em;font-size:11px;opacity:.82}
-#pill .home:hover,#pill .about:hover,#pill .about.active{opacity:1;background:none;color:var(--cream)}
-@media (max-width:700px){ #pill .home,#pill .about{padding:0 6px} }
-#pill .about.active{text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1px}
-#pill .dial{position:relative;flex:1 1 270px;width:270px;min-width:180px;max-width:290px;height:44px}
-#pill .nums{position:absolute;inset:0;overflow:hidden;
-  -webkit-mask-image:linear-gradient(90deg,transparent 1%,rgba(0,0,0,.6) 20%,#000 38%,#000 62%,rgba(0,0,0,.6) 80%,transparent 99%);
-  mask-image:linear-gradient(90deg,transparent 1%,rgba(0,0,0,.6) 20%,#000 38%,#000 62%,rgba(0,0,0,.6) 80%,transparent 99%)}
-#pill .nums button{position:absolute;left:0;top:0;width:56px;height:44px;padding:0;border:0;background:none;color:var(--cream);
-  font:400 23px/44px var(--serif);letter-spacing:.02em;pointer-events:none}
-#pill .nums button.mid{pointer-events:auto}
-#pill .nums button.side{font-size:18px;font-weight:300}
-#pill .nums button.active{background:none;color:var(--cream)}
-#pill .chv{position:absolute;top:5px;width:34px;height:34px;z-index:2;padding:0 0 2px;border:0;color:var(--cream);font:300 24px/1 var(--label);
-  background:linear-gradient(180deg,#2c8cc3 0%,#16709f 55%,#0e5b87 100%);
-  box-shadow:0 5px 12px rgba(0,20,40,.42),0 1px 2px rgba(0,20,40,.35),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -2px 0 rgba(0,0,0,.18);
-  transition:transform .12s,box-shadow .12s,filter .12s}
-#pill .chv.l{left:calc(50% - 66px)} #pill .chv.r{left:calc(50% + 32px)}
-#pill .chv:hover{filter:brightness(1.1)}
-#pill .chv:active{transform:translateY(2px);box-shadow:0 1px 3px rgba(0,20,40,.4),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.15)}
-@keyframes cnudge{0%,100%{box-shadow:0 5px 12px rgba(0,20,40,.42),0 0 0 0 rgba(242,234,207,0),inset 0 1px 0 rgba(255,255,255,.32)}
-  50%{box-shadow:0 5px 12px rgba(0,20,40,.42),0 0 0 4px rgba(242,234,207,.5),inset 0 1px 0 rgba(255,255,255,.32)}}
-#pill .chv.hint{animation:cnudge 1.1s ease-in-out 2}
+/* the arc dial (TJ, 20 Nov). No slab: a centred arc that rises from a flat line. All seven numbers sit on the curve, the chosen
+   one upright at the top, the rest smaller and fainter down each side. Tap any number: the arc turns it to the top and plays
+   it. The name sits still above the crest. Home and About rest on the flat line inside the arc. Taps only, nothing swipes. */
+#pill{position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;
+  width:min(470px,calc(100vw - 24px));height:120px;color:var(--cream);white-space:nowrap;
+  text-shadow:0 1px 10px rgba(4,30,50,.75),0 0 2px rgba(4,30,50,.5)}
+#pill::before{content:"";position:absolute;inset:-34px -46px -14px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 58% 70% at 50% 64%,rgba(5,36,60,.84),rgba(5,36,60,.5) 50%,rgba(5,36,60,0) 78%)}
+#pill .cur{position:absolute;left:0;right:0;top:0;margin:0;text-align:center;font:400 11px/14px var(--label);letter-spacing:.32em;
+  text-indent:.32em;text-transform:uppercase;transition:opacity .16s}
+#pill .cur.sw{opacity:0}
+#pill button{border:0;background:none;color:var(--cream);cursor:pointer;padding:0;border-radius:0;text-shadow:inherit;-webkit-tap-highlight-color:transparent}
+#pill .arc{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+#pill .base{position:absolute;left:50%;height:1px;transform:translateX(-50%);pointer-events:none;
+  background:linear-gradient(90deg,rgba(242,234,207,0),rgba(242,234,207,.5) 16%,rgba(242,234,207,.5) 84%,rgba(242,234,207,0))}
+#pill .bead{position:absolute;left:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;border:1px solid var(--cream);
+  background:#0b3a5a;pointer-events:none;transition:background .3s}
+#pill.picked .bead{background:var(--cream)}
+#pill .nums button{position:absolute;left:0;top:0;width:44px;height:44px;font:300 30px/44px var(--serif);letter-spacing:.01em;transform-origin:50% 50%}
+#pill .nums button span{display:block;transform-origin:50% 50%}
+#pill .nums button::after{content:"";position:absolute;left:50%;top:calc(50% + var(--tk,19px) - 3px);width:1px;height:6px;margin-left:-.5px;background:var(--cream);opacity:.7}
+#pill .nums button.mid::after{display:none}
+#pill .nums button.active{font-weight:500}
+#pill .nums button:hover span{filter:brightness(1.15)}
+#pill .nums button:focus-visible{outline:1px solid var(--cream);outline-offset:-6px}
+@keyframes dpulse{0%,100%{opacity:1}50%{opacity:.6}}
+#pill.idle .nums button.mid span{animation:dpulse 1.8s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){ #pill.idle .nums button.mid span{animation:none} }
+#pill .home,#pill .about{position:absolute;height:30px;padding:0 10px;font:500 11px/30px var(--label);letter-spacing:.22em;text-indent:.22em;text-transform:uppercase;
+  opacity:.85;transform:translateX(-50%)}
+#pill .home:hover,#pill .about:hover,#pill .about.active{opacity:1}
+#pill .about.active{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
 /* the flying price bottle: carries the hero bottle to the centre and back, so it turns into the blend bottle */
 #flyB{position:fixed;left:0;top:0;z-index:7;pointer-events:none;display:none;background:url(img/spray3/hero-bottle.webp?v=3) no-repeat;background-size:100% 100%}
 
@@ -365,10 +357,14 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
   <g id="bTop"><use href="#enzBand"/></g><g id="bBot"><use href="#enzBand"/></g>
   <g fill="none" stroke="currentColor" stroke-linecap="square"><line id="ln0"/><line id="ln1"/><line id="ln2"/><line id="ln3"/><line id="ln4"/><line id="ln5"/><line id="ln6"/><line id="ln7"/>
   <circle id="rg0"/><circle id="rg1"/><circle id="rg2"/><circle id="rg3"/></g></svg>
-<nav id="pill" aria-label="Blends"><p class="cur" id="pillCur" aria-live="polite">Pick your blend</p>
-  <div class="prow"><button type="button" class="home" id="pillHome">Home</button>
-  <div class="dial" id="pWrap"><div class="nums" id="pStrip"></div><button type="button" class="chv l" id="pPrev" aria-label="Previous blend">&#8249;</button><button type="button" class="chv r" id="pNext" aria-label="Next blend">&#8250;</button></div>
-  <button type="button" class="about" id="pillAbout">About</button></div></nav>
+<nav id="pill" class="idle" aria-label="Blends"><p class="cur" id="pillCur" aria-live="polite">Pick your blend</p>
+  <svg class="arc" id="pArc" aria-hidden="true"><defs><linearGradient id="pFade" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100" y2="0">
+    <stop offset="0" stop-color="#f2eacf" stop-opacity="0"/><stop offset=".2" stop-color="#f2eacf" stop-opacity=".62"/>
+    <stop offset=".8" stop-color="#f2eacf" stop-opacity=".62"/><stop offset="1" stop-color="#f2eacf" stop-opacity="0"/></linearGradient></defs>
+    <path id="pArcP" fill="none" stroke="url(#pFade)" stroke-width="1"/></svg>
+  <i class="base" id="pBase"></i><i class="bead" id="pBead"></i>
+  <div class="nums" id="pStrip"></div>
+  <button type="button" class="home" id="pillHome">Home</button><button type="button" class="about" id="pillAbout">About</button></nav>
 
 <script>
 (function(){
@@ -631,7 +627,6 @@ function build(i){
     });
   });
   closeCard(); key="";
-  pillCur.textContent=b.name;
   pillBtns.forEach(function(x,j){x.classList.toggle("active",j===i)});
 }
 
@@ -966,7 +961,7 @@ function layoutHero(top,lh,lx,lw){
     tx.style.fontSize=Math.max(22,Math.min(30,W*0.072)).toFixed(1)+"px";
     /* phone: the text group sits in the middle of the screen, as wide as its widest line (the button), words left aligned to it (TJ, 18 Nov) */
     tx.style.width="auto"; tx.style.maxWidth=(W-24)+"px"; tx.style.left="0px"; var tw=tx.offsetWidth;
-    tx.style.left=((W-tw)/2).toFixed(1)+"px"; tx.style.top=(H-92-tx.offsetHeight).toFixed(1)+"px";
+    tx.style.left=((W-tw)/2).toFixed(1)+"px"; tx.style.top=(H-128-tx.offsetHeight).toFixed(1)+"px";   /* clear of the arc dial */
     var fy=cTop+ch*0.36, ttop=parseFloat(tx.style.top), sh=Math.max(120,(ttop-14-fy)/(1-HS.HY)); sh=Math.min(sh*1.25,H*0.6);
     HS.set(W-0.66*sh*HS.AR, fy, sh, W*0.42, fy+ch*0.02);
     put(mi[0],-W*0.15,cTop,W*1.3,ch*1.1); put(mi[1],-W*0.2,H*0.6,W*0.8,H*0.35); put(mi[2],W*0.5,H*0.08,W*0.6,H*0.3);
@@ -1141,7 +1136,7 @@ function lerpR(a,b,e){ return a.map(function(v,n){ return v+(b[n]-v)*e; }); }
 function flyAt(r,op){ flyB.style.display="block"; flyB.style.left=r[0].toFixed(1)+"px"; flyB.style.top=r[1].toFixed(1)+"px";
   flyB.style.width=r[2].toFixed(1)+"px"; flyB.style.height=r[3].toFixed(1)+"px"; flyB.style.opacity=op.toFixed(3); }
 function flyOff(){ flyB.style.display="none"; }
-function setCap(i){ pillCur.textContent = $("shop").classList.contains("on") ? "About ENZIWA" : i<0 ? "Pick your blend" : BL[i].name; wheelPick(i); }
+function setCap(i){ capText($("shop").classList.contains("on") ? "About ENZIWA" : i<0 ? "Pick your blend" : BL[i].name); wheelPick(i); }
 function go(target){
   closeAbout();
   if(NV.busy){ NV.next=target; setCap(target); return; }
@@ -1177,52 +1172,72 @@ function go(target){
 }
 $("pillHome").onclick=function(e){ e.stopPropagation(); go(-1); };
 
-// the number dial (TJ, 19 Nov): only taps move it. The number in the middle is the blend (tap it to play it); the ones either
-// side fade away under the raised chevrons. A chevron steps one blend along the loop (after 37 comes 2 again) and plays it.
-var strip=$("pStrip"), NB=BL.length, SLOT=58;   // SLOT is reset from the dial width: the side numbers peek out from under the chevrons
-var WH={pos:0, aim:0, pickM:null, pool:[], dirty:true};
+// the arc dial (TJ, 20 Nov): the numbers sit on an arc that rises from a flat line. The chosen number is upright at the crest and
+// the others run down each side, so every blend is on show. Tap any number and the arc turns it to the top and plays it: a
+// straight jump, nothing in between. Only taps move it. After 37 comes 2 again, so the arc always looks balanced.
+var strip=$("pStrip"), pillN=$("pill"), NB=BL.length;
+var WH={pos:0, aim:0, pickM:null, pool:[], dirty:true, w:0};
 pillBtns=[];
 function mod(a,n){ return ((a%n)+n)%n; }
-function wheelBtn(){ var b=document.createElement("button"); b.type="button"; strip.appendChild(b);
-  b.onclick=function(e){ e.stopPropagation(); var m=+b.dataset.m; WH.aim=m; WH.dirty=true; go(mod(m,NB)); }; return b; }
+var capT=0, capNext=null;
+function capText(t){   // the name above the arc fades out and the new one fades in
+  if(capNext===null && pillCur.textContent===t) return; if(capNext===t) return;
+  capNext=t; pillCur.classList.add("sw"); clearTimeout(capT);
+  capT=setTimeout(function(){ pillCur.textContent=capNext; capNext=null; pillCur.classList.remove("sw"); },RM?0:170);
+}
+function wheelBtn(){ var b=document.createElement("button"); b.type="button"; b.appendChild(document.createElement("span")); strip.appendChild(b);
+  b.onclick=function(e){ e.stopPropagation(); var m=+b.dataset.m; WH.aim=m; WH.pickM=m; WH.dirty=true; b.blur(); go(mod(m,NB)); }; return b; }
 function wheelPick(i){
+  pillN.classList.toggle("idle",i<0); pillN.classList.toggle("picked",i>=0);
   if(i<0){ WH.pickM=null; WH.dirty=true; return; }
-  if(WH.pickM!==null && mod(WH.pickM,NB)===i) return;
-  var c=Math.round(WH.aim), d=mod(i-mod(c,NB),NB); if(d>NB/2) d-=NB;   // the nearest copy, so the dial takes the short way round
+  if(WH.pickM!==null && mod(WH.pickM,NB)===i){ if(WH.aim!==WH.pickM){ WH.aim=WH.pickM; WH.dirty=true; } return; }
+  var c=Math.round(WH.aim), d=mod(i-mod(c,NB),NB); if(d>NB/2) d-=NB;   // the nearest copy, so the arc takes the short way round
   WH.aim=c+d; WH.pickM=c+d; WH.dirty=true;
 }
+var GEO={};
+function wheelGeo(){   // the arc is sized from the width of the dial: three numbers each side of the crest reach its two feet
+  var w=pillN.clientWidth||366, a=Math.min(w/2-22,205), sag=a*0.27, R=(a*a+sag*sag)/(2*sag), fs=w>420?34:30;
+  var y0=22+fs/2, tk=fs*0.5+5, baseY=y0+sag+tk+3, r=R-tk, cy=y0+R;
+  GEO={w:w,R:R,step:Math.asin(a/R)/3,fs:fs,y0:y0};
+  pillN.style.height=(baseY+5).toFixed(1)+"px"; pillN.style.setProperty("--tk",tk.toFixed(1)+"px");
+  var ph=Math.acos(Math.max(-1,Math.min(1,(cy-baseY)/r))), x1=w/2-r*Math.sin(ph), x2=w/2+r*Math.sin(ph);
+  $("pArcP").setAttribute("d","M"+x1.toFixed(1)+" "+baseY.toFixed(1)+" A"+r.toFixed(1)+" "+r.toFixed(1)+" 0 0 1 "+x2.toFixed(1)+" "+baseY.toFixed(1));
+  var g=$("pFade"); g.setAttribute("x1",x1.toFixed(1)); g.setAttribute("x2",x2.toFixed(1));
+  var ln=$("pBase"); ln.style.top=baseY.toFixed(1)+"px"; ln.style.width=Math.min(w,(x2-x1)+26).toFixed(1)+"px";
+  $("pBead").style.top=(y0+tk).toFixed(1)+"px";
+  var hb=$("pillHome"), ab=$("pillAbout"), ty=(baseY-33).toFixed(1)+"px", dx=Math.max(46,a*0.3);
+  hb.style.top=ty; ab.style.top=ty; hb.style.left=(w/2-dx).toFixed(1)+"px"; ab.style.left=(w/2+dx).toFixed(1)+"px";
+  if(typeof setBarH==="function") setBarH();
+}
 function wheelDraw(){
-  var w=strip.clientWidth||270, half=w/2; SLOT=Math.max(56,half*0.56); var R=Math.ceil(half/SLOT)+1, base=Math.round(WH.pos), k=0;
-  for(var m=base-R;m<=base+R;m++,k++){
-    var b=WH.pool[k]||(WH.pool[k]=wheelBtn()), j=mod(m,NB), dx=(m-WH.pos)*SLOT, mid=Math.abs(dx)<SLOT/2;
-    b.style.display=""; b.dataset.m=m;
-    if(b.textContent!==String(BL[j].n)){ b.textContent=BL[j].n; b.setAttribute("aria-label","Blend "+BL[j].n+", "+BL[j].name); }
-    b.style.transform="translateX("+(half+dx-28).toFixed(1)+"px)";
-    b.classList.toggle("mid",mid); b.classList.toggle("side",!mid); b.tabIndex=mid?0:-1;
+  if((pillN.clientWidth||366)!==WH.w){ wheelGeo(); WH.w=GEO.w; }
+  var base=Math.round(WH.pos), k=0;
+  for(var m=base-4;m<=base+4;m++,k++){
+    var b=WH.pool[k]||(WH.pool[k]=wheelBtn()), j=mod(m,NB), off=m-WH.pos, ao=Math.abs(off), th=off*GEO.step;
+    var op=ao>3.7?0:ao>3?(3.7-ao)/0.7*0.49:1-ao*0.17, sc=1-Math.min(ao,4)*0.15, sp=b.firstChild;
+    b.dataset.m=m;
+    if(sp.textContent!==String(BL[j].n)){ sp.textContent=BL[j].n; b.setAttribute("aria-label","Blend "+BL[j].n+", "+BL[j].name); }
+    b.style.display=op>0.01?"":"none"; b.style.opacity=op.toFixed(3); b.style.pointerEvents=op>0.25?"auto":"none";
+    b.style.fontSize=GEO.fs+"px";
+    b.style.transform="translate("+(GEO.w/2+GEO.R*Math.sin(th)-22).toFixed(1)+"px,"+(GEO.y0+GEO.R*(1-Math.cos(th))-22).toFixed(1)+"px) rotate("+th.toFixed(4)+"rad)";
+    sp.style.transform="scale("+sc.toFixed(3)+")";
+    b.classList.toggle("mid",ao<0.5); b.tabIndex=op>0.25?0:-1;
     b.classList.toggle("active",WH.pickM!==null && m===WH.pickM);
   }
-  for(;k<WH.pool.length;k++) WH.pool[k].style.display="none";
 }
 var wLast=0;
 (function wheelTick(now){   // eases by time, not by frame, so a slow phone settles just as quickly
   var dt=Math.min(0.1,((now||0)-wLast)/1000)||0.016; wLast=now||0;
-  var d=WH.aim-WH.pos; if(d){ WH.pos=(RM||Math.abs(d)<0.003)?WH.aim:WH.pos+d*(1-Math.pow(0.0005,dt)); WH.dirty=true; }
+  var d=WH.aim-WH.pos; if(d){ WH.pos=(RM||Math.abs(d)<0.003)?WH.aim:WH.pos+d*(1-Math.pow(0.002,dt)); WH.dirty=true; }
   if(WH.dirty){ WH.dirty=false; wheelDraw(); }
   requestAnimationFrame(wheelTick);
 })();
 window.addEventListener("resize",function(){ WH.dirty=true; });
-function stepBlend(dir){   // one along the loop from the blend on show (or, from Home or About, from the number in the middle)
-  var c=NV.next!==null?NV.next:(NV.busy?NV.tgt:NV.at), n;
-  if(c<0){ WH.aim=Math.round(WH.aim)+dir; WH.dirty=true; n=mod(WH.aim,NB); } else n=mod(c+dir,NB);
-  go(n);
-}
-$("pPrev").onclick=function(e){ e.stopPropagation(); stepBlend(-1); };
-$("pNext").onclick=function(e){ e.stopPropagation(); stepBlend(1); };
-// first visit: the right chevron pulses softly twice
-var hinted=false, chR=$("pNext");
-function stopHint(){ hinted=true; chR.classList.remove("hint"); }
-document.addEventListener("pointerdown",stopHint,{once:true});
-setTimeout(function(){ if(!hinted&&!RM) chR.classList.add("hint"); },1800);
+// keyboard: the arrows only turn the arc to look, Enter plays the number at the top
+function turnDial(dir){ WH.aim=Math.round(WH.aim)+dir; WH.dirty=true;
+  var ae=document.activeElement; if(ae && strip.contains(ae)) ae.blur();
+  if(!$("shop").classList.contains("on")) capText(BL[mod(WH.aim,NB)].name); }
+function playTop(){ var m=Math.round(WH.aim); WH.pickM=m; WH.dirty=true; go(mod(m,NB)); }
 
 // About (TJ, 19 Nov): not a pop-up but a page, the counterpart of the hero. It rises up from the bar and fills the screen above
 // it, with nothing to scroll: everything is laid out to fit, and shrunk a little to fit a small screen. Phones get tabs.
@@ -1239,12 +1254,12 @@ function openAbout(){
   if(about.classList.contains("on")) return;
   closePop(); if(NV.at>=0||NV.busy) go(-1);
   about.classList.add("on"); about.setAttribute("aria-hidden","false"); aboutB.classList.add("active");
-  pillCur.textContent="About ENZIWA"; fitAbout();
+  capText("About ENZIWA"); fitAbout();
 }
 function closeAbout(){
   if(!about.classList.contains("on")) return;
   about.classList.remove("on"); about.setAttribute("aria-hidden","true"); aboutB.classList.remove("active");
-  var c=NV.next!==null?NV.next:(NV.busy?NV.tgt:NV.at); pillCur.textContent=c<0?"Pick your blend":BL[c].name;
+  var c=NV.next!==null?NV.next:(NV.busy?NV.tgt:NV.at); capText(c<0?"Pick your blend":BL[c].name);
 }
 aboutB.onclick=function(e){ e.stopPropagation(); openAbout(); };
 about.addEventListener("click",function(e){ e.stopPropagation(); });
@@ -1262,8 +1277,9 @@ window.addEventListener("touchmove",function(e){ if(!inScroller(e.target)) e.pre
 window.addEventListener("keydown",function(e){
   if(inScroller(document.activeElement)) return;
   if([" ","PageDown","PageUp","ArrowDown","ArrowUp","Home","End"].indexOf(e.key)>=0) e.preventDefault();
-  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){ e.preventDefault();   // arrow keys step through the blends
-    stepBlend(e.key==="ArrowRight"?1:-1); }
+  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){ e.preventDefault(); turnDial(e.key==="ArrowRight"?1:-1); }
+  var ae=document.activeElement;
+  if(e.key==="Enter" && !(ae && /^(BUTTON|A|INPUT)$/.test(ae.tagName))){ e.preventDefault(); playTop(); }
 });
 window.addEventListener("scroll",function(){ if(window.scrollY) window.scrollTo(0,0); });
 var capShown=0, liftShown=0, outShown=0, panelGate=0, lastTime=0, lastI=-2, key="", sv=0;
