@@ -146,6 +146,13 @@ html.pal #pill.ex button.active .ex{border-left-color:color-mix(in srgb,var(--al
 html.pal #pill.popped button.active{background:var(--alt);border-color:var(--alt);color:var(--cream)}
 html.pal #pill.popped button.active b{color:var(--hi)}
 html.pal #pill.popped button.active .ex{border-left-color:rgba(242,234,207,.4);border-top-color:rgba(242,234,207,.35)}
+/* a fuller page palette (TJ, 21 Nov, Oud Panga): the nav entry can also set the chosen tag's fill (tag), the edge of every
+   button (edge), the glass of the buttons not chosen (glass) and the shadow behind Home and About (navsh), for busy photos */
+html.pal2 .tnav{font-size:12.5px;text-shadow:var(--navsh)}
+html.pal2 #pill button{border-color:var(--edge);background:var(--glass)}
+html.pal2 #pill button.active{background:var(--tag);border-color:var(--edge);color:var(--alt)}
+html.pal2 #pill button.active .ex{border-left-color:color-mix(in srgb,var(--alt) 45%,transparent);border-top-color:color-mix(in srgb,var(--alt) 40%,transparent)}
+html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi);color:var(--alt)}
 #pill button b{transition:color .3s}
 @media (hover:hover){ #pill.ex button.active:hover .ex em{transform:translateX(3px)} }
 @media (hover:hover){ #pill button:not(.active):hover{background:rgba(242,234,207,.22);border-color:var(--cream)} }
@@ -416,6 +423,12 @@ var BL = [
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
    col:["#d98a7a","#c0745c","#8a5640"], sc:["#d9894a","#a8452a","#5c1f14"], seal:{wide:[0.5,0.76], tall:[0.5,0.6]},
+   // page palette from the couple (TJ, 21 Nov): gold words, emerald tag with a gold edge, dark green glass buttons,
+   // strawberry red (the opposite of green, and a strawberry note) while Explore this scent is open
+   nav:{alt:"#E2BC64", hi:"#C8323C", tag:"rgba(10,52,34,.92)", edge:"rgba(226,188,100,.85)", glass:"rgba(8,40,26,.42)",
+        navsh:"0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(4,20,10,.9)"},
+   // the name in antique gold over a dark green shade across the top of the picture, instead of frosted glass
+   nameStyle:{fill:["#F3DC9A","#D9AE52","#9C7225"], op:0.92, glow:"rgba(0,0,0,.55)", blur:18, shade:0.55, shadeTo:0.42, shadeRGB:"6,28,16"},
    // test scene (21 Nov): Congo rainforest couple. Whole photo as one layer for now; the people are not cut out yet, so the
    // front layer is an empty placeholder (their heads sit well below the name). Sources: scene/oud-panga-scene*.jpg
    layers:{wide:{w:2048,h:1143,sky:"img/scenes/oud-panga-sky.webp",fg:"img/scenes/empty-fg.webp"},
@@ -641,6 +654,19 @@ function composeScene(j,p){
   var c=cv.getContext("2d"), x0=(W-ps.w)/2, y0=(H-ps.h)/2;
   c.setTransform(dpr,0,0,dpr,0,0); c.globalAlpha=1;
   c.drawImage(ps.sky,x0+os[0],y0+os[1],ps.w,ps.h);
+  var ns=BL[j].nameStyle;
+  if(ns){                                      // busy photo (Oud Panga): a dark shade across the top, then solid metal letters
+    var gy=y0+os[1], sh=c.createLinearGradient(0,gy,0,gy+ps.h*ns.shadeTo);
+    sh.addColorStop(0,"rgba("+ns.shadeRGB+","+ns.shade+")"); sh.addColorStop(1,"rgba("+ns.shadeRGB+",0)");
+    c.fillStyle=sh; c.fillRect(x0+os[0],gy,ps.w,ps.h*ns.shadeTo);
+    var wd=WORDS[BL[j].name.toUpperCase()], nh=NAMEBOX.w*ps.w*wd.h/wd.w;
+    c.save();
+    c.translate(x0+ow[0]+NAMEBOX.x*ps.w, y0+ow[1]+NAMEBOX.y*ps.h);
+    var gg=c.createLinearGradient(0,0,0,nh); ns.fill.forEach(function(s,q){ gg.addColorStop(q/(ns.fill.length-1),s); });
+    c.globalAlpha=ns.op; c.shadowColor=ns.glow; c.shadowBlur=ns.blur; c.shadowOffsetY=ns.blur*0.15;
+    c.fillStyle=gg; c.fill(ps.path,"evenodd");
+    c.restore();
+  } else {
   c.save();
   c.translate(x0+ow[0]+NAMEBOX.x*ps.w, y0+ow[1]+NAMEBOX.y*ps.h);
   c.clip(ps.path,"evenodd");
@@ -648,6 +674,7 @@ function composeScene(j,p){
   c.globalAlpha=GLASS.op;
   c.drawImage(ps.glass,x0+os[0],y0+os[1],ps.w,ps.h);   // the frosted copy lines up with the sky behind it
   c.restore();
+  }
   c.drawImage(ps.fg,x0+of[0],y0+of[1],ps.w,ps.h);
   return true;
 }
@@ -1235,8 +1262,9 @@ function setEx(ok,pp){   // the explore part slides out of the chosen tag when t
   if(pp!==exPop){ exPop=pp; pillN.classList.toggle("popped",pp); }
 }
 function wheelPick(i){ SK.cur=i; pillN.classList.toggle("idle",i<0);      // called whenever the page heads for a blend, or for Home
-  var pal=i>=0&&BL[i].nav, de=document.documentElement; de.classList.toggle("pal",!!pal);
-  if(pal){ de.style.setProperty("--alt",pal.alt); de.style.setProperty("--hi",pal.hi); }
+  var pal=i>=0&&BL[i].nav, de=document.documentElement; de.classList.toggle("pal",!!pal); de.classList.toggle("pal2",!!(pal&&pal.tag));
+  if(pal){ de.style.setProperty("--alt",pal.alt); de.style.setProperty("--hi",pal.hi);
+    if(pal.tag){ de.style.setProperty("--tag",pal.tag); de.style.setProperty("--edge",pal.edge); de.style.setProperty("--glass",pal.glass); de.style.setProperty("--navsh",pal.navsh); } }
   pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); }); }
 function turnDial(dir){   // arrow keys move along the buttons without playing anything; Enter plays the one in focus
   var f=pillBtns.indexOf(document.activeElement); if(f<0) f=SK.cur>=0?SK.cur:(dir>0?-1:0); pillBtns[mod(f+dir,NB)].focus(); }
