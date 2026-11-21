@@ -415,7 +415,11 @@ var BL = [
    col:["#b0243c","#9a3050","#8a5a3a"], sc:["#c2425a","#7a1530","#2e0612"], seal:{wide:[0.5,0.76], tall:[0.5,0.6]}},
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
-   col:["#d98a7a","#c0745c","#8a5640"], sc:["#d9894a","#a8452a","#5c1f14"], seal:{wide:[0.5,0.76], tall:[0.5,0.6]}},
+   col:["#d98a7a","#c0745c","#8a5640"], sc:["#d9894a","#a8452a","#5c1f14"], seal:{wide:[0.5,0.76], tall:[0.5,0.6]},
+   // test scene (21 Nov): Congo rainforest couple. Whole photo as one layer for now; the people are not cut out yet, so the
+   // front layer is an empty placeholder (their heads sit well below the name). Sources: scene/oud-panga-scene*.jpg
+   layers:{wide:{w:2048,h:1143,sky:"img/scenes/oud-panga-sky.webp",fg:"img/scenes/empty-fg.webp"},
+           tall:{w:1143,h:2048,sky:"img/scenes/oud-panga-sky-tall.webp",fg:"img/scenes/empty-fg.webp"}}},
   {n:34,name:"Omeya Dew",top:["Neroli","African marigold","Bergamot"],heart:["Violet","Jasmine","Cyclamen"],base:["Vetiver","Cedar","Musk"],
    desc:"Green neroli and marigold over vetiver and cedar. Daytime and hot weather, unisex. Like dew on leaves in a garden at dawn.",
    col:["#e3b54a","#8fa35a","#5f6b45"], sc:["#f1d58a","#c9a14a","#6b5a2a"], hover:true,
@@ -437,7 +441,7 @@ var BL = [
 ];
 var TIERS=["top","heart","base"], TL={top:"Top",heart:"Heart",base:"Base"};
 var CREAM="#F2EACF";
-var HERO=0; BL.forEach(function(b,j){ if(b.layers && !BL[HERO].layers) HERO=j; });   // the photo scene the hero is sized from (Omeya Dew)
+var HERO=0; BL.forEach(function(b,j){ if(b.name==="Omeya Dew") HERO=j; });   // the photo scene the hero is sized from (Omeya Dew)
 
 var RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 var mq = window.matchMedia("(max-width:700px)");
