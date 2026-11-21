@@ -133,7 +133,7 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
   font:500 9.5px/1 var(--label);letter-spacing:.2em;text-transform:uppercase;transition:max-width .5s ease,opacity .4s ease .1s,margin .5s ease,padding .5s ease,border-color .4s;
   border-left:1px solid rgba(17,107,158,0)}
 #pill button .ex svg{display:block;flex:0 0 auto;width:50px;height:auto;overflow:visible;transition:opacity .2s}
-#pill button .ex u{text-decoration:none}
+#pill button .ex span{display:block;line-height:24px;text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1px}
 #pill button .ex em{font:300 17px/1 var(--label);font-style:normal;margin:-2px 0 0 -2px;transition:transform .2s}
 #pill.ex button.active .ex{max-width:300px;opacity:1;margin-left:14px;padding-left:14px;border-left-color:rgba(17,107,158,.4)}
 #pill.popped button.active .ex svg{opacity:0}
@@ -147,14 +147,14 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
   #pill button.active b{line-height:40px}
   #pill button .ex{flex:0 0 auto;width:0;min-width:100%;max-width:none;max-height:0;border-left:0;border-top:1px solid rgba(17,107,158,0);
     transition:max-height .5s ease,opacity .4s ease .1s,padding .5s ease,border-color .4s}
-  #pill.ex button.active .ex{max-width:none;max-height:34px;margin-left:0;padding:9px 0 10px;border-top-color:rgba(17,107,158,.35)}
+  #pill.ex button.active .ex{max-width:none;max-height:36px;margin-left:0;padding:4px 0 7px;border-top-color:rgba(17,107,158,.35)}
   #pill button.active{transition:background .25s,color .25s,border-color .25s,padding .3s,min-width .5s ease}
-  #pill.ex button.active{min-width:142px}
+  #pill.ex button.active{min-width:150px}
   #pill button:not(.active) .ex{display:none}
   #pill button.active{padding:0 12px}
   #pill button.active i{letter-spacing:.16em;margin-left:9px}
-  #pill button .ex{gap:7px}
-  #pill button .ex u{display:none}      /* phone: just Explore, so the tag stays clear of the bottle */
+  #pill button .ex{letter-spacing:.12em}
+
   #pill button .ex svg{width:36px}
   #pill .cur{left:0;right:auto;text-align:left;text-indent:0;font-size:8.5px;line-height:12px;letter-spacing:.2em;margin-bottom:6px}
   #pill .cur br{display:inline}
@@ -859,9 +859,9 @@ function drawBloom(t){
 }
 function openPop(e){
   if(e) e.stopPropagation();
-  var tg=pillBtns[sealJ], sv=tg&&tg.querySelector(".ex svg"); if(!sv) return;
-  var r=sv.getBoundingClientRect();   // start exactly on the band inside the chosen tag
-  pop.s0={x:r.left+r.width*(BCX-7.05)/25.65, y:r.top+r.height*(BCY-11.1)/6.45, k:r.width/25.65};
+  var tg=pillBtns[sealJ], sv=tg&&tg.querySelector(".ex span"); if(!sv) return;
+  var r=sv.getBoundingClientRect();   // the pattern band grows out of the underlined words in the chosen tag
+  pop.s0={x:r.left+r.width/2, y:r.top+r.height/2, k:Math.min(r.width,56)/25.65};
   pop.i=sealJ; fillPop(sealJ); pop.goal=1; key="";
 }
 function closePop(){ pop.goal=0; }
@@ -1207,7 +1207,7 @@ pillBtns=BL.map(function(b,j){
   var el=document.createElement("button"); el.type="button"; el.dataset.i=j; el.setAttribute("aria-label","Blend "+b.n+", "+b.name);
   var n=document.createElement("b"); n.textContent=b.n; var nm=document.createElement("i"); nm.textContent=b.name; el.appendChild(n); el.appendChild(nm);
   if(b.seal){ var ex=document.createElement("span"); ex.className="ex"; ex.setAttribute("aria-hidden","true");
-    ex.innerHTML='<svg viewBox="7.05 11.1 25.65 6.45" aria-hidden="true"><use href="#enzBand"/></svg><span>Explore<u> this scent</u></span><em>&rsaquo;</em>'; el.appendChild(ex); }
+    ex.innerHTML='<span>Explore this scent</span>';   /* no motif, no arrow: underlined, so it reads as a link (TJ, 20 Nov) */ el.appendChild(ex); }
   el.onclick=function(e){ e.stopPropagation(); el.blur();
     if(j===SK.cur && pillN.classList.contains("ex")){ if(pop.goal===1) closePop(); else openPop(); return; }   // the chosen tag is the way into the scent
     go(j); };
