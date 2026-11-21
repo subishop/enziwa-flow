@@ -441,7 +441,8 @@ var BL = [
    nameStyle:{fill:["#F3DC9A","#D9AE52","#9C7225"], op:0.92, glow:"rgba(0,0,0,.55)", blur:18, shade:0.55, shadeTo:0.42, shadeRGB:"6,28,16"},
    // test scene (21 Nov): Congo rainforest couple. Whole photo as one layer for now; the people are not cut out yet, so the
    // front layer is an empty placeholder (their heads sit well below the name). Sources: scene/oud-panga-scene*.jpg
-   layers:{wide:{w:2048,h:1143,sky:"img/scenes/oud-panga-sky.webp?v=scarf3",fg:"img/scenes/empty-fg.webp"},
+   // keepR (TJ, 21 Nov): the man's right edge sits at 94 percent of the wide picture; the picture slides left so he is never cut off
+   layers:{wide:{w:2048,h:1143,keepR:0.955,sky:"img/scenes/oud-panga-sky.webp?v=scarf3",fg:"img/scenes/empty-fg.webp"},
            tall:{w:1080,h:2160,head:0.44,sky:"img/scenes/oud-panga-sky-tall.webp?v=scarf3",fg:"img/scenes/empty-fg.webp"}}},   // head: the man's head top, 44 percent down
   {n:34,name:"Omeya Dew",top:["Neroli","African marigold","Bergamot"],heart:["Violet","Jasmine","Cyclamen"],base:["Vetiver","Cedar","Musk"],
    desc:"Green neroli and marigold over vetiver and cedar. Daytime and hot weather, unisex. Like dew on leaves in a garden at dawn.",
@@ -586,7 +587,8 @@ var FILTER_OK=(function(){ try{ var t=mk(1,1).getContext("2d"); t.filter="blur(2
 var PS=BL.map(function(){return null});        // prepared layers per blend
 function shapeNow(){ return W/H<0.9 ? "tall" : "wide"; }
 var NAVCLR=56;   // Home and About end 46px down; the blend name always starts below them (TJ, 21 Nov)
-function sceneY0(ps){ return ps.y0!=null ? ps.y0 : (H-ps.h)/2; }   // a picture anchored to the bottle keeps its own top
+function sceneY0(ps){ return ps.y0!=null ? ps.y0 : (H-ps.h)/2; }
+function sceneX0(ps){ return ps.x0!=null ? ps.x0 : (W-ps.w)/2; }   // a picture slid sideways to keep its people in frame   // a picture anchored to the bottle keeps its own top
 function nameY(y0,ph){ return Math.max(y0+NAMEBOX.y*ph, NAVCLR); }
 function frostCopy(src,w,h){                   // the sky as seen through the glass: blurred, lifted, a touch richer, milky sheen
   var g=mk(Math.max(1,Math.round(w)),Math.max(1,Math.round(h))), c=g.getContext("2d");
@@ -619,6 +621,9 @@ function buildScene(j){
       var want=L.y+SQ.base*L.s+14;
       ph=Math.max(W*SPARE*s.h/s.w, want/s.head, (H-want)/(1-s.head)); pw=ph*s.w/s.h;
       ps.w=pw; ps.h=ph; ps.y0=want-s.head*ph;
+    }
+    if(s.keepR && shape==="wide"){  /* a picture with people near its right edge slides left until that edge is inside the screen */
+      var lim=W-16-s.keepR*ps.w; if((W-ps.w)/2>lim) ps.x0=Math.max(W-ps.w+1,lim);
     }
   } else {                                     // placeholder colour scene: gradient sky, grey figures in front
     var ar=shape==="tall"?1536/2752:2752/1536, pw2=W*SPARE, ph2=pw2/ar; if(ph2<H*SPARE){ ph2=H*SPARE; pw2=ph2*ar; }
@@ -658,9 +663,9 @@ var mx=0, my=0, tx=0, ty=0;
 window.addEventListener("pointermove",function(e){ if(e.pointerType==="mouse"){ mx=e.clientX/W-.5; my=e.clientY/H-.5; } },{passive:true});
 window.addEventListener("deviceorientation",function(e){ if(e.gamma!=null){ mx=Math.max(-.5,Math.min(.5,e.gamma/40)); my=Math.max(-.5,Math.min(.5,(e.beta-45)/60)); } });
 function layerOff(ps,u,d){
-  var a=RM?0:GLASS.par, sx=(ps.w-W)/2-1, y0=sceneY0(ps), up=-y0-1, dn=y0+ps.h-H-1;   // room to slide down (up) and up (dn)
+  var a=RM?0:GLASS.par, x0=sceneX0(ps), lt=-x0-1, rt=x0+ps.w-W-1, y0=sceneY0(ps), up=-y0-1, dn=y0+ps.h-H-1;   // room to slide right (lt), left (rt), down (up) and up (dn)
   var ox=-tx*ps.w*.012*d*a*2, oy=(.5-u)*ps.h*.06*d*a*2-ty*ps.h*.01*d*a*2;
-  return [Math.max(-sx,Math.min(sx,ox)), Math.max(-Math.max(0,dn),Math.min(Math.max(0,up),oy))];
+  return [Math.max(-Math.max(0,rt),Math.min(Math.max(0,lt),ox)), Math.max(-Math.max(0,dn),Math.min(Math.max(0,up),oy))];
 }
 function sceneU(j,p){ return cl((p-(START+SEG*(j+T.press)))/SEG); }   // 0 when the scene is revealed, 1 when the next one is
 function composeScene(j,p){
@@ -670,7 +675,7 @@ function composeScene(j,p){
   var k=[os,ow,of].map(function(o){return Math.round(o[0]*4)+","+Math.round(o[1]*4)}).join("|")+"|"+W+"|"+H+"|"+dpr;
   if(k===ps.done) return false; ps.done=k;
   var cv=SC[j]; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
-  var c=cv.getContext("2d"), x0=(W-ps.w)/2, y0=sceneY0(ps), ny=nameY(y0,ps.h);
+  var c=cv.getContext("2d"), x0=sceneX0(ps), y0=sceneY0(ps), ny=nameY(y0,ps.h), nx=W/2-NAMEBOX.w*ps.w/2;   // the name stays centred on screen
   c.setTransform(dpr,0,0,dpr,0,0); c.globalAlpha=1;
   c.drawImage(ps.sky,x0+os[0],y0+os[1],ps.w,ps.h);
   var ns=BL[j].nameStyle;
@@ -680,14 +685,14 @@ function composeScene(j,p){
     c.fillStyle=sh; c.fillRect(x0+os[0],gy,ps.w,ps.h*ns.shadeTo);
     var wd=WORDS[BL[j].name.toUpperCase()], nh=NAMEBOX.w*ps.w*wd.h/wd.w;
     c.save();
-    c.translate(x0+ow[0]+NAMEBOX.x*ps.w, ny+ow[1]);
+    c.translate(nx+ow[0], ny+ow[1]);
     var gg=c.createLinearGradient(0,0,0,nh); ns.fill.forEach(function(s,q){ gg.addColorStop(q/(ns.fill.length-1),s); });
     c.globalAlpha=ns.op; c.shadowColor=ns.glow; c.shadowBlur=ns.blur; c.shadowOffsetY=ns.blur*0.15;
     c.fillStyle=gg; c.fill(ps.path,"evenodd");
     c.restore();
   } else {
   c.save();
-  c.translate(x0+ow[0]+NAMEBOX.x*ps.w, ny+ow[1]);
+  c.translate(nx+ow[0], ny+ow[1]);
   c.clip(ps.path,"evenodd");
   c.setTransform(dpr,0,0,dpr,0,0);
   c.globalAlpha=GLASS.op;
