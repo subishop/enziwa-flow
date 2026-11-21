@@ -426,10 +426,11 @@ var BL = [
         navsh:"0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(20,2,8,.9)"},
    // the name in gold over a dark cherry shade across the top, like Oud Panga: a busy photo needs solid letters
    nameStyle:{fill:["#F3DC9A","#D9AE52","#9C7225"], op:0.92, glow:"rgba(0,0,0,.55)", blur:18, shade:0.5, shadeTo:0.4, shadeRGB:"30,4,10"},
-   // scene (21 Nov): West African city at night, cherry red mural wall, vintage open top car, couple in red velvet and black.
-   // Whole photo as one layer; the front layer is empty. Sources: scene/ruby-oba-scene*.jpg (Gemini, free)
-   layers:{wide:{w:2048,h:1143,sky:"img/scenes/ruby-oba-sky.webp?v=1",fg:"img/scenes/empty-fg.webp"},
-           tall:{w:1080,h:2160,head:0.44,sky:"img/scenes/ruby-oba-sky-tall.webp?v=1",fg:"img/scenes/empty-fg.webp"}}},
+   // scene (TJ, 21 Nov): ENZIWA VIP lounge, the couple against the glowing gold pattern screen on the left, red dance floor far right.
+   // Whole photo as one layer; the front layer is empty. Sources: scene/ruby-oba-scene*.jpg (Gemini, free).
+   // The tall picture is a cut from the wide one for now; it has no headroom, so it is centred, not anchored to the bottle.
+   layers:{wide:{w:2048,h:1143,sky:"img/scenes/ruby-oba-sky.webp?v=lounge",fg:"img/scenes/empty-fg.webp"},
+           tall:{w:1080,h:2160,sky:"img/scenes/ruby-oba-sky-tall.webp?v=lounge",fg:"img/scenes/empty-fg.webp"}}},
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
    col:["#d98a7a","#c0745c","#8a5640"], sc:["#d9894a","#a8452a","#5c1f14"], seal:{wide:[0.5,0.76], tall:[0.5,0.6]},
