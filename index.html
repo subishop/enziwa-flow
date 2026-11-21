@@ -166,7 +166,7 @@ html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi
     transition:max-height .5s ease,opacity .4s ease .1s,padding .5s ease,border-color .4s}
   #pill.ex button.active .ex{max-width:none;max-height:36px;margin-left:0;padding:4px 0 7px;border-top-color:rgba(17,107,158,.35)}
   #pill button.active{transition:background .25s,color .25s,border-color .25s,padding .3s,min-width .5s ease}
-  #pill.ex button.active{min-width:150px}
+  #pill.ex button.active{min-width:min(150px,calc(50vw - 42px))}   /* never reaches the bottle in the middle (TJ, 21 Nov) */
   #pill button:not(.active) .ex{display:none}
   #pill button.active{padding:0 12px}
   #pill button.active i{letter-spacing:.16em;margin-left:9px}
@@ -432,7 +432,7 @@ var BL = [
    // test scene (21 Nov): Congo rainforest couple. Whole photo as one layer for now; the people are not cut out yet, so the
    // front layer is an empty placeholder (their heads sit well below the name). Sources: scene/oud-panga-scene*.jpg
    layers:{wide:{w:2048,h:1143,sky:"img/scenes/oud-panga-sky.webp?v=scarf3",fg:"img/scenes/empty-fg.webp"},
-           tall:{w:1080,h:2160,sky:"img/scenes/oud-panga-sky-tall.webp?v=scarf3",fg:"img/scenes/empty-fg.webp"}}},
+           tall:{w:1080,h:2160,head:0.44,sky:"img/scenes/oud-panga-sky-tall.webp?v=scarf3",fg:"img/scenes/empty-fg.webp"}}},   // head: the man's head top, 44 percent down
   {n:34,name:"Omeya Dew",top:["Neroli","African marigold","Bergamot"],heart:["Violet","Jasmine","Cyclamen"],base:["Vetiver","Cedar","Musk"],
    desc:"Green neroli and marigold over vetiver and cedar. Daytime and hot weather, unisex. Like dew on leaves in a garden at dawn.",
    col:["#e3b54a","#8fa35a","#5f6b45"], sc:["#f1d58a","#c9a14a","#6b5a2a"], hover:true,
@@ -542,7 +542,7 @@ function size(){
   fx.width=Math.round(W*dpr); fx.height=Math.round(H*dpr);
   [M,SS].forEach(function(c){c.width=W;c.height=H});
   FZ.width=fx.width; FZ.height=fx.height;
-  var mob=mq.matches, base=H*(mob?0.43:0.60), capT=H*(mob?0.03:0.04);
+  var mob=W/H<0.9, base=H*(mob?0.43:0.60), capT=H*(mob?0.03:0.04);   // upright screens (phones and portrait tablets) get the smaller bottle (TJ, 21 Nov)
   var s=(base-capT)/(SQ.base-SQ.capTop);
   L={s:s, x:W/2-SQ.cx*s, y:base-SQ.base*s, lift:0};
   MS=Math.max(mob?1.5:1, W*1.08/(SQ.w*s));   // the mist always spans the full width, so no edge of the clip shows
@@ -575,6 +575,9 @@ var SPARE=1.08;                                // scene image covers the screen 
 var FILTER_OK=(function(){ try{ var t=mk(1,1).getContext("2d"); t.filter="blur(2px)"; return t.filter==="blur(2px)"; }catch(e){ return false; } })();
 var PS=BL.map(function(){return null});        // prepared layers per blend
 function shapeNow(){ return W/H<0.9 ? "tall" : "wide"; }
+var NAVCLR=56;   // Home and About end 46px down; the blend name always starts below them (TJ, 21 Nov)
+function sceneY0(ps){ return ps.y0!=null ? ps.y0 : (H-ps.h)/2; }   // a picture anchored to the bottle keeps its own top
+function nameY(y0,ph){ return Math.max(y0+NAMEBOX.y*ph, NAVCLR); }
 function frostCopy(src,w,h){                   // the sky as seen through the glass: blurred, lifted, a touch richer, milky sheen
   var g=mk(Math.max(1,Math.round(w)),Math.max(1,Math.round(h))), c=g.getContext("2d");
   if(FILTER_OK){
@@ -601,6 +604,12 @@ function buildScene(j){
     if(!(ok(li.sky)&&ok(li.fg))){ PS[j]=null; drawFlat(j); return; }
     var pw=W*SPARE, ph=pw*s.h/s.w; if(ph<H*SPARE){ ph=H*SPARE; pw=ph*s.w/s.h; }
     ps={w:pw,h:ph,sky:li.sky,fg:li.fg};
+    if(s.head && shape==="tall"){   /* anchored picture (TJ, 21 Nov): the people's heads land 14px under the bottle's base on every
+         upright screen; the picture is only enlarged when that would leave a gap at the top or bottom */
+      var want=L.y+SQ.base*L.s+14;
+      ph=Math.max(W*SPARE*s.h/s.w, want/s.head, (H-want)/(1-s.head)); pw=ph*s.w/s.h;
+      ps.w=pw; ps.h=ph; ps.y0=want-s.head*ph;
+    }
   } else {                                     // placeholder colour scene: gradient sky, grey figures in front
     var ar=shape==="tall"?1536/2752:2752/1536, pw2=W*SPARE, ph2=pw2/ar; if(ph2<H*SPARE){ ph2=H*SPARE; pw2=ph2*ar; }
     ps={w:pw2,h:ph2}; var ox=(pw2-W)/2, oy=(ph2-H)/2;
@@ -639,9 +648,9 @@ var mx=0, my=0, tx=0, ty=0;
 window.addEventListener("pointermove",function(e){ if(e.pointerType==="mouse"){ mx=e.clientX/W-.5; my=e.clientY/H-.5; } },{passive:true});
 window.addEventListener("deviceorientation",function(e){ if(e.gamma!=null){ mx=Math.max(-.5,Math.min(.5,e.gamma/40)); my=Math.max(-.5,Math.min(.5,(e.beta-45)/60)); } });
 function layerOff(ps,u,d){
-  var a=RM?0:GLASS.par, sx=(ps.w-W)/2-1, sy=(ps.h-H)/2-1;
+  var a=RM?0:GLASS.par, sx=(ps.w-W)/2-1, y0=sceneY0(ps), up=-y0-1, dn=y0+ps.h-H-1;   // room to slide down (up) and up (dn)
   var ox=-tx*ps.w*.012*d*a*2, oy=(.5-u)*ps.h*.06*d*a*2-ty*ps.h*.01*d*a*2;
-  return [Math.max(-sx,Math.min(sx,ox)), Math.max(-sy,Math.min(sy,oy))];
+  return [Math.max(-sx,Math.min(sx,ox)), Math.max(-Math.max(0,dn),Math.min(Math.max(0,up),oy))];
 }
 function sceneU(j,p){ return cl((p-(START+SEG*(j+T.press)))/SEG); }   // 0 when the scene is revealed, 1 when the next one is
 function composeScene(j,p){
@@ -651,7 +660,7 @@ function composeScene(j,p){
   var k=[os,ow,of].map(function(o){return Math.round(o[0]*4)+","+Math.round(o[1]*4)}).join("|")+"|"+W+"|"+H+"|"+dpr;
   if(k===ps.done) return false; ps.done=k;
   var cv=SC[j]; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
-  var c=cv.getContext("2d"), x0=(W-ps.w)/2, y0=(H-ps.h)/2;
+  var c=cv.getContext("2d"), x0=(W-ps.w)/2, y0=sceneY0(ps), ny=nameY(y0,ps.h);
   c.setTransform(dpr,0,0,dpr,0,0); c.globalAlpha=1;
   c.drawImage(ps.sky,x0+os[0],y0+os[1],ps.w,ps.h);
   var ns=BL[j].nameStyle;
@@ -661,14 +670,14 @@ function composeScene(j,p){
     c.fillStyle=sh; c.fillRect(x0+os[0],gy,ps.w,ps.h*ns.shadeTo);
     var wd=WORDS[BL[j].name.toUpperCase()], nh=NAMEBOX.w*ps.w*wd.h/wd.w;
     c.save();
-    c.translate(x0+ow[0]+NAMEBOX.x*ps.w, y0+ow[1]+NAMEBOX.y*ps.h);
+    c.translate(x0+ow[0]+NAMEBOX.x*ps.w, ny+ow[1]);
     var gg=c.createLinearGradient(0,0,0,nh); ns.fill.forEach(function(s,q){ gg.addColorStop(q/(ns.fill.length-1),s); });
     c.globalAlpha=ns.op; c.shadowColor=ns.glow; c.shadowBlur=ns.blur; c.shadowOffsetY=ns.blur*0.15;
     c.fillStyle=gg; c.fill(ps.path,"evenodd");
     c.restore();
   } else {
   c.save();
-  c.translate(x0+ow[0]+NAMEBOX.x*ps.w, y0+ow[1]+NAMEBOX.y*ps.h);
+  c.translate(x0+ow[0]+NAMEBOX.x*ps.w, ny+ow[1]);
   c.clip(ps.path,"evenodd");
   c.setTransform(dpr,0,0,dpr,0,0);
   c.globalAlpha=GLASS.op;
@@ -734,7 +743,7 @@ function placeSeal(i,p,show){
 function popRect(){   // nearly full width, from just under the big blend name down to above the strip kept for the menu
   var mob=mq.matches, j=pop.i>=0?pop.i:shown, ps=PS[j], top=H*0.2;
   var dy=0;
-  if(ps){ var wd=WORDS[BL[j].name.toUpperCase()]; top=(H-ps.h)/2+NAMEBOX.y*ps.h+NAMEBOX.w*ps.w*(wd.l1||wd.h)/wd.w+(mob?10:16);   // a name on several lines: the pop-up starts under its first line
+  if(ps){ var wd=WORDS[BL[j].name.toUpperCase()]; top=nameY(sceneY0(ps),ps.h)+NAMEBOX.w*ps.w*(wd.l1||wd.h)/wd.w+(mob?10:16);   // a name on several lines: the pop-up starts under its first line
     dy=layerOff(ps,sceneU(j,cur),DEPTH.word)[1]; }   // the name drifts with parallax: the frame moves with it, so the gap under the name never changes
   var m=mob?12:Math.max(16,W*0.02), bottom=H-(mob?96:Math.max(104,H*0.11));
   return {x:m, y:top+dy, w:W-2*m, h:Math.max(220,bottom-top)};
@@ -976,7 +985,7 @@ function sizeHero(){
   var wd=hero.querySelector(".word"), city=$("heroCity"), b=BL[HERO], s=b.layers&&b.layers[shapeNow()]; if(!wd||!city||!s) return;
   var pw=W*SPARE, ph=pw*s.h/s.w; if(ph<H*SPARE){ ph=H*SPARE; pw=ph*s.w/s.h; }
   var nm=WORDS[b.name.toUpperCase()], k=NAMEBOX.w*pw/nm.w, lh=nm.h*k, ow=layerOff({w:pw,h:ph},0,DEPTH.word);
-  var top=(H-ph)/2+ow[1]+NAMEBOX.y*ph;
+  var top=nameY((H-ph)/2,ph)+ow[1];
   var lw=lh*817.72/197;                         // the logo's width at that height
   /* optical centring (TJ, 15 Nov): the heavy E wall and the open top of the last A make the true centre look left, so the
      logo sits 3 percent of its width to the right; KAMPALA ends under the body of the A, not the tip of its foot */
