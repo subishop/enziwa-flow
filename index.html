@@ -472,9 +472,9 @@ var BL = [
    // scene (TJ, 22 Nov): infinity pool edge above an African city at dusk, no building. Desktop: she on the left, he on the
    // right, her sheer silk streaming across the centre to him. Phone: both on the right, the silk lifting up and to the left.
    // Sources: Downloads sabo-silk-scene-desktop.jpg and sabo-silk-scene-phone.jpg (Gemini, free). The tall picture has 225px of
-   // sky added on top; head: the man's head top. headW: the man's head top in the wide picture.
+   // sky added on top; head: the man's head top (TJ, 22 Nov: his head under the bottle, not his hand, and the two of them larger: zoom). headW: the man's head top in the wide picture.
    layers:{wide:{w:3615,h:2067,headW:0.9,sky:"img/sabo-silk-sky.webp?v=wide2",fg:"img/sabo-silk-fg.webp?v=cut1",fgd:0.15},
-           tall:{w:1536,h:3072,head:0.369,keepR:0.99,sky:"img/sabo-silk-sky-tall.webp?v=pose1",fg:"img/empty-fg.webp"}}},
+           tall:{w:1536,h:3072,head:0.421,zoom:1.25,keepR:0.99,sky:"img/sabo-silk-sky-tall.webp?v=pose1",fg:"img/empty-fg.webp"}}},
 ];
 var TIERS=["top","heart","base"], TL={top:"Top",heart:"Heart",base:"Base"};
 var CREAM="#F2EACF";
@@ -496,7 +496,7 @@ var SEG=4, START=1, TOTAL=START+SEG*BL.length; // in stage heights
 var H=1, W=1, dpr=1;
 
 // assets in img: bottle frames with a see-through background (b*), and per clip the mist filmed on black (w_, drawn with screen) and reveal masks (m_)
-var SQ={w:854, h:480, cx:427, base:436, capTop:50, nozY:220, spin:30, lift:27, down:21, out:30, mist:150, mask:75};
+var SQ={w:854, h:480, cx:427, base:436, capTop:50, capRest:178, nozY:220, spin:30, lift:27, down:21, out:30, mist:150, mask:75};
 var CLIPK=BL.map(function(){return "k8"});   // which black clip each blend uses (one test clip for now)
 // scene layer images, loaded per shape of screen (wide or tall) when first needed
 var LAY=BL.map(function(){return {}});
@@ -602,7 +602,21 @@ function shapeNow(){ return W/H<0.9 ? "tall" : "wide"; }
 var NAVCLR=56;   // Home and About end 46px down; the blend name always starts below them (TJ, 21 Nov)
 function sceneY0(ps){ return ps.y0!=null ? ps.y0 : (H-ps.h)/2; }
 function sceneX0(ps){ return ps.x0!=null ? ps.x0 : (W-ps.w)/2; }   // a picture slid sideways to keep its people in frame   // a picture anchored to the bottle keeps its own top
-function nameY(y0,ph){ return Math.max(y0+NAMEBOX.y*ph, NAVCLR); }
+function nameY(y0,ph,ps){ return ps&&ps.ny!=null ? ps.ny : Math.max(y0+NAMEBOX.y*ph, NAVCLR); }
+function nameW(ps){ return ps.nw||NAMEBOX.w*ps.w; }
+/* (TJ, 22 Nov) the bottle never covers the blend name while it rests: the name sits above the bottle's cap (capRest is where the
+   cap's top rests in the bottle frame). It moves up first, and only shrinks when there is still no room. On upright screens it
+   also stays above the blend buttons and inside the screen edges. A name on several lines keeps its old place for now. */
+function fitName(ps,j,shape){
+  var wd=WORDS[BL[j].name.toUpperCase()]; if(wd.l1) return;
+  var lim=L.y+SQ.capRest*L.s-12, nw=NAMEBOX.w*ps.w;
+  if(shape==="tall"){ nw=Math.min(nw,W-36); var pb=document.querySelector("#pill button[data-i]"), pt=pb?pb.getBoundingClientRect().top:0;
+    if(pt>NAVCLR+30) lim=Math.min(lim,pt-8); }
+  var band=lim-NAVCLR; if(band<20) return;
+  nw=Math.min(nw,band*wd.w/wd.h);
+  var nh=nw*wd.h/wd.w, y=Math.max(sceneY0(ps)+NAMEBOX.y*ps.h, NAVCLR);
+  ps.nw=nw; ps.ny=Math.max(NAVCLR,Math.min(y,lim-nh));
+}
 function frostCopy(src,w,h){                   // the sky as seen through the glass: blurred, lifted, a touch richer, milky sheen
   var g=mk(Math.max(1,Math.round(w)),Math.max(1,Math.round(h))), c=g.getContext("2d");
   if(FILTER_OK){
@@ -618,8 +632,8 @@ function frostCopy(src,w,h){                   // the sky as seen through the gl
   c.fillStyle="rgba(255,255,255,"+GLASS.white.toFixed(3)+")"; c.fillRect(0,0,g.width,g.height);
   return g;
 }
-function namePath(j,pw){                       // the blend name outlines from TJ's Enziwa font, scaled to this scene size
-  var wd=WORDS[BL[j].name.toUpperCase()], lw=NAMEBOX.w*pw, k=lw/wd.w;
+function namePath(j,lw){                       // the blend name outlines from TJ's Enziwa font, scaled to this name width
+  var wd=WORDS[BL[j].name.toUpperCase()], k=lw/wd.w;
   return new Path2D(wd.d.replace(/-?\d+(\.\d+)?/g,function(n){return (n*k).toFixed(2)}));
 }
 function buildScene(j){
@@ -632,12 +646,13 @@ function buildScene(j){
     if(s.head && shape==="tall"){   /* anchored picture (TJ, 21 Nov): the people's heads land 14px under the bottle's base on every
          upright screen; the picture is only enlarged when that would leave a gap at the top or bottom */
       var want=L.y+SQ.base*L.s+14;
-      ph=Math.max(W*SPARE*s.h/s.w, want/s.head, (H-want)/(1-s.head)); pw=ph*s.w/s.h;
+      ph=Math.max(W*SPARE*s.h/s.w, want/s.head, (H-want)/(1-s.head))*(s.zoom||1); pw=ph*s.w/s.h;   // zoom: the people a little larger
       ps.w=pw; ps.h=ph; ps.y0=want-s.head*ph;
     }
+    fitName(ps,j,shape);
     if(s.headW && shape==="wide"){  /* (TJ, 21 Nov) the people's heads land just under the blend name on every desktop screen;
          headW is how far down the picture their heads start. The picture still covers the whole screen. */
-      var wdn=WORDS[b.name.toUpperCase()], nb=NAVCLR+NAMEBOX.w*ps.w*wdn.h/wdn.w+28, wantW=Math.max(nb,H*0.3);
+      var wdn=WORDS[b.name.toUpperCase()], nb=nameY(0,0,ps)+nameW(ps)*wdn.h/wdn.w+28, wantW=Math.max(nb,H*0.3);
       ps.y0=Math.min(0,Math.max(H-ps.h, wantW-s.headW*ps.h));
     }
     if(s.keepR){  /* a picture with people near its right edge slides left until that edge is inside the screen (wide or tall) */
@@ -664,8 +679,9 @@ function buildScene(j){
     person(MAN,xs[0],"rgba(150,150,150,.62)",22); person(WOMAN,xs[1],"rgba(165,165,165,.62)",20);
     ps.sky=sk; ps.fg=fgc;
   }
+  if(!b.layers) fitName(ps,j,shape);
   ps.glass=frostCopy(ps.sky,ps.w,ps.h);
-  ps.path=namePath(j,ps.w);
+  ps.path=namePath(j,nameW(ps));
   ps.done="";
   PS[j]=ps;
   composeScene(j);
@@ -693,12 +709,12 @@ function composeScene(j,p){
   var k=[os,ow,of].map(function(o){return Math.round(o[0]*4)+","+Math.round(o[1]*4)}).join("|")+"|"+W+"|"+H+"|"+dpr;
   if(k===ps.done) return false; ps.done=k;
   var cv=SC[j]; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
-  var c=cv.getContext("2d"), x0=sceneX0(ps), y0=sceneY0(ps), ny=nameY(y0,ps.h), nx=W/2-NAMEBOX.w*ps.w/2;   // the name stays centred on screen
+  var c=cv.getContext("2d"), x0=sceneX0(ps), y0=sceneY0(ps), ny=nameY(y0,ps.h,ps), nx=W/2-nameW(ps)/2;   // the name stays centred on screen
   c.setTransform(dpr,0,0,dpr,0,0); c.globalAlpha=1;
   c.drawImage(ps.sky,x0+os[0],y0+os[1],ps.w,ps.h);
   var ns=BL[j].nameStyle;
   if(ns && ns.kind==="press"){                 // (TJ, 22 Nov) each page styles its name its own way. "press": sheer letters pressed into the
-    var wdp=WORDS[BL[j].name.toUpperCase()], nhp=NAMEBOX.w*ps.w*wdp.h/wdp.w, dd=Math.max(0.8,nhp*ns.d);   // picture: a dark edge above, a light edge below, a see-through tinted face
+    var wdp=WORDS[BL[j].name.toUpperCase()], nhp=nameW(ps)*wdp.h/wdp.w, dd=Math.max(0.8,nhp*ns.d);   // picture: a dark edge above, a light edge below, a see-through tinted face
     var px=nx+ow[0], py=ny+ow[1];
     if(ns.inner){   /* (TJ, 22 Nov) a clean crisp line: nothing drawn outside the letters; any shading stays inside the line */
       c.save(); c.translate(px,py); c.clip(ps.path,"evenodd");
@@ -715,7 +731,7 @@ function composeScene(j,p){
     var gy=y0+os[1], sh=c.createLinearGradient(0,gy,0,gy+ps.h*ns.shadeTo);
     sh.addColorStop(0,"rgba("+ns.shadeRGB+","+ns.shade+")"); sh.addColorStop(1,"rgba("+ns.shadeRGB+",0)");
     c.fillStyle=sh; c.fillRect(x0+os[0],gy,ps.w,ps.h*ns.shadeTo);
-    var wd=WORDS[BL[j].name.toUpperCase()], nh=NAMEBOX.w*ps.w*wd.h/wd.w;
+    var wd=WORDS[BL[j].name.toUpperCase()], nh=nameW(ps)*wd.h/wd.w;
     c.save();
     c.translate(nx+ow[0], ny+ow[1]);
     var gg=c.createLinearGradient(0,0,0,nh); ns.fill.forEach(function(s,q){ gg.addColorStop(q/(ns.fill.length-1),s); });
@@ -790,7 +806,7 @@ function placeSeal(i,p,show){
 function popRect(){   // nearly full width, from just under the big blend name down to above the strip kept for the menu
   var mob=mq.matches, j=pop.i>=0?pop.i:shown, ps=PS[j], top=H*0.2;
   var dy=0;
-  if(ps){ var wd=WORDS[BL[j].name.toUpperCase()]; top=nameY(sceneY0(ps),ps.h)+NAMEBOX.w*ps.w*(wd.l1||wd.h)/wd.w+(mob?10:16);   // a name on several lines: the pop-up starts under its first line
+  if(ps){ var wd=WORDS[BL[j].name.toUpperCase()]; top=nameY(sceneY0(ps),ps.h,ps)+nameW(ps)*(wd.l1||wd.h)/wd.w+(mob?10:16);   // a name on several lines: the pop-up starts under its first line
     dy=layerOff(ps,sceneU(j,cur),DEPTH.word)[1]; }   // the name drifts with parallax: the frame moves with it, so the gap under the name never changes
   var m=mob?12:Math.max(16,W*0.02), bottom=H-(mob?96:Math.max(104,H*0.11));
   return {x:m, y:top+dy, w:W-2*m, h:Math.max(220,bottom-top)};
