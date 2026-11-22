@@ -467,9 +467,9 @@ var BL = [
    // page palette: warm dusk amber words (opposite the page's blue), deep navy glass, periwinkle for the lit number
    nav:{alt:"#F0B77A", hi:"#A9B4F5", tag:"rgba(14,20,52,.92)", edge:"rgba(240,183,122,.85)", glass:"rgba(12,18,48,.42)",
         navsh:"0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(6,10,30,.9)"},
-   // the name is sheer like her silk and pressed into the dusk sky (TJ, 22 Nov: subtle, see-through, almost embossed, unique to this page)
-   nameStyle:{kind:"press", tint:"214,220,255", op:0.30, mode:"screen", d:0.018,
-              lo:"rgba(6,10,36,.50)", hi:"rgba(236,240,255,.30)"},
+   // the name is sheer like her silk and a clean crisp see-through line on the dusk sky (TJ, 22 Nov: no emboss outside the line, keep the transparency)
+   nameStyle:{kind:"press", inner:true, tint:"226,231,255", op:0.50, mode:"screen", d:0.010,
+              lo:"rgba(10,16,52,.28)"},
    // scene (TJ, 22 Nov): infinity pool edge above an African city at dusk, no building. Desktop: she on the left, he on the
    // right, her sheer silk streaming across the centre to him. Phone: both on the right, the silk lifting up and to the left.
    // Sources: Downloads sabo-silk-scene-desktop.jpg and sabo-silk-scene-phone.jpg (Gemini, free). The tall picture has 225px of
@@ -701,11 +701,18 @@ function composeScene(j,p){
   if(ns && ns.kind==="press"){                 // (TJ, 22 Nov) each page styles its name its own way. "press": sheer letters pressed into the
     var wdp=WORDS[BL[j].name.toUpperCase()], nhp=NAMEBOX.w*ps.w*wdp.h/wdp.w, dd=Math.max(0.8,nhp*ns.d);   // picture: a dark edge above, a light edge below, a see-through tinted face
     var px=nx+ow[0], py=ny+ow[1];
+    if(ns.inner){   /* (TJ, 22 Nov) a clean crisp line: nothing drawn outside the letters; any shading stays inside the line */
+      c.save(); c.translate(px,py); c.clip(ps.path,"evenodd");
+      c.fillStyle=ns.lo; c.fillRect(-4,-4,NAMEBOX.w*ps.w+8,nhp+8);                       // a faint dark top edge inside the line
+      c.translate(0,dd); c.globalCompositeOperation=ns.mode||"source-over"; c.globalAlpha=ns.op;
+      c.fillStyle="rgb("+ns.tint+")"; c.fill(ps.path,"evenodd"); c.restore();           // the see-through face, crisp at the edges
+    } else {
     c.save(); c.translate(px-dd*0.6,py-dd); c.fillStyle=ns.lo; c.fill(ps.path,"evenodd"); c.restore();
     c.save(); c.translate(px+dd*0.6,py+dd); c.fillStyle=ns.hi; c.fill(ps.path,"evenodd"); c.restore();
     c.save(); c.translate(px,py); c.globalCompositeOperation=ns.mode||"source-over"; c.globalAlpha=ns.op;
     if(ns.glow){ c.shadowColor=ns.glow; c.shadowBlur=ns.blur||0; }
     c.fillStyle="rgb("+ns.tint+")"; c.fill(ps.path,"evenodd"); c.restore();
+    }
   } else if(ns){                                      // busy photo (Oud Panga): a dark shade across the top, then solid metal letters
     var gy=y0+os[1], sh=c.createLinearGradient(0,gy,0,gy+ps.h*ns.shadeTo);
     sh.addColorStop(0,"rgba("+ns.shadeRGB+","+ns.shade+")"); sh.addColorStop(1,"rgba("+ns.shadeRGB+",0)");
