@@ -473,7 +473,7 @@ var BL = [
    // right, her sheer silk streaming across the centre to him. Phone: both on the right, the silk lifting up and to the left.
    // Sources: Downloads sabo-silk-scene-desktop.jpg and sabo-silk-scene-phone.jpg (Gemini, free). The tall picture has 225px of
    // sky added on top; head: the man's head top. headW: the man's head top in the wide picture.
-   layers:{wide:{w:3615,h:2067,headW:0.9,sky:"img/sabo-silk-sky.webp?v=wide2",fg:"img/empty-fg.webp"},
+   layers:{wide:{w:3615,h:2067,headW:0.9,sky:"img/sabo-silk-sky.webp?v=wide2",fg:"img/sabo-silk-fg.webp?v=cut1",fgd:0.15},
            tall:{w:1536,h:3072,head:0.419,keepR:0.99,sky:"img/sabo-silk-sky-tall.webp?v=sharp1",fg:"img/empty-fg.webp"}}},
 ];
 var TIERS=["top","heart","base"], TL={top:"Top",heart:"Heart",base:"Base"};
@@ -628,7 +628,7 @@ function buildScene(j){
     var s=b.layers[shape], li=layerImgs(j,shape);
     if(!(ok(li.sky)&&ok(li.fg))){ PS[j]=null; drawFlat(j); return; }
     var pw=W*SPARE, ph=pw*s.h/s.w; if(ph<H*SPARE){ ph=H*SPARE; pw=ph*s.w/s.h; }
-    ps={w:pw,h:ph,sky:li.sky,fg:li.fg};
+    ps={w:pw,h:ph,sky:li.sky,fg:li.fg,fgd:s.fgd};   // fgd: this scene's front layer depth, if it moves with the sky
     if(s.head && shape==="tall"){   /* anchored picture (TJ, 21 Nov): the people's heads land 14px under the bottle's base on every
          upright screen; the picture is only enlarged when that would leave a gap at the top or bottom */
       var want=L.y+SQ.base*L.s+14;
@@ -689,7 +689,7 @@ function sceneU(j,p){ return cl((p-(START+SEG*(j+T.press)))/SEG); }   // 0 when 
 function composeScene(j,p){
   var ps=PS[j]; if(!ps) return;
   if(p==null||isNaN(p)) p=cur; if(p==null||isNaN(p)) p=0;
-  var u=sceneU(j,p), os=layerOff(ps,u,DEPTH.sky), ow=layerOff(ps,u,DEPTH.word), of=layerOff(ps,u,DEPTH.fg);
+  var u=sceneU(j,p), os=layerOff(ps,u,DEPTH.sky), ow=layerOff(ps,u,DEPTH.word), of=layerOff(ps,u,ps.fgd!=null?ps.fgd:DEPTH.fg);
   var k=[os,ow,of].map(function(o){return Math.round(o[0]*4)+","+Math.round(o[1]*4)}).join("|")+"|"+W+"|"+H+"|"+dpr;
   if(k===ps.done) return false; ps.done=k;
   var cv=SC[j]; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
@@ -780,7 +780,7 @@ function placeSeal(i,p,show){
   if(typeof setEx==="function" && typeof SK!=="undefined" && SK) setEx(!!(b&&b.seal&&ps&&show>0.5&&SK.cur===i), pop.t>0||pop.goal>0);
   return;
   if(!b||!b.seal||!ps||!b.seal[shape]||show<=0){ seal.style.opacity=0; seal.style.pointerEvents="none"; return; }
-  var u=sceneU(i,p), of=layerOff(ps,u,DEPTH.fg), f=b.seal[shape];
+  var u=sceneU(i,p), of=layerOff(ps,u,ps.fgd!=null?ps.fgd:DEPTH.fg), f=b.seal[shape];
   var x=(W-ps.w)/2+of[0]+f[0]*ps.w, y=(H-ps.h)/2+of[1]+f[1]*ps.h, half=seal.offsetWidth/2+8;
   x=Math.max(half,Math.min(W-half,x));
   seal.style.transform="translate("+x.toFixed(1)+"px,"+y.toFixed(1)+"px) translate(-50%,-50%)";
