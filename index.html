@@ -50,13 +50,13 @@ html,body{overflow:hidden;height:100%;overscroll-behavior:none}
 #hero .hcouple{position:absolute;z-index:1;transform-origin:50% 100%}
 /* the sprayer (16 Nov): the same bottle with its cap off, UPRIGHT, its spray hole turned to face the couple (own render,
    side_hole: hole turned to the left), cropped by the right edge. Mist leaves the hole sideways, as on a real atomiser. */
-#hero .hspr{position:absolute;z-index:3;background:url(img/spray3/hero-sprayer.webp) no-repeat;background-size:100% 100%}
+#hero .hspr{position:absolute;z-index:3;background:url(img/hero-sprayer.webp) no-repeat;background-size:100% 100%}
 @media (max-width:700px){ #hero .hspr{-webkit-mask-image:linear-gradient(#000 45%,transparent 92%);mask-image:linear-gradient(#000 45%,transparent 92%)} }   /* phone: the body fades away below, so it reads as a sprayer in use, not a third bottle */
 #hero canvas.hsp{position:absolute;inset:0;width:100%;height:100%;z-index:0}
 #hero .hmist{display:none}
 #hero .hcouple svg{display:block;width:100%;height:100%}
 #hero .hcouple video{display:block;height:100%;width:auto;margin:0 auto}
-#hero .hbottle{position:absolute;z-index:4;background:url(img/spray3/hero-bottle.webp?v=3) no-repeat;background-size:813.3% auto;background-position:50% 82%}
+#hero .hbottle{position:absolute;z-index:4;background:url(img/hero-bottle.webp?v=3) no-repeat;background-size:813.3% auto;background-position:50% 82%}
 #hero .hmist{position:absolute;inset:0;z-index:0;overflow:hidden}
 #hero .hmist i{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(242,234,207,.24),rgba(242,234,207,0))}
 #hero .htext{position:absolute;z-index:4;color:var(--cream);pointer-events:auto}
@@ -183,7 +183,7 @@ html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi
 .tnav:hover,.tnav.active{opacity:1}
 .tnav.active{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
 /* the flying price bottle: carries the hero bottle to the centre and back, so it turns into the blend bottle */
-#flyB{position:fixed;left:0;top:0;z-index:7;pointer-events:none;display:none;background:url(img/spray3/hero-bottle.webp?v=3) no-repeat;background-size:100% 100%}
+#flyB{position:fixed;left:0;top:0;z-index:7;pointer-events:none;display:none;background:url(img/hero-bottle.webp?v=3) no-repeat;background-size:100% 100%}
 
 /* mobile */
 @media (max-width:700px){
@@ -351,11 +351,11 @@ html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi
     <canvas id="fx"></canvas>
 
     <div id="hero">
-      <img src="img/spray3/bl_00.webp" alt="">
+      <img src="img/bl_00.webp" alt="">
       <h1 class="word"><svg viewBox="0 0 817.72 197" role="img" aria-label="ENZIWA"><path fill="currentColor" fill-rule="evenodd" d="M89.00 71.00 L8.00 71.00 L8.00 8.00 L97.00 8.00 L97.00 0.00 L0.00 0.00 L0.00 197.00 L97.00 197.00 L97.00 189.00 L8.00 189.00 L8.00 114.00 L89.00 114.00 Z M8.00 106.00 L8.00 79.00 L81.00 79.00 L81.00 106.00 Z M533.19 173.46 L465.93 0.00 L456.82 0.00 L533.20 197.00 L571.92 96.88 L611.00 197.00 L685.87 0.00 L676.78 0.00 L610.89 173.35 L576.46 85.14 L609.39 0.00 L534.11 0.00 L567.34 85.15 Z M597.18 8.00 L571.89 73.41 L546.36 8.00 Z M243.50 172.47 L127.67 0.00 L126.00 0.00 L126.00 197.00 L134.00 197.00 L134.00 151.23 L179.46 91.47 L250.33 197.00 L251.50 197.00 L251.50 0.00 L243.50 0.00 Z M134.00 23.78 L174.45 84.02 L134.00 137.19 Z M387.32 8.00 L355.76 61.63 L354.15 60.94 L353.34 60.63 L352.41 60.28 L351.59 60.01 L350.64 59.71 L349.80 59.47 L348.84 59.21 L347.99 59.01 L347.02 58.80 L346.17 58.64 L345.19 58.48 L344.33 58.35 L343.34 58.23 L342.47 58.15 L341.48 58.08 L340.49 58.03 L339.62 58.00 L338.75 58.00 L337.76 58.02 L336.76 58.06 L335.90 58.12 L334.91 58.21 L334.04 58.30 L333.06 58.44 L332.20 58.58 L331.22 58.75 L330.37 58.93 L329.52 59.12 L328.56 59.37 L327.72 59.60 L326.77 59.89 L325.94 60.16 L325.01 60.49 L324.08 60.85 L323.27 61.18 L322.36 61.58 L321.57 61.94 L320.02 62.72 L319.15 63.20 L318.39 63.63 L317.65 64.09 L316.81 64.62 L315.99 65.17 L315.28 65.68 L314.58 66.19 L313.79 66.80 L313.02 67.43 L312.36 68.00 L311.62 68.66 L310.98 69.25 L310.27 69.95 L309.67 70.57 L308.99 71.30 L308.41 71.95 L307.77 72.71 L307.23 73.39 L306.69 74.08 L306.10 74.88 L305.60 75.59 L305.05 76.41 L304.52 77.25 L304.07 78.00 L303.58 78.86 L303.17 79.63 L302.39 81.18 L301.97 82.09 L301.63 82.89 L301.30 83.69 L300.95 84.62 L300.62 85.56 L300.35 86.39 L300.07 87.34 L299.84 88.18 L299.60 89.14 L299.40 89.99 L299.21 90.96 L299.05 91.82 L298.92 92.68 L298.79 93.67 L298.68 94.65 L298.61 95.52 L298.56 96.39 L298.52 97.38 L298.50 98.25 L298.51 99.25 L298.53 100.11 L298.58 101.11 L298.65 101.97 L298.75 102.96 L298.85 103.83 L298.99 104.81 L299.16 105.79 L299.33 106.64 L299.54 107.62 L299.74 108.46 L300.00 109.42 L300.24 110.26 L300.54 111.20 L300.83 112.03 L301.17 112.96 L301.49 113.77 L302.18 115.37 L302.60 116.26 L302.99 117.04 L303.40 117.81 L303.88 118.68 L304.33 119.43 L304.85 120.27 L305.33 121.00 L305.89 121.82 L306.40 122.53 L307.00 123.32 L307.54 124.00 L308.17 124.76 L308.74 125.42 L309.41 126.16 L310.01 126.78 L310.72 127.49 L311.44 128.17 L312.08 128.76 L312.83 129.41 L313.50 129.96 L314.91 131.05 L276.10 197.00 L401.00 197.00 L401.00 189.00 L290.09 189.00 L321.78 135.15 L322.59 135.53 L323.50 135.92 L324.31 136.24 L325.24 136.59 L326.06 136.88 L327.01 137.18 L327.84 137.43 L328.80 137.69 L329.64 137.90 L330.61 138.12 L331.46 138.29 L332.44 138.47 L333.43 138.61 L334.29 138.73 L335.28 138.83 L336.14 138.90 L337.14 138.96 L338.01 138.99 L339.00 139.00 L339.87 138.99 L340.74 138.96 L341.73 138.91 L342.72 138.83 L343.71 138.73 L344.57 138.61 L345.56 138.47 L346.41 138.32 L347.39 138.12 L348.36 137.90 L349.20 137.69 L350.16 137.43 L350.99 137.18 L351.94 136.88 L352.76 136.59 L353.69 136.24 L354.50 135.92 L355.41 135.53 L356.20 135.16 L357.10 134.73 L357.87 134.33 L358.64 133.92 L359.50 133.43 L360.35 132.91 L361.19 132.38 L361.91 131.90 L362.72 131.32 L363.42 130.81 L364.21 130.20 L364.88 129.65 L365.64 129.00 L366.38 128.34 L367.02 127.75 L367.73 127.05 L368.33 126.43 L369.01 125.70 L369.59 125.05 L370.23 124.29 L370.77 123.61 L371.38 122.82 L371.90 122.12 L372.40 121.41 L372.95 120.59 L373.48 119.75 L373.93 119.00 L374.42 118.14 L374.83 117.37 L375.23 116.60 L375.66 115.70 L376.03 114.91 L376.42 114.00 L376.74 113.19 L377.09 112.26 L377.38 111.44 L377.68 110.49 L377.93 109.66 L378.19 108.70 L378.40 107.86 L378.62 106.89 L378.79 106.04 L378.97 105.06 L379.11 104.07 L379.23 103.21 L379.33 102.22 L379.40 101.36 L379.46 100.36 L379.49 99.49 L379.50 98.50 L379.49 97.63 L379.46 96.76 L379.41 95.77 L379.33 94.78 L379.23 93.79 L379.11 92.93 L378.97 91.94 L378.79 90.96 L378.62 90.11 L378.40 89.14 L378.19 88.30 L377.93 87.34 L377.68 86.51 L377.38 85.56 L377.09 84.74 L376.74 83.81 L376.42 83.00 L376.03 82.09 L375.66 81.30 L375.23 80.40 L374.83 79.63 L374.42 78.86 L373.93 78.00 L373.48 77.25 L372.95 76.41 L372.40 75.59 L371.90 74.88 L371.31 74.08 L370.77 73.39 L370.23 72.71 L369.59 71.95 L369.01 71.30 L368.33 70.57 L367.73 69.95 L367.02 69.25 L366.38 68.66 L365.64 68.00 L364.98 67.43 L364.21 66.80 L363.42 66.19 L362.68 65.65 L401.32 0.00 L277.00 0.00 L277.00 8.00 Z M371.49 99.10 L371.43 100.69 L371.28 102.28 L371.06 103.86 L370.75 105.43 L370.38 106.98 L369.92 108.51 L369.39 110.01 L368.79 111.49 L368.12 112.93 L367.38 114.35 L366.56 115.72 L365.69 117.05 L364.74 118.34 L363.74 119.58 L362.68 120.77 L361.55 121.90 L360.38 122.98 L359.15 124.00 L357.88 124.96 L356.56 125.85 L355.19 126.68 L353.79 127.44 L352.35 128.13 L350.88 128.75 L349.38 129.30 L347.86 129.77 L346.32 130.17 L344.75 130.49 L343.18 130.73 L341.59 130.90 L340.00 130.98 L338.40 130.99 L336.81 130.93 L335.22 130.78 L333.64 130.56 L332.07 130.25 L330.52 129.88 L328.99 129.42 L327.49 128.89 L326.01 128.29 L324.57 127.62 L323.15 126.88 L321.78 126.06 L320.45 125.19 L319.16 124.24 L317.92 123.24 L316.73 122.18 L315.60 121.05 L314.52 119.88 L313.50 118.65 L312.54 117.38 L311.65 116.06 L310.82 114.69 L310.06 113.29 L309.37 111.85 L308.75 110.38 L308.20 108.88 L307.73 107.36 L307.33 105.82 L307.01 104.25 L306.77 102.68 L306.60 101.09 L306.52 99.50 L306.51 97.90 L306.57 96.31 L306.72 94.72 L306.94 93.14 L307.25 91.57 L307.62 90.02 L308.08 88.49 L308.61 86.99 L309.21 85.51 L309.88 84.07 L310.62 82.65 L311.44 81.28 L312.31 79.95 L313.26 78.66 L314.26 77.42 L315.32 76.23 L316.45 75.10 L317.62 74.02 L318.85 73.00 L320.12 72.04 L321.44 71.15 L322.81 70.32 L324.21 69.56 L325.65 68.87 L327.12 68.25 L328.62 67.70 L330.14 67.23 L331.68 66.83 L333.25 66.51 L334.82 66.27 L336.41 66.10 L338.00 66.02 L339.60 66.01 L341.19 66.07 L342.78 66.22 L344.36 66.44 L345.93 66.75 L347.48 67.12 L349.01 67.58 L350.51 68.11 L351.99 68.71 L353.43 69.38 L354.85 70.12 L356.22 70.94 L357.55 71.81 L358.84 72.76 L360.08 73.76 L361.27 74.82 L362.40 75.95 L363.48 77.12 L364.50 78.35 L365.46 79.62 L366.35 80.94 L367.18 82.31 L367.94 83.71 L368.63 85.15 L369.25 86.62 L369.80 88.12 L370.27 89.64 L370.67 91.18 L370.99 92.75 L371.23 94.32 L371.40 95.91 L371.48 97.50 Z M436.00 197.00 L436.00 0.00 L428.00 0.00 L428.00 197.00 Z M678.36 197.00 L711.69 109.00 L775.66 109.00 L808.64 197.00 L817.72 197.00 L743.89 0.00 L669.27 197.00 Z M725.33 73.00 L743.85 24.11 L762.17 73.00 Z M722.30 81.00 L765.17 81.00 L772.66 101.00 L714.72 101.00 Z"/></svg></h1>
       <p class="city" id="heroCity">Kampala</p>
       <div class="hmist" aria-hidden="true"><i></i><i></i><i></i></div>
-      <div class="hcouple" id="heroCouple" aria-hidden="true"><video id="coupleVid" src="img/scenes/couple-breath.webm" muted playsinline preload="auto"></video></div><script>/* load the couple clip whole, so the breath can show any frame at once on any server */(function(){ var v=document.getElementById("coupleVid"); fetch(v.getAttribute("src")).then(function(r){return r.blob()}).then(function(b){ v.src=URL.createObjectURL(b); }).catch(function(){}); })();</script>
+      <div class="hcouple" id="heroCouple" aria-hidden="true"><video id="coupleVid" src="img/couple-breath.webm" muted playsinline preload="auto"></video></div><script>/* load the couple clip whole, so the breath can show any frame at once on any server */(function(){ var v=document.getElementById("coupleVid"); fetch(v.getAttribute("src")).then(function(r){return r.blob()}).then(function(b){ v.src=URL.createObjectURL(b); }).catch(function(){}); })();</script>
       <canvas class="hsp" id="heroSpray" aria-hidden="true"></canvas>
       <div class="hspr" id="heroSprayer" aria-hidden="true"></div>
       <div class="hbottle" id="heroBottle" role="img" aria-label="ENZIWA prices: 30ml 50,000, 50ml 80,000, 100ml 150,000 shillings. Unisex, eau de parfum."></div>
@@ -430,8 +430,8 @@ var BL = [
    // Whole photo as one layer; the front layer is empty. Sources: scene/ruby-oba-scene*.jpg (Gemini, free).
    // The tall picture is a slice of the wide one with the dark ceiling above; head: the man's head top, 36 percent down.
    // The wide picture has a dark ceiling added above the photo (TJ, 21 Nov) so headW can drop the couple below the name.
-   layers:{wide:{w:2048,h:1545,headW:0.36,sky:"img/scenes/ruby-oba-sky.webp?v=lounge2",fg:"img/scenes/empty-fg.webp"},
-           tall:{w:1080,h:2160,head:0.36,sky:"img/scenes/ruby-oba-sky-tall.webp?v=lounge2",fg:"img/scenes/empty-fg.webp"}}},
+   layers:{wide:{w:2048,h:1545,headW:0.36,sky:"img/ruby-oba-sky.webp?v=lounge2",fg:"img/empty-fg.webp"},
+           tall:{w:1080,h:2160,head:0.36,sky:"img/ruby-oba-sky-tall.webp?v=lounge2",fg:"img/empty-fg.webp"}}},
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
    col:["#d98a7a","#c0745c","#8a5640"], sc:["#d9894a","#a8452a","#5c1f14"], seal:{wide:[0.5,0.76], tall:[0.5,0.6]},
@@ -444,20 +444,20 @@ var BL = [
    // test scene (21 Nov): Congo rainforest couple. Whole photo as one layer for now; the people are not cut out yet, so the
    // front layer is an empty placeholder (their heads sit well below the name). Sources: scene/oud-panga-scene*.jpg
    // keepR (TJ, 21 Nov): the man's right edge sits at 94 percent of the wide picture; the picture slides left so he is never cut off
-   layers:{wide:{w:2048,h:1143,keepR:0.955,sky:"img/scenes/oud-panga-sky.webp?v=scarf3",fg:"img/scenes/empty-fg.webp"},
-           tall:{w:1080,h:2160,head:0.44,sky:"img/scenes/oud-panga-sky-tall.webp?v=scarf3",fg:"img/scenes/empty-fg.webp"}}},   // head: the man's head top, 44 percent down
+   layers:{wide:{w:2048,h:1143,keepR:0.955,sky:"img/oud-panga-sky.webp?v=scarf3",fg:"img/empty-fg.webp"},
+           tall:{w:1080,h:2160,head:0.44,sky:"img/oud-panga-sky-tall.webp?v=scarf3",fg:"img/empty-fg.webp"}}},   // head: the man's head top, 44 percent down
   {n:34,name:"Omeya Dew",top:["Neroli","African marigold","Bergamot"],heart:["Violet","Jasmine","Cyclamen"],base:["Vetiver","Cedar","Musk"],
    desc:"Green neroli and marigold over vetiver and cedar. Daytime and hot weather, unisex. Like dew on leaves in a garden at dawn.",
    col:["#e3b54a","#8fa35a","#5f6b45"], sc:["#f1d58a","#c9a14a","#6b5a2a"], hover:true,
-   bot:"o",   // its own bottle frames, lit by this scene (img/spray3/ob*), shown while this scene is behind the bottle
+   bot:"o",   // its own bottle frames, lit by this scene (img/ob*), shown while this scene is behind the bottle
    // pattern button, as a share of the scene image: wide, on the horizon above the lion's back; tall, on the grass between the tree and the lion
    nav:{alt:"#4B2A6B", hi:"#E9A23B"},   // page palette (TJ, 21 Nov): violet, opposite the page's yellow on the colour wheel; marigold gold for the lit number
    seal:{wide:[0.156,0.335], tall:[0.25,0.532]},   // tall: where TJ sketched it, on the grass just below the horizon (15 Nov)
    // order of the note pictures in the pop-up, tall and low alternating (the note data above keeps its own order)
    row:{top:["Neroli","Bergamot","African marigold"], heart:["Violet","Jasmine","Cyclamen"], base:["Cedar","Vetiver","Musk"]},
    // three layer scene: sky with the people and tree taken out, then the glass name, then people, lion, tree and land in front
-   layers:{wide:{w:2752,h:1536,sky:"img/scenes/omeya-dew-sky.webp",fg:"img/scenes/omeya-dew-fg.webp"},
-           tall:{w:1536,h:2752,sky:"img/scenes/omeya-dew-sky-tall.webp",fg:"img/scenes/omeya-dew-fg-tall.webp"}}},
+   layers:{wide:{w:2752,h:1536,sky:"img/omeya-dew-sky.webp",fg:"img/omeya-dew-fg.webp"},
+           tall:{w:1536,h:2752,sky:"img/omeya-dew-sky-tall.webp",fg:"img/omeya-dew-fg-tall.webp"}}},
   {n:36,name:"Timbila Truffle Royale",top:["Rum","Bitter orange","Cardamom"],heart:["Dried fruits","White tobacco","Saffron"],base:["Tonka","Vanilla","Myrrh"],
    desc:"Boozy rum and dried fruits over white tobacco, tonka and vanilla. Evening and cold nights, unisex. Like a glass of aged rum poured beside a dying fire.",
    col:["#c88a3a","#a07a50","#6a4a2a"], sc:["#d9a35a","#8a5a28","#3a2410"], seal:{wide:[0.5,0.76], tall:[0.5,0.6]}},
@@ -484,7 +484,7 @@ var FADE_S=0.5;           // newer scene and mist fade back when scrolling above
 var SEG=4, START=1, TOTAL=START+SEG*BL.length; // in stage heights
 var H=1, W=1, dpr=1;
 
-// assets in img/spray3: bottle frames with a see-through background (b*), and per clip the mist filmed on black (w_, drawn with screen) and reveal masks (m_)
+// assets in img: bottle frames with a see-through background (b*), and per clip the mist filmed on black (w_, drawn with screen) and reveal masks (m_)
 var SQ={w:854, h:480, cx:427, base:436, capTop:50, nozY:220, spin:30, lift:27, down:21, out:30, mist:150, mask:75};
 var CLIPK=BL.map(function(){return "k8"});   // which black clip each blend uses (one test clip for now)
 // scene layer images, loaded per shape of screen (wide or tall) when first needed
@@ -497,7 +497,7 @@ function layerImgs(j,shape){
   return LAY[j][shape];
 }
 function pad(n,k){return ("000"+n).slice(-k)}
-function imgs(pre,n,k,ext){var a=[];for(var j=0;j<n;j++){var im=new Image();im.decoding="async";im.src="img/spray3/"+pre+pad(j,k)+ext;a.push(im)}return a}
+function imgs(pre,n,k,ext){var a=[];for(var j=0;j<n;j++){var im=new Image();im.decoding="async";im.src="img/"+pre+pad(j,k)+ext;a.push(im)}return a}
 // Frames come from sprite sheets (15 Nov 2026): 12 files instead of about 450, because from Kampala each file takes about
 // a second to start and the page was stalling. A frame is {img, sx, sy, sw, sh, c}: its cell in the sheet, and c = where that
 // cell sits inside the full frame (shares of width and height), so drawF draws it exactly where the full frame would go.
@@ -517,7 +517,7 @@ function pump(){ while(LACT<3 && LQ.length){ (function(it){ LACT++;
       if(it.tries<1){ it.tries++; setTimeout(function(){ LQ.unshift(it); pump(); },1500); } else if(errf) errf.call(this,e);
       pump(); };
     it.im.src=it.url+(it.tries?"?r="+it.tries:""); })(LQ.shift()); } }
-function sheetSeq(file,n,cols,cw,ch,c,prio){ var im=new Image(); im.decoding="async"; qload(im,"img/spray3/"+file,prio==null?3:prio); var a=[];
+function sheetSeq(file,n,cols,cw,ch,c,prio){ var im=new Image(); im.decoding="async"; qload(im,"img/"+file,prio==null?3:prio); var a=[];
   for(var k=0;k<n;k++) a.push({img:im, sx:(k%cols)*cw, sy:Math.floor(k/cols)*ch, sw:cw, sh:ch, c:c}); return a; }
 function drawF(ctx,f,x,y,w,h){ var c=f.c; ctx.drawImage(f.img,f.sx,f.sy,f.sw,f.sh,x+c[0]*w,y+c[1]*h,c[2]*w,c[3]*h); }
 // bottle frame sets: the studio set (b*) on cream and placeholder scenes, and per scene lit sets (for example ob* for Omeya Dew)
@@ -770,7 +770,7 @@ function popRect(){   // nearly full width, from just under the big blend name d
   var m=mob?12:Math.max(16,W*0.02), bottom=H-(mob?96:Math.max(104,H*0.11));
   return {x:m, y:top+dy, w:W-2*m, h:Math.max(220,bottom-top)};
 }
-// note library: one picture per note, looked up by name in img/notes/ (neroli.webp plus neroli-depth.webp for its depth),
+// note library: one picture per note, looked up by name in img/ (neroli.webp plus neroli-depth.webp for its depth),
 // so a note used by several blends shows the same picture. A note without a picture yet gets a plain placeholder tile.
 var NOTES={}, noteRow=$("noteRow"), TILES=[];
 function slug(nm){ return nm.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
@@ -778,7 +778,7 @@ function noteAsset(nm,wide){        // wide: the lying-down version made for the
   var k=slug(nm)+(wide?"-wide":""); if(NOTES[k]) return NOTES[k];
   var n=NOTES[k]={img:new Image(), dep:new Image(), ok:0, tex:null};
   n.img.onload=function(){n.ok|=1}; n.dep.onload=function(){n.ok|=2}; n.img.onerror=n.dep.onerror=function(){n.ok=-1};
-  qload(n.img,"img/notes/"+k+".webp",6); qload(n.dep,"img/notes/"+k+"-depth.webp",6); return n;   // notes come last unless the pop-up is opened
+  qload(n.img,"img/"+k+".webp",6); qload(n.dep,"img/"+k+"-depth.webp",6); return n;   // notes come last unless the pop-up is opened
 }
 function fillPop(j){
   var b=BL[j]; $("pNum").textContent="No. "+b.n; $("pName").textContent=b.name; $("pDesc").textContent=b.desc;
@@ -1166,7 +1166,7 @@ void main(){
     var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
     var al=gl.getAttribLocation(pr,"a");gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
     ["R","T","B","S","F","PF","plu","lo","hi","K","BI","sprR","spr","RISE","ang","rip","rf","uEmb","uGrain","uSmoke","uScale","patA","src","face","pat","uFade"].forEach(function(k){U[k]=gl.getUniformLocation(pr,k)});
-    tex(0,"img/spray3/hero-pattern.png",gl.LUMINANCE); tex(1,"img/spray3/hero-sprayer.webp",gl.RGBA);
+    tex(0,"img/hero-pattern.webp",gl.LUMINANCE); tex(1,"img/hero-sprayer.webp",gl.RGBA);
     sp.style.visibility="hidden";                 // the shader draws the sprayer; the plain image stays only as the fallback
   }catch(e){ ok=false; } }
   function breath(ph){ var e=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};

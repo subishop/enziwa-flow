@@ -3,8 +3,8 @@
 Why: from Kampala each file from GitHub takes about a second to start, and the page used about 450 single frames,
 so the spray, bottle and notes arrived a minute or more late. 12 sheets replace them.
 
-Needs the single frames (from the render pipeline) in img/spray3 (bs_, bl_, bd_, bo_, obs_, obl_, obd_, obo_) and
-img/spray3/k8 (w_ mist, m_ masks). Writes img/spray3/sheet-*.webp. Run from the site-flow folder:
+Needs the single frames (from the render pipeline) in img (bs_, bl_, bd_, bo_, obs_, obl_, obd_, obo_) and
+img/k8 (w_ mist, m_ masks). Writes img/sheet-*.webp. Run from the site-flow folder:
     python tools/make_sheets.py
 Bottle sheets keep only the strip the bottle occupies (BOX), 10 frames per row; the page's BOTC must match BOX.
 Mist is stored at half size in 3 sheets of 50 (10 per row); masks at half size in one sheet (15 per row).
@@ -12,7 +12,7 @@ Mist is stored at half size in 3 sheets of 50 (10 per row); masks at half size i
 from PIL import Image
 import glob, math, os
 
-D = "img/spray3"
+D = "img"
 BOX = (752, 96, 956, 880); CW, CH = 204, 784
 for pre in ("bs", "bl", "bd", "bo", "obs", "obl", "obd", "obo"):
     fs = sorted(glob.glob(f"{D}/{pre}_*.webp")); n = len(fs)
