@@ -154,22 +154,24 @@ html.pal2 #pill button.active{background:var(--tag);border-color:var(--edge);col
 html.pal2 #pill button.active .ex{border-left-color:color-mix(in srgb,var(--alt) 45%,transparent);border-top-color:color-mix(in srgb,var(--alt) 40%,transparent)}
 html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi);color:var(--alt)}
 #pill button b{transition:color .3s}
+#pill .tg{display:contents}   /* (TJ, 27 Nov) wraps the name and Explore row; only a phone makes it a box of its own */
 @media (hover:hover){ #pill.ex button.active:hover .ex em{transform:translateX(3px)} }
 @media (hover:hover){ #pill button:not(.active):hover{background:rgba(242,234,207,.22);border-color:var(--cream)} }
 #pill button:focus-visible,.tnav:focus-visible{outline:1px solid var(--cream);outline-offset:3px}
 @media (max-width:700px){
   #pill{left:10px;top:max(104px,13vh);bottom:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
   #pill button{height:42px}
-  #pill button.active{height:auto;min-height:42px;flex-wrap:wrap;justify-content:flex-start;align-content:center}
-  #pill button.active b{line-height:40px}
+  /* (TJ, 27 Nov) the chosen number stays in the column, number only, same size as the rest. Its name and Explore row sit in one label (.tg)
+     in a single fixed spot under the blend name, placed by placeTag(); tapping it taps the chosen button. */
+  #pill .tg{position:fixed;left:0;top:0;display:flex;flex-direction:column;align-items:flex-start;box-sizing:border-box;padding:0 12px;
+    background:inherit;border:1px solid;border-color:inherit;color:inherit;opacity:0;visibility:hidden;transform:translateY(-6px);pointer-events:none;
+    transition:opacity .3s,transform .3s,visibility 0s .3s,background .25s,border-color .25s}
+  #pill button.active .tg{opacity:1;visibility:visible;transform:none;pointer-events:auto;transition:opacity .3s,transform .3s,visibility 0s,background .25s,border-color .25s}
+  #pill button .tg .ex{width:auto;min-width:0}   /* the Explore words set the label's width from the start, so it never shifts */
+  #pill button .tg i{max-width:none;opacity:1;margin:0;height:40px;line-height:40px;letter-spacing:.16em}
   #pill button .ex{flex:0 0 auto;width:0;min-width:100%;max-width:none;max-height:0;border-left:0;border-top:1px solid rgba(17,107,158,0);
     transition:max-height .5s ease,opacity .4s ease .1s,padding .5s ease,border-color .4s}
   #pill.ex button.active .ex{max-width:none;max-height:36px;margin-left:0;padding:4px 0 7px;border-top-color:rgba(17,107,158,.35)}
-  #pill button.active{transition:background .25s,color .25s,border-color .25s,padding .3s,min-width .5s ease}
-  #pill.ex button.active{min-width:min(150px,calc(50vw - 42px))}   /* never reaches the bottle in the middle (TJ, 21 Nov) */
-  #pill button:not(.active) .ex{display:none}
-  #pill button.active{padding:0 12px}
-  #pill button.active i{letter-spacing:.16em;margin-left:9px}
   #pill button .ex{letter-spacing:.12em}
 
   #pill button .ex svg{width:36px}
@@ -473,7 +475,7 @@ var BL = [
    // Sources: Downloads sabo-silk-scene-desktop.jpg and sabo-silk-scene-phone.jpg (Gemini, free). The tall picture has 225px of
    // sky added on top; head: the man's head top (TJ, 22 Nov: his head under the bottle, not his hand; zoom back to 1.0 later the same day so their feet and the pool show on most phones). headW: the man's head top in the wide picture.
    layers:{wide:{w:3615,h:2067,headW:0.9,sky:"img/sabo-silk-sky.webp?v=wide2",fg:"img/sabo-silk-fg.webp?v=cut1",fgd:0.15},
-           tall:{w:1536,h:3072,head:0.421,zoom:1.0,keepR:0.99,sky:"img/sabo-silk-sky-tall.webp?v=pose3",fg:"img/empty-fg.webp"}}},
+           tall:{w:2144,h:3072,head:0.421,zoom:1.0,midX:0.541,sky:"img/sabo-silk-sky-tall.webp?v=centre1",fg:"img/empty-fg.webp"}}},
 ];
 var TIERS=["top","heart","base"], TL={top:"Top",heart:"Heart",base:"Base"};
 var CREAM="#F2EACF";
@@ -557,26 +559,35 @@ var SS=mk(1,1), ssx=SS.getContext("2d");       // scene cut by the mask
 var FZ=mk(1,1), fzx=FZ.getContext("2d");       // frozen composite while fading back
 var SC=BL.map(function(){return mk(1,1)});     // one scene per blend
 
-/* (TJ, 27 Nov) phone: how far the open chosen tag can reach from the left edge. Each blend's tag is opened in a hidden copy of the
-   buttons and measured for real, and the widest one counts, so every blend page puts the bottle in the same place. */
-function tagReach(){
-  if(!mq.matches) return 0;                     // the tags only run down the left edge on phones; elsewhere they sit along the bottom
-  var pl=$("pill"), st=document.createElement("style"), cn=pl.cloneNode(true), mx=0;
-  st.textContent="#pill.mt,#pill.mt *{transition:none!important}"; document.head.appendChild(st);
-  cn.classList.add("mt","ex"); cn.classList.remove("idle","ab","popped"); cn.style.visibility="hidden"; cn.style.pointerEvents="none"; document.body.appendChild(cn);
-  [].forEach.call(cn.querySelectorAll("button[data-i]"),function(b){ b.classList.add("active"); mx=Math.max(mx,b.getBoundingClientRect().right); b.classList.remove("active"); });
-  document.body.removeChild(cn); document.head.removeChild(st); return mx;
-}
 /* (TJ, 27 Nov) phone: the chosen blend's bottle stands in the upper right, level with the column of numbers (same height as before).
-   Its right edge is 16px from the screen edge; if the widest open tag would come within 14px of its left edge it slides right, down to 12px at the edge
-   at most. The strip the bottle frames occupy is 102 frame units wide (51 each side of the centre). The same spot on every blend page, so it never hops.
+   Its right edge is always 16px from the screen edge, the same spot on every blend page, so it never hops. The label no longer grows out of
+   the number (see placeTag), so the column is only number wide. The strip the bottle frames occupy is 102 frame units wide (51 each side of the centre).
    The mist and reveal are centred on the nozzle, so they are made big enough to cover the screen from the new spot. */
 function fitBottle(){
   var s=L.s, mob=W/H<0.9, hw=51*s;
-  if(mob){ var x=W-16-hw, tr=tagReach(); if(tr && x-hw<tr+14) x=Math.min(tr+14+hw, W-12-hw); L.x=x-SQ.cx*s; }
+  if(mob) L.x=(W-16-hw)-SQ.cx*s;
   var px=L.x+SQ.cx*s;
   MS=Math.max(mob?1.5:1, W*1.08/(SQ.w*s), mob?2.08*Math.max(px,W-px)/(SQ.w*s):0);   // the mist always spans the full width, so no edge of the clip shows
   key="";
+}
+/* (TJ, 27 Nov) phone: the chosen blend's label (name, line, Explore this scent) sits in one fixed spot: its top 12px under the drawn blend
+   name (never lower than keeps its bottom on the bottle's base), centred on the screen when that leaves 14px to the bottle and 12px to the
+   column of numbers, otherwise centred in the gap. If it is too wide for the gap, its letters tighten a little. */
+var TAGH=78;   // label height with the Explore row open
+function placeTag(){
+  if(!mq.matches || typeof SK==="undefined" || !pillBtns.length || !$("pill")) return;
+  var j=SK.cur, btn=j>=0&&pillBtns[j], tg=btn&&btn.querySelector&&btn.querySelector(".tg"), ps=j>=0&&PS[j]; if(!tg||!ps||!W) return;
+  var wd=WORDS[BL[j].name.toUpperCase()], nb=nameY(sceneY0(ps),ps.h,ps)+nameW(ps)*wd.h/wd.w;
+  var colR=$("pill").getBoundingClientRect().right+12, botL=L.x+SQ.cx*L.s-51*L.s-14, avail=botL-colR;
+  var i=tg.querySelector("i"), ex=tg.querySelector(".ex"), st=[[.16,10],[.12,10],[.08,10],[.05,9.5],[.03,9],[.02,8.5]], w=0;
+  tg.style.left="0px"; tg.style.top="0px";
+  for(var k=0;k<st.length;k++){
+    i.style.letterSpacing=st[k][0]+"em"; i.style.fontSize=st[k][1]+"px";
+    if(ex){ ex.style.letterSpacing=(st[k][0]*.75).toFixed(3)+"em"; ex.style.fontSize=(st[k][1]*.95)+"px"; }
+    w=tg.offsetWidth; if(w<=avail) break; }
+  var x=W/2-w/2; if(x<colR || x+w>botL) x=(colR+botL)/2-w/2;
+  var base=L.y+SQ.base*L.s, y=Math.min(nb+12, base-TAGH);
+  tg.style.left=Math.round(x)+"px"; tg.style.top=Math.round(y)+"px";
 }
 var L={s:1,x:0,y:0,lift:0}, MS=1;  // MS: on a tall phone screen the mist and its reveal are drawn larger around the nozzle
 function size(){
@@ -591,7 +602,7 @@ function size(){
   L={s:s, x:W/2-SQ.cx*s, y:base-SQ.base*s, lift:0};
   fitBottle();
   BL.forEach(function(b,j){buildScene(j)});
-  key="";
+  key=""; placeTag();
 }
 
 // placeholder scenes: rich gradient, soft glow behind the bottle, the two grey silhouettes
@@ -675,6 +686,9 @@ function buildScene(j){
       var wdn=WORDS[b.name.toUpperCase()], nb=nameY(0,0,ps)+nameW(ps)*wdn.h/wdn.w+28, wantW=Math.max(nb,H*0.3);
       ps.y0=Math.min(0,Math.max(H-ps.h, wantW-s.headW*ps.h));
     }
+    if(s.midX){   /* (TJ, 27 Nov) the couple's middle (midX, a fraction of the picture width) sits on the middle of the screen */
+      ps.x0=Math.min(0,Math.max(W-ps.w, W/2-s.midX*ps.w));
+    }
     if(s.keepR){  /* a picture with people near its right edge slides left until that edge is inside the screen (wide or tall) */
       var lim=W-16-s.keepR*ps.w; if((W-ps.w)/2>lim) ps.x0=Math.max(W-ps.w+1,lim);
     }
@@ -703,7 +717,7 @@ function buildScene(j){
   ps.glass=frostCopy(ps.sky,ps.w,ps.h);
   ps.path=namePath(j,nameW(ps));
   ps.done="";
-  PS[j]=ps;
+  PS[j]=ps; if(typeof placeTag==="function") placeTag();
   composeScene(j);
 }
 function drawFlat(j){                          // until the layers have loaded: plain scene colour
@@ -1267,7 +1281,7 @@ void main(){
   requestAnimationFrame(tick);
   return {set:set, AR:AR, HY:HY};
 })();
-sizeHero(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ sizeHero(); fitBottle(); });   // the tag widths are final once the fonts are in (TJ, 27 Nov)
+sizeHero(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ sizeHero(); fitBottle(); placeTag(); });   // the tag widths are final once the fonts are in (TJ, 27 Nov)
 /* the hero button now opens WhatsApp (see the ordering script at the end) */
 mq.addEventListener && mq.addEventListener("change",function(){closeCard()});
 
@@ -1342,9 +1356,10 @@ var pillN=$("pill"), NB=BL.length, SK={cur:-1};
 function mod(a,n){ return ((a%n)+n)%n; }
 pillBtns=BL.map(function(b,j){
   var el=document.createElement("button"); el.type="button"; el.dataset.i=j; el.setAttribute("aria-label","Blend "+b.n+", "+b.name);
-  var n=document.createElement("b"); n.textContent=b.n; var nm=document.createElement("i"); nm.textContent=b.name; el.appendChild(n); el.appendChild(nm);
+  var n=document.createElement("b"); n.textContent=b.n; var nm=document.createElement("i"); nm.textContent=b.name; el.appendChild(n);
+  var tgb=document.createElement("span"); tgb.className="tg"; tgb.appendChild(nm); el.appendChild(tgb);   // (TJ, 27 Nov) name and Explore row live in .tg, the phone label
   if(b.seal){ var ex=document.createElement("span"); ex.className="ex"; ex.setAttribute("aria-hidden","true");
-    ex.innerHTML='<span>Explore this scent</span>';   /* no motif, no arrow: underlined, so it reads as a link (TJ, 20 Nov) */ el.appendChild(ex); }
+    ex.innerHTML='<span>Explore this scent</span>';   /* no motif, no arrow: underlined, so it reads as a link (TJ, 20 Nov) */ tgb.appendChild(ex); }
   el.onclick=function(e){ e.stopPropagation(); el.blur();
     if(j===SK.cur && pillN.classList.contains("ex")){ if(pop.goal===1) closePop(); else openPop(); return; }   // the chosen tag is the way into the scent
     go(j); };
@@ -1360,7 +1375,7 @@ function wheelPick(i){ SK.cur=i; pillN.classList.toggle("idle",i<0);      // cal
   var pal=i>=0&&BL[i].nav, de=document.documentElement; de.classList.toggle("pal",!!pal); de.classList.toggle("pal2",!!(pal&&pal.tag));
   if(pal){ de.style.setProperty("--alt",pal.alt); de.style.setProperty("--hi",pal.hi);
     if(pal.tag){ de.style.setProperty("--tag",pal.tag); de.style.setProperty("--edge",pal.edge); de.style.setProperty("--glass",pal.glass); de.style.setProperty("--navsh",pal.navsh); } }
-  pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); }); }
+  pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); }); placeTag(); }
 function turnDial(dir){   // arrow keys move along the buttons without playing anything; Enter plays the one in focus
   var f=pillBtns.indexOf(document.activeElement); if(f<0) f=SK.cur>=0?SK.cur:(dir>0?-1:0); pillBtns[mod(f+dir,NB)].focus(); }
 function playTop(){}
