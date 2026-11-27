@@ -426,11 +426,10 @@ var BL = [
         navsh:"0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(20,2,8,.9)"},
       nameStyle:{kind:"press", tint:"255,170,96", op:0.46, mode:"screen", glow:"rgba(255,150,70,.55)", blur:22, d:0.016,
               lo:"rgba(16,0,4,.55)", hi:"rgba(255,214,160,.16)"},   // Ruby Oba (TJ, 22 Nov): the name glows like light through the brass screen, soft ember on the dark ceiling
-   // scene (TJ, 21 Nov): ENZIWA VIP lounge, the couple against the glowing gold pattern screen on the left, red dance floor far right.
-   // Whole photo as one layer; the front layer is empty. Sources: scene/ruby-oba-scene*.jpg (Gemini, free).
-   // The tall picture is a slice of the wide one with the dark ceiling above; head: the man's head top, 36 percent down.
-   // The wide picture has a dark ceiling added above the photo (TJ, 21 Nov) so headW can drop the couple below the name.
-   layers:{wide:{w:2048,h:1545,headW:0.36,sky:"img/ruby-oba-sky.webp?v=lounge2",fg:"img/empty-fg.webp"},
+   // scene (TJ, 26 Nov): red carpet staircase, she on the left, he on the right, three photographers along the bottom edge.
+   // Desktop only: the whole picture is the sky and a cut out of the two standing people is the front layer, so the name sits behind their heads.
+   // Sources: Downloads ruby-oba-red-carpet-scene.jpg (Gemini, free). The phone picture is still the old lounge slice.
+   layers:{wide:{w:3840,h:2143,headW:0.36,sky:"img/ruby-oba-sky.webp?v=carpet1",fg:"img/ruby-oba-fg.webp?v=carpet1",fgd:0.15},
            tall:{w:1080,h:2160,head:0.36,sky:"img/ruby-oba-sky-tall.webp?v=lounge2",fg:"img/empty-fg.webp"}}},
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
