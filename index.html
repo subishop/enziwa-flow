@@ -424,12 +424,13 @@ var BL = [
    // warm gold (coral beads, brass lamp) for the lit number; deep cherry glass behind the tag and buttons
    nav:{alt:"#4FC3B8", hi:"#E8B84A", tag:"rgba(64,8,20,.92)", edge:"rgba(79,195,184,.8)", glass:"rgba(50,6,16,.42)",
         navsh:"0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(20,2,8,.9)"},
-      nameStyle:{kind:"press", tint:"255,170,96", op:0.46, mode:"screen", glow:"rgba(255,150,70,.55)", blur:22, d:0.016,
-              lo:"rgba(16,0,4,.55)", hi:"rgba(255,214,160,.16)"},   // Ruby Oba (TJ, 22 Nov): the name glows like light through the brass screen, soft ember on the dark ceiling
+      nameStyle:{kind:"press", inner:true, tint:"0,0,0", op:0.75, d:0},   // Ruby Oba (TJ, 27 Nov): one flat see-through black, solid letters, no shadow, glow, edge or gradient
+      nameStyleTall:{kind:"press", tint:"255,170,96", op:0.46, mode:"screen", glow:"rgba(255,150,70,.55)", blur:22, d:0.016,
+              lo:"rgba(16,0,4,.55)", hi:"rgba(255,214,160,.16)"},   // phones still show the dark lounge picture, where black would vanish; drop this when the phone red carpet picture goes in
    // scene (TJ, 26 Nov): red carpet staircase, she on the left, he on the right, three photographers along the bottom edge.
    // Desktop only: the whole picture is the sky and a cut out of the two standing people is the front layer, so the name sits behind their heads.
-   // Sources: Downloads ruby-oba-red-carpet-scene.jpg (Gemini, free). The phone picture is still the old lounge slice.
-   layers:{wide:{w:3840,h:2143,headW:0.36,sky:"img/ruby-oba-sky.webp?v=carpet1",fg:"img/ruby-oba-fg.webp?v=carpet1",fgd:0.15},
+   // The picture is the original widened by mirrored curtain on both sides and a darkened extension on top, so the people sit smaller with more room above. Sources: Downloads ruby-oba-red-carpet-scene.jpg (Gemini, free). The phone picture is still the old lounge slice.
+   layers:{wide:{w:4140,h:2343,headW:0.36,sky:"img/ruby-oba-sky.webp?v=carpet2",fg:"img/ruby-oba-fg.webp?v=carpet2",fgd:0.15},
            tall:{w:1080,h:2160,head:0.36,sky:"img/ruby-oba-sky-tall.webp?v=lounge2",fg:"img/empty-fg.webp"}}},
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
@@ -711,7 +712,7 @@ function composeScene(j,p){
   var c=cv.getContext("2d"), x0=sceneX0(ps), y0=sceneY0(ps), ny=nameY(y0,ps.h,ps), nx=W/2-nameW(ps)/2;   // the name stays centred on screen
   c.setTransform(dpr,0,0,dpr,0,0); c.globalAlpha=1;
   c.drawImage(ps.sky,x0+os[0],y0+os[1],ps.w,ps.h);
-  var ns=BL[j].nameStyle;
+  var ns=(shapeNow()==="tall" && BL[j].nameStyleTall) || BL[j].nameStyle;   // a page can style its name differently on phones
   if(ns && ns.kind==="press"){                 // (TJ, 22 Nov) each page styles its name its own way. "press": sheer letters pressed into the
     var wdp=WORDS[BL[j].name.toUpperCase()], nhp=nameW(ps)*wdp.h/wdp.w, dd=Math.max(0.8,nhp*ns.d);   // picture: a dark edge above, a light edge below, a see-through tinted face
     var px=nx+ow[0], py=ny+ow[1];
