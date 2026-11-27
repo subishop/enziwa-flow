@@ -168,6 +168,12 @@ html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi
     transition:opacity .3s,transform .3s,visibility 0s .3s,background .25s,border-color .25s}
   #pill button.active .tg{opacity:1;visibility:visible;transform:none;pointer-events:auto;transition:opacity .3s,transform .3s,visibility 0s,background .25s,border-color .25s}
   #pill button .tg .ex{width:auto;min-width:0;align-self:stretch}
+  /* (TJ, 27 Nov, third pass) words centred in the box, and the box more see-through (soft blur behind keeps the words readable) */
+  #pill button .tg{align-items:center;text-align:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  #pill button .tg .ex{justify-content:center}
+  #pill button.active .tg{background:color-mix(in srgb,var(--cream) 62%,transparent)}
+  html.pal #pill.popped button.active .tg{background:color-mix(in srgb,var(--alt) 62%,transparent)}
+  html.pal2 #pill button.active .tg,html.pal2 #pill.popped button.active .tg{background:color-mix(in srgb,var(--tag) 62%,transparent)}
   /* (TJ, 27 Nov, second pass) the box is always its full size: name, hairline across the box, Explore link under it */
   #pill button.active .tg .ex{max-height:36px;opacity:1;padding:4px 0 7px;border-top-color:color-mix(in srgb,currentColor 40%,transparent)}
   #pill button .tg i{max-width:none;opacity:1;margin:0;height:40px;line-height:40px;letter-spacing:.16em}
