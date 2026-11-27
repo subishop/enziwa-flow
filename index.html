@@ -154,7 +154,7 @@ html.pal2 #pill button.active{background:var(--tag);border-color:var(--edge);col
 html.pal2 #pill button.active .ex{border-left-color:color-mix(in srgb,var(--alt) 45%,transparent);border-top-color:color-mix(in srgb,var(--alt) 40%,transparent)}
 html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi);color:var(--alt)}
 #pill button b{transition:color .3s}
-#pill .whl{display:contents}   /* (TJ, 27 Nov) the numbers sit in a wheel; only a phone makes it scroll */
+#pill .whl{display:contents} #pill .whl .cl{display:none}   /* (TJ, 27 Nov) the numbers sit in a wheel; only a phone makes it scroll */
 #pill .tg{display:contents}   /* (TJ, 27 Nov) wraps the name and Explore row; only a phone makes it a box of its own */
 @media (hover:hover){ #pill.ex button.active:hover .ex em{transform:translateX(3px)} }
 @media (hover:hover){ #pill button:not(.active):hover{background:rgba(242,234,207,.22);border-color:var(--cream)} }
@@ -167,6 +167,7 @@ html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi
   #pill .whl{display:flex;flex-direction:column;align-items:flex-start;gap:4px;height:calc(var(--wp,45px)*5 - 4px);padding:0 6px;margin:0 -6px;
     overflow-y:auto;overflow-x:hidden;scrollbar-width:none;overscroll-behavior:contain;touch-action:pan-y}
   #pill .whl::-webkit-scrollbar{display:none}
+  #pill .whl .cl{display:flex}
   #pill .whl::before,#pill .whl::after{content:"";flex:0 0 calc(var(--wp,45px)*2 - 4px)}
   #pill button{height:calc(var(--wp,45px) - 4px);flex:0 0 auto;opacity:var(--f,1);touch-action:pan-y}
   #pill button.active{opacity:1;background:none!important;border-color:transparent!important;position:relative;isolation:isolate;-webkit-backdrop-filter:none;backdrop-filter:none}
@@ -602,6 +603,11 @@ function fitBottle(){
 var TAGH=78, whlP=0, whl=null;   // label height with the Explore row open
 function placeTag(){   /* (TJ, 27 Nov, second pass) one box size and one spot for every blend: as wide as the longest name needs, sitting under where
      the tallest (three line) name ends, so it never moves or changes size from one fragrance to the next */
+  if(!mq.matches){   // back on a wide screen (a window resized from phone size): drop everything the phone layout set, so the bar sits at the bottom again
+    var p0=$("pill"); if(p0 && p0.style.top){ p0.style.top=""; p0.style.removeProperty("--wp"); whlP=0;
+      [].forEach.call(p0.querySelectorAll(".tg"),function(t){ t.style.cssText=""; [].forEach.call(t.children,function(c){ c.style.letterSpacing=""; c.style.fontSize=""; }); });
+      [].forEach.call(p0.querySelectorAll("button"),function(b){ b.style.removeProperty("--f"); }); }
+    return; }
   if(!mq.matches || typeof SK==="undefined" || !pillBtns.length || !$("pill") || !W) return;
   var tgs=pillBtns.map(function(b){return b.querySelector(".tg")}).filter(Boolean); if(!tgs.length) return;
   var colR=$("pill").getBoundingClientRect().left+56+12, botL=L.x+SQ.cx*L.s-51*L.s-14, avail=botL-colR;   // 56: the widest a chosen number gets, so the box is the same whichever is chosen
@@ -1389,13 +1395,22 @@ $("pillHome").onclick=function(e){ e.stopPropagation(); go(-1); };
 var pillN=$("pill"), NB=BL.length, SK={cur:-1};
 function mod(a,n){ return ((a%n)+n)%n; }
 whl=document.createElement("div"); whl.className="whl"; pillN.appendChild(whl);
+/* (TJ, 27 Nov) the wheel is an endless loop: the list is laid out three times (a copy above and below the real buttons) and the scroll
+   position is quietly moved back by one whole list whenever it leaves the middle copy, so it never reaches an end */
+var whlItems=[], whlGlide=0;
 function whlFade(){   // brightness by spot: middle 1, next 0.5, outer 0.12 fading to nothing at the ends
   if(!whl || !mq.matches || !whlP) return; var c=whl.scrollTop;
-  pillBtns.forEach(function(b,k){ var d=Math.abs(k*whlP-c)/whlP, f=d<=1?1-.5*d:(d<=2?.5-.38*(d-1):Math.max(0,.12-.3*(d-2))); b.style.setProperty("--f",f.toFixed(3)); }); }
-function whlCentre(i,smooth){   // the chosen number comes to rest in the middle spot; on Home the wheel shows the first five
+  whlItems.forEach(function(b,m){ var d=Math.abs(m*whlP-c)/whlP, f=d<=1?1-.5*d:(d<=2?.5-.38*(d-1):Math.max(0,.12-.3*(d-2))); b.style.setProperty("--f",f.toFixed(3)); }); }
+function whlWrap(){   // keep the middle spot inside the real (middle) copy of the list
+  if(!whlP) return; var span=NB*whlP, t=whl.scrollTop;
+  if(t<span-whlP/2) whl.scrollTop=t+span; else if(t>=2*span-whlP/2) whl.scrollTop=t-span; }
+function whlCentre(i,smooth){   // the chosen number comes to rest in the middle spot, by the shortest way round; on Home the wheel shows the first five
   if(!whl || !mq.matches || !whlP) return; var k=i>=0?i:Math.min(2,NB-1);
-  whl.scrollTo({top:k*whlP,behavior:smooth?"smooth":"auto"}); whlFade(); }
-whl.addEventListener("scroll",function(){ requestAnimationFrame(whlFade); },{passive:true});
+  whlWrap(); var c=whl.scrollTop/whlP, m=NB+k; [k,2*NB+k].forEach(function(x){ if(Math.abs(x-c)<Math.abs(m-c)) m=x; });
+  if(smooth){ clearTimeout(whlGlide); whlGlide=setTimeout(function(){ whlGlide=0; whlWrap(); whlFade(); },700); }
+  whl.scrollTo({top:m*whlP,behavior:smooth?"smooth":"auto"}); if(!smooth) whlWrap(); whlFade(); }
+whl.addEventListener("scroll",function(){ if(!whlGlide && mq.matches) whlWrap(); requestAnimationFrame(whlFade); },{passive:true});
+whl.addEventListener("touchstart",function(){ if(whlGlide){ clearTimeout(whlGlide); whlGlide=0; } },{passive:true});
 pillBtns=BL.map(function(b,j){
   var el=document.createElement("button"); el.type="button"; el.dataset.i=j; el.setAttribute("aria-label","Blend "+b.n+", "+b.name);
   var n=document.createElement("b"); n.textContent=b.n; var nm=document.createElement("i"); nm.textContent=b.name; el.appendChild(n);
@@ -1406,6 +1421,11 @@ pillBtns=BL.map(function(b,j){
     if(j===SK.cur && pillN.classList.contains("ex")){ if(pop.goal===1) closePop(); else openPop(); return; }   // the chosen tag is the way into the scent
     go(j); };
   whl.appendChild(el); return el; });
+var whlCl=[0,1].map(function(side){ return BL.map(function(b,j){   // the two copies: number only, a tap on one is a tap on the real button
+  var c=document.createElement("button"); c.type="button"; c.className="cl"; c.tabIndex=-1; c.setAttribute("aria-hidden","true");
+  var n=document.createElement("b"); n.textContent=b.n; c.appendChild(n); c.onclick=function(e){ e.stopPropagation(); pillBtns[j].click(); };
+  if(side) whl.appendChild(c); else whl.insertBefore(c,pillBtns[0]); return c; }); });
+whlItems=whlCl[0].concat(pillBtns,whlCl[1]);
 var exOn=null, exPop=null;
 function setEx(ok,pp){   // the explore part slides out of the chosen tag when the scene has played
   if(ok!==exOn){ exOn=ok; pillN.classList.toggle("ex",ok);
@@ -1417,7 +1437,7 @@ function wheelPick(i){ SK.cur=i; pillN.classList.toggle("idle",i<0);      // cal
   var pal=i>=0&&BL[i].nav, de=document.documentElement; de.classList.toggle("pal",!!pal); de.classList.toggle("pal2",!!(pal&&pal.tag));
   if(pal){ de.style.setProperty("--alt",pal.alt); de.style.setProperty("--hi",pal.hi);
     if(pal.tag){ de.style.setProperty("--tag",pal.tag); de.style.setProperty("--edge",pal.edge); de.style.setProperty("--glass",pal.glass); de.style.setProperty("--navsh",pal.navsh); } }
-  pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); }); placeTag(); whlCentre(i,true); }
+  pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); whlCl[0][j].classList.toggle("active",j===i); whlCl[1][j].classList.toggle("active",j===i); }); placeTag(); whlCentre(i,true); }
 function turnDial(dir){   // arrow keys move along the buttons without playing anything; Enter plays the one in focus
   var f=pillBtns.indexOf(document.activeElement); if(f<0) f=SK.cur>=0?SK.cur:(dir>0?-1:0); pillBtns[mod(f+dir,NB)].focus(); }
 function playTop(){}
