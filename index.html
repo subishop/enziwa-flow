@@ -557,6 +557,27 @@ var SS=mk(1,1), ssx=SS.getContext("2d");       // scene cut by the mask
 var FZ=mk(1,1), fzx=FZ.getContext("2d");       // frozen composite while fading back
 var SC=BL.map(function(){return mk(1,1)});     // one scene per blend
 
+/* (TJ, 27 Nov) phone: how far the open chosen tag can reach from the left edge. Each blend's tag is opened in a hidden copy of the
+   buttons and measured for real, and the widest one counts, so every blend page puts the bottle in the same place. */
+function tagReach(){
+  if(!mq.matches) return 0;                     // the tags only run down the left edge on phones; elsewhere they sit along the bottom
+  var pl=$("pill"), st=document.createElement("style"), cn=pl.cloneNode(true), mx=0;
+  st.textContent="#pill.mt,#pill.mt *{transition:none!important}"; document.head.appendChild(st);
+  cn.classList.add("mt","ex"); cn.classList.remove("idle","ab","popped"); cn.style.visibility="hidden"; cn.style.pointerEvents="none"; document.body.appendChild(cn);
+  [].forEach.call(cn.querySelectorAll("button[data-i]"),function(b){ b.classList.add("active"); mx=Math.max(mx,b.getBoundingClientRect().right); b.classList.remove("active"); });
+  document.body.removeChild(cn); document.head.removeChild(st); return mx;
+}
+/* (TJ, 27 Nov) phone: the chosen blend's bottle stands in the upper right, level with the column of numbers (same height as before).
+   Its right edge is 16px from the screen edge; if the widest open tag would come within 14px of its left edge it slides right, down to 12px at the edge
+   at most. The strip the bottle frames occupy is 102 frame units wide (51 each side of the centre). The same spot on every blend page, so it never hops.
+   The mist and reveal are centred on the nozzle, so they are made big enough to cover the screen from the new spot. */
+function fitBottle(){
+  var s=L.s, mob=W/H<0.9, hw=51*s;
+  if(mob){ var x=W-16-hw, tr=tagReach(); if(tr && x-hw<tr+14) x=Math.min(tr+14+hw, W-12-hw); L.x=x-SQ.cx*s; }
+  var px=L.x+SQ.cx*s;
+  MS=Math.max(mob?1.5:1, W*1.08/(SQ.w*s), mob?2.08*Math.max(px,W-px)/(SQ.w*s):0);   // the mist always spans the full width, so no edge of the clip shows
+  key="";
+}
 var L={s:1,x:0,y:0,lift:0}, MS=1;  // MS: on a tall phone screen the mist and its reveal are drawn larger around the nozzle
 function size(){
   H=stage.clientHeight; W=stage.clientWidth;
@@ -568,7 +589,7 @@ function size(){
   var mob=W/H<0.9, base=H*(mob?0.43:0.60), capT=H*(mob?0.03:0.04);   // upright screens (phones and portrait tablets) get the smaller bottle (TJ, 21 Nov)
   var s=(base-capT)/(SQ.base-SQ.capTop);
   L={s:s, x:W/2-SQ.cx*s, y:base-SQ.base*s, lift:0};
-  MS=Math.max(mob?1.5:1, W*1.08/(SQ.w*s));   // the mist always spans the full width, so no edge of the clip shows
+  fitBottle();
   BL.forEach(function(b,j){buildScene(j)});
   key="";
 }
@@ -1101,8 +1122,11 @@ function layoutHero(top,lh,lx,lw){
     if(pk>1){ var pcx=bl+bw/2; bh*=pk; bw=bh/BA; bl=pcx-bw/2; bTop=pyb-pspan(bh)[1]; put(bt,bl,bTop,bw,bh); }
     tx.style.fontSize=Math.max(22,Math.min(30,W*0.072)).toFixed(1)+"px";
     /* phone: the text group sits in the middle of the screen, as wide as its widest line (the button), words left aligned to it (TJ, 18 Nov) */
-    tx.style.width="auto"; tx.style.maxWidth=(W-24)+"px"; tx.style.left="0px"; var tw=tx.offsetWidth;
-    tx.style.left=((W-tw)/2).toFixed(1)+"px"; tx.style.top=(H-40-tx.offsetHeight).toFixed(1)+"px";
+    /* (TJ, 27 Nov) the bottle owns the left, the block owns the right: it sits centred in the space right of the bottle, at least 14px from it
+       (the bottle's picture is 0.89 of its box wide, centred) and 16px from the right edge; if it will not fit, the type gets a little smaller */
+    var bR=bl+bw*0.945, room=W-16-(bR+14); tx.style.width="auto"; tx.style.maxWidth=room+"px"; tx.style.left="0px"; var tw=tx.offsetWidth;
+    for(var fq=0;fq<12&&tw>room&&parseFloat(tx.style.fontSize)>16;fq++){ tx.style.fontSize=(parseFloat(tx.style.fontSize)-1)+"px"; tw=tx.offsetWidth; }
+    tx.style.left=(bR+14+Math.max(0,(room-tw)/2)).toFixed(1)+"px"; tx.style.top=(H-40-tx.offsetHeight).toFixed(1)+"px";
     var fy=cTop+ch*0.36, ttop=parseFloat(tx.style.top), sh=Math.max(120,(ttop-14-fy)/(1-HS.HY)); sh=Math.min(sh*1.25,H*0.6);
     HS.set(W-0.66*sh*HS.AR, fy, sh, W*0.42, fy+ch*0.02);
     put(mi[0],-W*0.15,cTop,W*1.3,ch*1.1); put(mi[1],-W*0.2,H*0.6,W*0.8,H*0.35); put(mi[2],W*0.5,H*0.08,W*0.6,H*0.3);
@@ -1243,7 +1267,7 @@ void main(){
   requestAnimationFrame(tick);
   return {set:set, AR:AR, HY:HY};
 })();
-sizeHero(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(sizeHero);
+sizeHero(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ sizeHero(); fitBottle(); });   // the tag widths are final once the fonts are in (TJ, 27 Nov)
 /* the hero button now opens WhatsApp (see the ordering script at the end) */
 mq.addEventListener && mq.addEventListener("change",function(){closeCard()});
 
