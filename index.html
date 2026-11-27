@@ -425,13 +425,12 @@ var BL = [
    nav:{alt:"#4FC3B8", hi:"#E8B84A", tag:"rgba(64,8,20,.92)", edge:"rgba(79,195,184,.8)", glass:"rgba(50,6,16,.42)",
         navsh:"0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(20,2,8,.9)"},
       nameStyle:{kind:"press", inner:true, tint:"0,0,0", op:0.28, d:0},   // Ruby Oba (TJ, 27 Nov): one flat see-through black, lighter again at TJ's ask (was 0.75, then 0.45), solid letters, no shadow, glow, edge or gradient
-      nameStyleTall:{kind:"press", tint:"255,170,96", op:0.46, mode:"screen", glow:"rgba(255,150,70,.55)", blur:22, d:0.016,
-              lo:"rgba(16,0,4,.55)", hi:"rgba(255,214,160,.16)"},   // phones still show the dark lounge picture, where black would vanish; drop this when the phone red carpet picture goes in
+      nameStyleTall:{kind:"press", inner:true, tint:"0,0,0", op:0.35, d:0},   // phones (TJ, 27 Nov): the same flat see-through black as desktop, over a warm haze of event lights painted into the top of the phone picture
    // scene (TJ, 26 Nov): red carpet staircase, she on the left, he on the right, three photographers along the bottom edge.
    // Desktop only: the whole picture is the sky and a cut out of the two standing people is the front layer, so the name sits behind their heads.
-   // The picture is the original widened by mirrored curtain on both sides and a darkened extension on top, so the people sit smaller with more room above. The picture is the empty staircase plate with the two people cut out and set back in, moved sideways so their heads cross solid strokes of the name, with a soft light haze on the drape behind it. Sources: Downloads ruby-oba-red-carpet-scene.jpg (Gemini, free). The phone picture is still the old lounge slice.
+   // The picture is the original widened by mirrored curtain on both sides and a darkened extension on top, so the people sit smaller with more room above. The picture is the empty staircase plate with the two people cut out and set back in, moved sideways so their heads cross solid strokes of the name, with a soft light haze on the drape behind it. Sources: Downloads ruby-oba-red-carpet-scene.jpg (Gemini, free). The phone picture (27 Nov) is built from the empty tall staircase plate (Gemini, free) with the same two cut out people scaled to 0.80 (her) and 0.76 (him), her in front on the floor, him behind her right shoulder with his raised foot on the first step, contact shadows painted in, the top extended with darkened drape and a warm blurred light haze behind the name. Work files: Downloads ruby-oba-red-carpet.
    layers:{wide:{w:4140,h:2343,headW:0.36,sky:"img/ruby-oba-sky.webp?v=carpet3",fg:"img/ruby-oba-fg.webp?v=carpet3",fgd:0.15},
-           tall:{w:1080,h:2160,head:0.36,sky:"img/ruby-oba-sky-tall.webp?v=lounge2",fg:"img/empty-fg.webp"}}},
+           tall:{w:1800,h:3400,head:0.412,sky:"img/ruby-oba-sky-tall.webp?v=carpet4",fg:"img/empty-fg.webp"}}},
   {n:31,name:"Oud Panga",top:["Strawberry","Candied pear","Marshmallow"],heart:["Caramel","Jasmine"],base:["Oud","Sandalwood","Vanilla","Sugar"],
    desc:"Sweet candy over soft oud and sandalwood. Evening and date night, unisex. Strong projection and powerful staying power. Like sugared fruit laid out on a warm sandalwood table.",
    col:["#d98a7a","#c0745c","#8a5640"], sc:["#d9894a","#a8452a","#5c1f14"], seal:{wide:[0.5,0.76], tall:[0.5,0.6]},
