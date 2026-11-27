@@ -154,13 +154,31 @@ html.pal2 #pill button.active{background:var(--tag);border-color:var(--edge);col
 html.pal2 #pill button.active .ex{border-left-color:color-mix(in srgb,var(--alt) 45%,transparent);border-top-color:color-mix(in srgb,var(--alt) 40%,transparent)}
 html.pal2 #pill.popped button.active{background:var(--tag);border-color:var(--hi);color:var(--alt)}
 #pill button b{transition:color .3s}
+#pill .whl{display:contents}   /* (TJ, 27 Nov) the numbers sit in a wheel; only a phone makes it scroll */
 #pill .tg{display:contents}   /* (TJ, 27 Nov) wraps the name and Explore row; only a phone makes it a box of its own */
 @media (hover:hover){ #pill.ex button.active:hover .ex em{transform:translateX(3px)} }
 @media (hover:hover){ #pill button:not(.active):hover{background:rgba(242,234,207,.22);border-color:var(--cream)} }
 #pill button:focus-visible,.tnav:focus-visible{outline:1px solid var(--cream);outline-offset:3px}
 @media (max-width:700px){
-  #pill{left:10px;top:max(104px,13vh);bottom:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
-  #pill button{height:42px}
+  #pill{left:16px;top:max(104px,13vh);bottom:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+  /* (TJ, 27 Nov) number wheel: five numbers show at a time and the column slides under a finger, so any number of blends fits. Sliding
+     never changes the page, only a tap does. The middle spot is brightest, the next two dimmer, the outer two fade to nothing (--f, set
+     by whlFade). The page's own number is a slightly bigger, solid rectangle. --wp is one step of the wheel, a fifth of the bottle's height. */
+  #pill .whl{display:flex;flex-direction:column;align-items:flex-start;gap:4px;height:calc(var(--wp,45px)*5 - 4px);padding:0 6px;margin:0 -6px;
+    overflow-y:auto;overflow-x:hidden;scrollbar-width:none;overscroll-behavior:contain;touch-action:pan-y}
+  #pill .whl::-webkit-scrollbar{display:none}
+  #pill .whl::before,#pill .whl::after{content:"";flex:0 0 calc(var(--wp,45px)*2 - 4px)}
+  #pill button{height:calc(var(--wp,45px) - 4px);flex:0 0 auto;opacity:var(--f,1);touch-action:pan-y}
+  #pill button.active{opacity:1;background:none!important;border-color:transparent!important;position:relative;isolation:isolate;-webkit-backdrop-filter:none;backdrop-filter:none}
+  #pill button.active>b{opacity:var(--f,1)}
+  #pill button.active::before{content:"";position:absolute;inset:-3px -5px;z-index:-1;background:var(--cream);border:1px solid var(--cream);opacity:var(--f,1)}
+  html.pal #pill.popped button.active::before{background:var(--alt);border-color:var(--alt)}
+  html.pal2 #pill button.active::before{background:var(--tag);border-color:var(--edge)}
+  html.pal2 #pill.popped button.active::before{border-color:var(--hi)}
+  #pill button .tg{border-color:rgba(242,234,207,.75)!important}
+  html.pal #pill.popped button .tg{border-color:var(--alt)!important}
+  html.pal2 #pill button .tg{border-color:var(--edge)!important}
+  html.pal2 #pill.popped button .tg{border-color:var(--hi)!important}
   /* (TJ, 27 Nov) the chosen number stays in the column, number only, same size as the rest. Its name and Explore row sit in one label (.tg)
      in a single fixed spot under the blend name, placed by placeTag(); tapping it taps the chosen button. */
   #pill .tg{position:fixed;left:0;top:0;display:flex;flex-direction:column;align-items:flex-start;box-sizing:border-box;padding:0 12px;
@@ -581,7 +599,7 @@ function fitBottle(){
 /* (TJ, 27 Nov) phone: the chosen blend's label (name, line, Explore this scent) sits in one fixed spot: its top 12px under the drawn blend
    name (never lower than keeps its bottom on the bottle's base), centred on the screen when that leaves 14px to the bottle and 12px to the
    column of numbers, otherwise centred in the gap. If it is too wide for the gap, its letters tighten a little. */
-var TAGH=78;   // label height with the Explore row open
+var TAGH=78, whlP=0, whl=null;   // label height with the Explore row open
 function placeTag(){   /* (TJ, 27 Nov, second pass) one box size and one spot for every blend: as wide as the longest name needs, sitting under where
      the tallest (three line) name ends, so it never moves or changes size from one fragrance to the next */
   if(!mq.matches || typeof SK==="undefined" || !pillBtns.length || !$("pill") || !W) return;
@@ -599,7 +617,10 @@ function placeTag(){   /* (TJ, 27 Nov, second pass) one box size and one spot fo
   w=Math.min(w,avail);
   var nb=0; BL.forEach(function(b,j){ var ps=PS[j], wd=WORDS[b.name.toUpperCase()]; if(ps&&wd) nb=Math.max(nb,nameY(sceneY0(ps),ps.h,ps)+nameW(ps)*wd.h/wd.w); });
   var x=W/2-w/2; if(x<colR || x+w>botL) x=(colR+botL)/2-w/2;
-  var base=L.y+SQ.base*L.s, y=Math.min(nb+12, base-TAGH);
+  /* (TJ, 27 Nov) one level line: the wheel's middle spot, the middle of the box and the middle of the bottle */
+  var base=L.y+SQ.base*L.s, bh=(SQ.base-SQ.capRest)*L.s, cy=base-bh/2, P=bh/5, y=cy-TAGH/2, pn=$("pill");
+  pn.style.setProperty("--wp",P.toFixed(2)+"px"); pn.style.top=Math.round(cy-(5*P-4)/2)+"px";
+  if(Math.abs(P-whlP)>0.01){ whlP=P; whlCentre(SK.cur,false); } whlFade();
   tgs.forEach(function(tg){ tg.style.width=Math.round(w)+"px"; tg.style.left=Math.round(x)+"px"; tg.style.top=Math.round(y)+"px"; });
 }
 var L={s:1,x:0,y:0,lift:0}, MS=1;  // MS: on a tall phone screen the mist and its reveal are drawn larger around the nozzle
@@ -654,7 +675,7 @@ function nameW(ps){ return ps.nw||NAMEBOX.w*ps.w; }
 function fitName(ps,j,shape){
   var wd=WORDS[BL[j].name.toUpperCase()]; if(wd.l1) return;
   var lim=L.y+SQ.capRest*L.s-12, nw=NAMEBOX.w*ps.w;
-  if(shape==="tall"){ nw=Math.min(nw,W-36); var pb=document.querySelector("#pill button[data-i]"), pt=pb?pb.getBoundingClientRect().top:0;
+  if(shape==="tall"){ nw=Math.min(nw,W-36); var pt=Math.max(104,H*0.13);   // where the number column used to start; the names keep that size
     if(pt>NAVCLR+30) lim=Math.min(lim,pt-8); }
   var band=lim-NAVCLR; if(band<20) return;
   nw=Math.min(nw,band*wd.w/wd.h);
@@ -1367,6 +1388,14 @@ $("pillHome").onclick=function(e){ e.stopPropagation(); go(-1); };
 // the blend buttons (TJ, 20 Nov): one button for each blend, all on show. Tap one and it plays. The chosen one is filled and shows its name.
 var pillN=$("pill"), NB=BL.length, SK={cur:-1};
 function mod(a,n){ return ((a%n)+n)%n; }
+whl=document.createElement("div"); whl.className="whl"; pillN.appendChild(whl);
+function whlFade(){   // brightness by spot: middle 1, next 0.5, outer 0.12 fading to nothing at the ends
+  if(!whl || !mq.matches || !whlP) return; var c=whl.scrollTop;
+  pillBtns.forEach(function(b,k){ var d=Math.abs(k*whlP-c)/whlP, f=d<=1?1-.5*d:(d<=2?.5-.38*(d-1):Math.max(0,.12-.3*(d-2))); b.style.setProperty("--f",f.toFixed(3)); }); }
+function whlCentre(i,smooth){   // the chosen number comes to rest in the middle spot; on Home the wheel shows the first five
+  if(!whl || !mq.matches || !whlP) return; var k=i>=0?i:Math.min(2,NB-1);
+  whl.scrollTo({top:k*whlP,behavior:smooth?"smooth":"auto"}); whlFade(); }
+whl.addEventListener("scroll",function(){ requestAnimationFrame(whlFade); },{passive:true});
 pillBtns=BL.map(function(b,j){
   var el=document.createElement("button"); el.type="button"; el.dataset.i=j; el.setAttribute("aria-label","Blend "+b.n+", "+b.name);
   var n=document.createElement("b"); n.textContent=b.n; var nm=document.createElement("i"); nm.textContent=b.name; el.appendChild(n);
@@ -1376,7 +1405,7 @@ pillBtns=BL.map(function(b,j){
   el.onclick=function(e){ e.stopPropagation(); el.blur();
     if(j===SK.cur && pillN.classList.contains("ex")){ if(pop.goal===1) closePop(); else openPop(); return; }   // the chosen tag is the way into the scent
     go(j); };
-  pillN.appendChild(el); return el; });
+  whl.appendChild(el); return el; });
 var exOn=null, exPop=null;
 function setEx(ok,pp){   // the explore part slides out of the chosen tag when the scene has played
   if(ok!==exOn){ exOn=ok; pillN.classList.toggle("ex",ok);
@@ -1388,7 +1417,7 @@ function wheelPick(i){ SK.cur=i; pillN.classList.toggle("idle",i<0);      // cal
   var pal=i>=0&&BL[i].nav, de=document.documentElement; de.classList.toggle("pal",!!pal); de.classList.toggle("pal2",!!(pal&&pal.tag));
   if(pal){ de.style.setProperty("--alt",pal.alt); de.style.setProperty("--hi",pal.hi);
     if(pal.tag){ de.style.setProperty("--tag",pal.tag); de.style.setProperty("--edge",pal.edge); de.style.setProperty("--glass",pal.glass); de.style.setProperty("--navsh",pal.navsh); } }
-  pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); }); placeTag(); }
+  pillBtns.forEach(function(x,j){ x.classList.toggle("active",j===i); x.setAttribute("aria-pressed",j===i); }); placeTag(); whlCentre(i,true); }
 function turnDial(dir){   // arrow keys move along the buttons without playing anything; Enter plays the one in focus
   var f=pillBtns.indexOf(document.activeElement); if(f<0) f=SK.cur>=0?SK.cur:(dir>0?-1:0); pillBtns[mod(f+dir,NB)].focus(); }
 function playTop(){}
@@ -1425,7 +1454,7 @@ document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeAbout
 window.addEventListener("resize",function(){ setBarH(); fitAbout(); });
 
 // nothing scrolls: wheel, swipe and keys only move the notes pop-up, which scrolls inside itself
-function inScroller(el){ return el && el.closest && el.closest("#veil .pin"); }
+function inScroller(el){ return el && el.closest && (el.closest("#veil .pin") || el.closest("#pill .whl")); }
 window.addEventListener("wheel",function(e){ if(!inScroller(e.target)) e.preventDefault(); },{passive:false});
 window.addEventListener("touchmove",function(e){ if(!inScroller(e.target)) e.preventDefault(); },{passive:false});
 window.addEventListener("keydown",function(e){
